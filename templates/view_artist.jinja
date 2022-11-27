@@ -1,0 +1,33 @@
+<section>
+    <img src="/static/img/{{ artist_info[1] }}" alt="{{ artist_info[0] }}">
+</section>
+<section>
+    <h2>{{ artist_info[0] }}</h2>
+</section>
+<section>
+    {{ artist_info[2] }}
+</section>
+{% if discography[0] %}
+    <section>
+        <h3>Songs</h3>
+        {{ discography[0] }}
+    </section>
+{% endif %}
+{% if discography[1] %}
+    <section>
+        <h3>Albums</h3>
+        {{ discography[1] }}
+    </section>
+{% endif %}
+{% if discography[2] %}
+    <section>
+        <h3>Singles</h3>
+        {{ discography[2] }}
+    </section>
+{% endif %}
+{% if discography[3] %}
+    <section>
+        <h3>Mixtapes</h3>
+        {{ discography[3] }}
+    </section>
+{% endif %}

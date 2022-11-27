@@ -1,0 +1,19 @@
+<table id="all_artists">
+    <tbody>
+        {% for row in artists | batch(4) %}
+        <tr>
+            {% for artist in row %}
+            <td>
+                <ul>
+                    <li><a href="/artists/{{ artist[1] }}"><img
+                    src="/static/img/{{ artist[0] }}"
+                    alt="{{ artist[2] }}"></a></li>
+                    <li><a href="/artists/{{ artist[1] }}">
+                    {{ artist[2] }}</a></li>
+                </ul>
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

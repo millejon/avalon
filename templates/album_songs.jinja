@@ -1,0 +1,47 @@
+<table class="album_tracklist">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Title</th>
+            <th>Artist</th>
+            <th>Length</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for song in songs %}
+        <tr>
+            <td>{{ song[1] }}</td>
+            <td>{{ song[2] }}</td>
+            <td><a href="/artists/{{ song[3][0][0] }}">
+            {{ song[3][0][1] }}</a>
+                {%- if song[3]|length > 1 -%}
+                    {%- for x in range(1, song[3]|length) -%}
+                        , <a href="/artists/{{ song[3][x][0] }}">
+                        {{ song[3][x][1] }}</a>
+                    {%- endfor -%}
+                {% endif %}
+            </td>
+            <td>{{ song[4] }}</td>
+            <td>
+                {% if song[4] != "" %}
+                    <form id="add_to_playlist" name="add_to_playlist"
+                    method="POST">
+                        <select id="playlist" name="playlist"
+                        onchange="this.form.submit()">
+                            <option>+</option>
+                            {% if playlists %}
+                                {% for playlist in playlists %}
+                                    <option name="add_song" value="{{
+                                    playlist[0] }} - {{ song[0] }}">{{
+                                    playlist[1] }}</option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

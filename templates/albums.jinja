@@ -1,0 +1,30 @@
+{% if albums %}
+    <table class="albums_table">
+        <tbody>
+            {% for row in albums | batch(4) %}
+            <tr>
+                {% for album in row %}
+                <td>
+                    <ul>
+                        <li><a href="/albums/{{ album[1] }}"><img
+                        src="/static/img/{{ album[0] }}"
+                        alt="{{ album[2] }}"></a></li>
+                        <li><a href="/albums/{{ album[1] }}">
+                        {{ album[2] }}</a></li>
+                        <li><a href="/artists/{{ album[3][0][0] }}">
+                        {{ album[3][0][1] }}</a>
+                        {%- if album[3]|length > 1 -%}
+                            {%- for x in range(1, album[3]|length) -%}
+                                , <a href="/artists/{{ album[3][x][0] }}">
+                                {{ album[3][x][1] }}</a>
+                            {%- endfor -%}
+                        {% endif %}
+                        </li>
+                    </ul>
+                </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}

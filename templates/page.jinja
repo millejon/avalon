@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+ 		<meta charset="UTF-8">
+		<title>Avalon</title>
+		<link rel="stylesheet" href="/static/css/stylesheet.css"
+		type="text/css">
+	</head>
+	<body>
+	    <script>
+	        function back() {
+                window.history.back();
+            }
+            function forward() {
+                window.history.forward();
+            }
+        </script>
+        <nav class="navigation_menu">
+            <button class="nav_buttons" onclick="back()"> &#60; </button>
+            <button class="nav_buttons" onclick="forward()"> &#62; </button>
+            <ul class="menu_options">
+                <li><a href="/">Home</a></li>
+                <li><a href="/artists/">Artists</a></li>
+                <li><a href="/albums/">Albums</a></li>
+            </ul>
+            <h2>Playlists</h2>
+            <form id="create_playlist" name="create_playlist" method="POST">
+                <input type="text" id="playlist_name"
+                name="playlist_name" value="Enter Playlist Name"><br>
+                <input type="submit" value="Create">
+            </form>
+            {% if playlists %}
+                <ul class="menu_options">
+                {% for playlist in playlists %}
+                    <li><a href="/playlists/{{ playlist[0] }}">
+                    {{ playlist[1] }}</a></li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        </nav>
+        <main class="content">
+            {% if heading %}
+                <h1>{{ heading }}</h1>
+            {% endif %}
+            {{ content }}
+        </main>
+	</body>
+</html>

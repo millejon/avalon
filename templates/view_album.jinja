@@ -1,0 +1,35 @@
+<section>
+    <img src="/static/img/{{ album_info[0] }}" alt="{{ album_info[1] }}">
+</section>
+<section>
+    <ul>
+        <li><h2>{{ album_info[1] }}</h2></li>
+        <li><h3><a href="/artists/{{ album_info[2][0][0] }}">
+        {{ album_info[2][0][1] }}</a>
+            {%- if album_info[2]|length > 1 -%}
+                {%- for x in range(1, album_info[2]|length) -%}
+                    , <a href="/artists/{{ album_info[2][x][0] }}">
+                    {{ album_info[2][x][1] }}</a>
+                {%- endfor -%}
+            {% endif %}
+        </h3></li>
+        <li>{{ album_info[4] }} tracks ({{ album_info[5] }})</li>
+        <li>{{ album_info[6] }}</li>
+    </ul>
+</section>
+<section>
+    {% if album_info[3] == 1 %}
+        {% for x in range(0, songs|length) %}
+            <h3>{{ songs[x][0] }}: </h3>
+            {{ songs[x][1] }}
+        {% endfor %}
+    {% else %}
+        {{ songs[0] }}
+    {% endif %}
+</section>
+{% if bonus_songs %}
+    <section>
+        <h3>Bonus Tracks: </h3>
+        {{ bonus_songs }}
+    </section>
+{% endif %}

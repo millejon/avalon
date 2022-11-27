@@ -111,17 +111,17 @@ queries = {
         ORDER BY track_number;
         ''',
     'get_album_bonus_songs': '''
-        SELECT id, name, length, track_number FROM songs
+        SELECT id, track_number, name, length FROM songs
         WHERE album_id = %s AND bonus = 1
         ORDER BY track_number;
         ''',
     'get_disc_info': '''
-        SELECT DISTINCT id, disc_number, name FROM discs
+        SELECT DISTINCT id, name FROM discs
         WHERE album_id = %s
         ORDER BY disc_number; 
         ''',
-    'get_songs_per_disc': '''
-        SELECT id, name, length, track_number FROM songs
+    'get_songs_on_disc': '''
+        SELECT id, track_number, name, length FROM songs
         WHERE disc_id = %s AND bonus = 0
         ORDER BY track_number;
         ''',
