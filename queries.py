@@ -70,8 +70,8 @@ queries = {
         WHERE album_id = %s
         ORDER BY artists.producer ASC, artists.name;
         ''',
-    'get_artist_info': '''
-        SELECT id, name FROM artists WHERE id = %s;
+    'get_artist_name': '''
+        SELECT name FROM artists WHERE id = %s;
         ''',
     'get_artist_songs': '''
         SELECT songs.id, songs.name, albums.name, songs.length, albums.id
@@ -136,7 +136,7 @@ queries = {
         INSERT INTO playlists_songs (playlist_id, song_id)
         VALUES (%s, %s);
         ''',
-    'get_playlist_info': '''
+    'get_playlist_name': '''
         SELECT name FROM playlists WHERE id = %s;
         ''',
     'get_playlist_songs': '''
@@ -154,5 +154,27 @@ queries = {
     'delete_song_from_playlist': '''
         DELETE FROM playlists_songs
         WHERE playlist_id = %s AND song_id = %s;
+        ''',
+    'search_artists': '''
+        SELECT id, name FROM artists
+        WHERE name LIKE %s;
+        ''',
+    'search_albums': '''
+        SELECT DISTINCT albums.id, albums.name, artists.name
+        FROM albums
+        INNER JOIN artists_albums ON artists_albums.album_id = albums.id
+        INNER JOIN artists ON artists.id = artists_albums.artist_id
+        INNER JOIN songs ON songs.album_id = albums.id
+        WHERE albums.name LIKE %s
+        GROUP BY albums.id;
+        ''',
+    'search_songs': '''
+        SELECT DISTINCT songs.id, songs.name, albums.name, songs.length, 
+        albums.id
+        FROM songs
+        INNER JOIN albums ON albums.id = songs.album_id
+        INNER JOIN artists_songs ON artists_songs.song_id = songs.id
+        INNER JOIN artists ON artists.id = artists_songs.artist_id
+        WHERE songs.name LIKE %s;
         ''',
 }

@@ -26,14 +26,14 @@
             <td>
                 {% if song[4] != "" %}
                     <form id="add_to_playlist" name="add_to_playlist"
-                    method="POST">
-                        <select id="playlist" name="playlist"
+                    action="/playlists/add/" method="GET">
+                        <select id="playlist" name="add_song"
                         onchange="this.form.submit()">
                             <option>+</option>
                             {% if playlists %}
                                 {% for playlist in playlists %}
                                     <option name="add_song" value="{{
-                                    playlist[0] }} - {{ song[0] }}">{{
+                                    playlist[0] }}_{{ song[0] }}">{{
                                     playlist[1] }}</option>
                                 {% endfor %}
                             {% endif %}

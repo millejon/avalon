@@ -24,9 +24,10 @@
                 <li><a href="/albums/">Albums</a></li>
             </ul>
             <h2>Playlists</h2>
-            <form id="create_playlist" name="create_playlist" method="POST">
+            <form id="create_playlist" name="create_playlist"
+            action="/playlists/create/" method="GET">
                 <input type="text" id="playlist_name"
-                name="playlist_name" value="Enter Playlist Name"><br>
+                name="playlist_name" placeholder="Enter Playlist Name"><br>
                 <input type="submit" value="Create">
             </form>
             {% if playlists %}

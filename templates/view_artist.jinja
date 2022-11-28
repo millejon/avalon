@@ -4,9 +4,11 @@
 <section>
     <h2>{{ artist_info[0] }}</h2>
 </section>
-<section>
-    {{ artist_info[2] }}
-</section>
+{% if artist_info[2] %}
+    <section>
+        {{ artist_info[2] }}
+    </section>
+{% endif %}
 {% if discography[0] %}
     <section>
         <h3>Songs</h3>

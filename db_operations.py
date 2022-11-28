@@ -35,6 +35,13 @@ def execute_write_query(query, data=None):
     connection.close()
 
 
+def query_database(query, data_id=None):
+    data = (data_id,)
+    results = execute_read_query(query, data)
+
+    return results
+
+
 def get_artist_id(name):
     query = queries['get_artist']
     data = (name,)
@@ -182,3 +189,29 @@ def add_artist_song_link(artists, song, group_member):
     for artist in artists:
         data = (artist, song, group_member)
         execute_write_query(query, data)
+
+
+def create_playlist(name):
+    try:
+        query = queries['insert_playlist']
+        data = (name,)
+        execute_write_query(query, data)
+
+    except db.IntegrityError:
+        return
+
+
+def add_song_to_playlist(playlist, song):
+    try:
+        query = queries['insert_playlist_song_link']
+        data = (playlist, song)
+        execute_write_query(query, data)
+
+    except db.IntegrityError:
+        return
+
+
+def delete_song_from_playlist(playlist, song):
+    query = queries['delete_song_from_playlist']
+    data = (playlist, song)
+    execute_write_query(query, data)
