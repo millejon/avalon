@@ -26,6 +26,7 @@ string_formatting = {
     ',': '',
     '/': '',
     "'": '',
+    ':': '',
 }
 
 
@@ -66,6 +67,7 @@ def artists_table(artists):
     number_of_artists = len(artists)
 
     for x in range(number_of_artists):
+        # artists[x] = (id, name)
         artists[x] = list(artists[x])
         artist_image = get_artist_image(artists[x][1])
         artists[x].insert(0, artist_image)
@@ -77,6 +79,7 @@ def albums_table(albums):
     number_of_albums = len(albums)
 
     for x in range(number_of_albums):
+        # albums[x] = (id, name, artist_name)
         albums[x] = list(albums[x])
         album_cover = get_album_cover(albums[x][2], albums[x][1])
         albums[x].insert(0, album_cover)
@@ -102,6 +105,12 @@ def prepare_song_data(songs):
     number_of_songs = len(songs)
 
     for x in range(number_of_songs):
+        """
+        If songs are for artist or playlist page:
+            songs[x] = (id, name, album_name, length, album_id)
+        If songs are for album page:
+            songs[x] = (id, track_number, name, length)
+        """
         songs[x] = list(songs[x])
         query = queries['get_song_artists']
         song_artists = db.query_database(query, songs[x][0])
@@ -136,25 +145,44 @@ def get_artist_bio(artist):
         return None
 
 
-def get_artist_discography(artist):
+def get_artist_songs(artist):
     query = queries['get_artist_songs']
     songs = db.query_database(query, artist)
+
+    return songs
+
+
+def get_producer_songs(producer):
+    query = queries['get_producer_songs']
+    songs = db.query_database(query, producer)
+
+    return songs
+
+
+def get_artist_discography(artist_id, artist_name):
+    if db.is_producer(artist_name) == 0:
+        query = queries['get_artist_songs']
+    else:
+        query = queries['get_producer_songs']
+
+    songs = db.query_database(query, artist_id)
     songs_table = artist_songs_table(songs)
-    albums = get_artist_albums(artist, 0, 0)
-    singles = get_artist_albums(artist, 1, 0)
-    mixtapes = get_artist_albums(artist, 0, 1)
+    albums = get_artist_albums(artist_id, 0, 0)
+    singles = get_artist_albums(artist_id, 1, 0)
+    mixtapes = get_artist_albums(artist_id, 0, 1)
 
     return [songs_table, albums, singles, mixtapes]
 
 
-def artist_page(artist):
+def artist_page(artist_id):
     query = queries['get_artist_name']
-    artist_name = db.query_database(query, artist)[0][0]
+    artist_name = db.query_database(query, artist_id)[0][0]
+
     artist_image = get_artist_image(artist_name)
     artist_bio = get_artist_bio(artist_name)
     artist_info = [artist_name, artist_image, artist_bio]
 
-    discography = get_artist_discography(artist)
+    discography = get_artist_discography(artist_id, artist_name)
 
     return render_template('view_artist.jinja', artist_info=artist_info,
                            discography=discography)
@@ -162,6 +190,7 @@ def artist_page(artist):
 
 def album_header(album):
     query = queries['get_album_info']
+    # album_info = (name, multi_disc, track_count, length, release_date)
     album_info = list(db.query_database(query, album)[0])
 
     query = queries['get_album_artists']
@@ -203,6 +232,7 @@ def single_disc_table(disc):
 
 def multi_disc_album_tracklist(album):
     query = queries['get_disc_info']
+    # disc_info = (id, name)
     disc_info = db.query_database(query, album)
     disc_tracklist = []
 
@@ -253,6 +283,33 @@ def playlist_songs_table(playlist):
     songs = prepare_song_data(songs)
 
     return render_template('songs.jinja', songs=songs, key='playlists')
+
+
+def playlist_page(playlist):
+    songs = playlist_songs_table(playlist)
+
+    return render_template('playlist.jinja', songs=songs, playlist=playlist)
+
+
+def get_new_albums():
+    query = queries['get_last_four_albums']
+    albums = db.query_database(query)
+
+    return albums_table(albums)
+
+
+def get_new_artists():
+    query = queries['get_last_four_artists']
+    artists = db.query_database(query)
+
+    return artists_table(artists)
+
+
+def home_page():
+    albums = get_new_albums()
+    artists = get_new_artists()
+
+    return render_template('home.jinja', albums=albums, artists=artists)
 
 
 def artist_search(search_term):

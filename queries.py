@@ -82,6 +82,15 @@ queries = {
         WHERE artists.id = %s AND songs.length > 1 AND albums.mixtape = 0
         ORDER BY songs.play_count DESC, songs.date DESC, songs.track_number ASC;
         ''',
+    'get_producer_songs': '''
+        SELECT songs.id, songs.name, albums.name, songs.length, albums.id
+        FROM songs
+        INNER JOIN albums ON albums.id = songs.album_id
+        INNER JOIN artists_albums ON artists_albums.album_id = albums.id
+        INNER JOIN artists ON artists.id = artists_albums.artist_id
+        WHERE artists.id = %s AND songs.length > 1 AND albums.mixtape = 0
+        ORDER BY songs.play_count DESC, songs.date DESC, songs.track_number ASC;
+        ''',
     'get_song_artists': '''
         SELECT artists.id, artists.name FROM artists
         INNER JOIN artists_songs ON artists_songs.artist_id = artists.id
@@ -176,5 +185,21 @@ queries = {
         INNER JOIN artists_songs ON artists_songs.song_id = songs.id
         INNER JOIN artists ON artists.id = artists_songs.artist_id
         WHERE songs.name LIKE %s;
+        ''',
+    'get_last_four_albums': '''
+        SELECT DISTINCT albums.id, albums.name, artists.name
+        FROM albums
+        INNER JOIN artists_albums ON artists_albums.album_id = albums.id
+        INNER JOIN artists ON artists.id = artists_albums.artist_id
+        INNER JOIN songs ON songs.album_id = albums.id
+        WHERE SINGLE = 0
+        GROUP BY albums.id
+        ORDER BY albums.id DESC LIMIT 4;
+        ''',
+    'get_last_four_artists': '''
+        SELECT artists.id, artists.name FROM artists
+        INNER JOIN artists_albums ON artists_albums.artist_id = artists.id
+        INNER JOIN albums ON albums.id = artists_albums.album_id
+        ORDER BY albums.id DESC LIMIT 4;
         ''',
 }

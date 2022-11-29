@@ -17,7 +17,7 @@ def render_page(content, heading=None):
 
 @app.route('/')
 def home_page():
-    home = render_template("home.jinja")
+    home = render_element.home_page()
 
     return render_page(content=home, heading='Avalon')
 
@@ -57,9 +57,9 @@ def view_album(album_id):
 @app.route('/playlists/<int:playlist_id>/')
 def view_playlist(playlist_id):
     name = render_element.get_playlist_name(playlist_id)
-    songs = render_element.playlist_songs_table(playlist_id)
+    playlist = render_element.playlist_page(playlist_id)
 
-    return render_page(content=songs, heading=name)
+    return render_page(content=playlist, heading=name)
 
 
 @app.route('/playlists/create/', methods=['GET'])
@@ -68,6 +68,13 @@ def create_playlist():
     db.create_playlist(name)
 
     return redirect(request.referrer)
+
+
+@app.route('/playlists/<int:playlist_id>/delete/')
+def delete_playlist(playlist_id):
+    db.delete_playlist(playlist_id)
+
+    return redirect('/')
 
 
 @app.route('/playlists/add/', methods=['GET'])

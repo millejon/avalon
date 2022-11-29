@@ -1,5 +1,5 @@
 {% if songs %}
-    <table class="songs">
+    <table class="artist_songs_table">
         <thead>
             <tr>
                 <th>Title</th>
@@ -23,19 +23,20 @@
                     {% endif %}
                 </td>
                 <td><a href="/albums/{{ song[5] }}">{{ song[2] }}</a></td>
-                <td>{{ song[4] }}</td>
-                <td>
+                <td id="length">{{ song[4] }}</td>
+                <td id="playlist_function">
                     {% if key == 'playlists' %}
                         <form id="delete_from_playlist"
                         name="delete_from_playlist" action="delete/{{ song[0]
                         }}" method="GET">
                         </form>
-                        <button type="submit" form="delete_from_playlist"
+                        <button class="delete_button" type="submit"
+                        form="delete_from_playlist"
                         value="Submit">Delete</button>
                     {% elif song[4] != "" %}
                         <form id="add_to_playlist" name="add_to_playlist"
                         action="/playlists/add/" method="GET">
-                            <select id="playlist" name="add_song"
+                            <select class="playlist_add" name="add_song"
                             onchange="this.form.submit()">
                                 <option>+</option>
                                 {% if playlists %}

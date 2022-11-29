@@ -54,7 +54,8 @@ def get_artist_id(name):
 
 
 def is_producer(artist):
-    producers = ['The Alchemist', 'Harry Fraud']
+    producers = ['The Alchemist', 'Harry Fraud', 'Big Ghost Ltd.',
+                 'Daringer', 'Nicholas Craven']
 
     if artist in producers:
         return 1
@@ -199,6 +200,12 @@ def create_playlist(name):
 
     except db.IntegrityError:
         return
+
+
+def delete_playlist(playlist):
+    query = queries['delete_playlist']
+    data = (playlist,)
+    execute_write_query(query, data)
 
 
 def add_song_to_playlist(playlist, song):

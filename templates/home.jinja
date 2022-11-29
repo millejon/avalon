@@ -1,27 +1,63 @@
-<p>
-    Welcome to Avalon!
-</p>
-<p>
-    If you click on Artists in the navigation menu to the left, you will be
-    able to view all artists in the program.
-</p>
-<p>
-    If you click on Albums, you will be able to view all albums in the program.
-</p>
-<p>
-    If you would like to create a personal playlist, just type in the title of
-    the playlist you would like to create in the field to the left and click on
-    Create. That's all it takes! You can quickly and easily add songs to your
-    playlists either from the Songs table in an artist's page or when you are on
-     an album's page.
-</p>
-<p>
-    You can view all songs in each playlist you create by clicking on the
-    playlist name. If you want to delete a song from your playlists, this is
-    where you will do it. If you want to delete a playlist, it will also be done
-     here.
-</p>
-<p>
-    Finally, the back and forward buttons mimic your browser's navigation
-    buttons so you can easily go back and forward through the program.
-</p>
+<section>
+    <p>
+        Welcome to Avalon! Avalon is a visual organization of a music database.
+        Think of it like Spotify or Tidal, but without the ability to play
+        music (yet!). Avalon does support the creation of playlists. If you'd
+        like to know more about how to use the program, scroll down to the user
+        guide below.
+<section class="home_page">
+    <h2>Newly Added Albums</h2>
+    {{ albums }}
+</section>
+<section class="home_page">
+    <h2>Newly Added Artists</h2>
+    {{ artists }}
+</section>
+<section class="home_page">
+    <h2>User Guide</h2>
+    <p>
+        The program's navigation menu is on the left side. The buttons labeled
+        with "<" and ">" will move you backward and forward, respectively,
+        through your navigation history.
+    </p>
+    <p>
+        The search bar is right below the navigation buttons. Enter any term you
+         like and any artist, album, or song that matches will be returned. One
+         caveat though: do not enter a combination of artist, album, or song
+         terms (ie: "2pac All Eyez On Me"). Search for either "2pac" or "All
+         Eyez On Me."
+     </p>
+    <p>
+        Home will take you back to this landing page. If you click on Artists,
+        you will be able to browse through all artists in the program. If you
+        click on Albums, you will be able to browse through all albums in the
+        program.
+    </p>
+    <p>
+        If you would like to create a playlist, input the desired name for the
+        playlist and hit the Create button. Playlists will be listed underneath
+        the Create field in alphabetical order. If you click on a playlist, you
+        will be able to see all of the songs in the playlist, where you can
+        delete songs or delete the entire playlist. You can add a song to a
+        playlist from either an artist's or album's page.
+    </p>
+</section>
+<section class="home_page">
+    <h2>Version History</h2>
+    <p>
+        <h3>Version 1.1</h3>
+        <ul>
+            <li>Added support for playlists and search function.</li>
+            <li>Added "Newly Added Albums" and "Newly Added Artists"
+            sections to the home page. These are the last four albums and
+            artists added to Avalon.</li>
+        </ul>
+    </p>
+    <p>
+        <h3>Version 1.0</h3>
+        <ul>
+            <li>Added support for viewing all artists and all albums as well as
+            viewing individual artist discographies and album tracklists.</li>
+        </ul>
+    </p>
+</section>

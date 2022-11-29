@@ -1,34 +1,37 @@
-<section>
-    <img src="/static/img/{{ artist_info[1] }}" alt="{{ artist_info[0] }}">
-</section>
-<section>
-    <h2>{{ artist_info[0] }}</h2>
-</section>
-{% if artist_info[2] %}
-    <section>
-        {{ artist_info[2] }}
+<div class="row">
+    <section class="column">
+        <img src="/static/img/{{ artist_info[1] }}" alt="{{ artist_info[0] }}"
+        id="artist_profile">
     </section>
-{% endif %}
+    <section class="column">
+        <h2>{{ artist_info[0] }}</h2>
+        {% if artist_info[2] %}
+            {{ artist_info[2] }}
+        {% endif %}
+    </section>
+<div>
 {% if discography[0] %}
-    <section>
+    <section id="artist_songs">
         <h3>Songs</h3>
-        {{ discography[0] }}
+        <div id="artist_songs_table">
+            {{ discography[0] }}
+        </div>
     </section>
 {% endif %}
 {% if discography[1] %}
-    <section>
+    <section class="artist_discography">
         <h3>Albums</h3>
         {{ discography[1] }}
     </section>
 {% endif %}
 {% if discography[2] %}
-    <section>
+    <section class="artist_discography">
         <h3>Singles</h3>
         {{ discography[2] }}
     </section>
 {% endif %}
 {% if discography[3] %}
-    <section>
+    <section class="artist_discography">
         <h3>Mixtapes</h3>
         {{ discography[3] }}
     </section>

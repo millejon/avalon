@@ -11,7 +11,7 @@
     <tbody>
         {% for song in songs %}
         <tr>
-            <td>{{ song[1] }}</td>
+            <td id="track_number">{{ song[1] }}</td>
             <td>{{ song[2] }}</td>
             <td><a href="/artists/{{ song[3][0][0] }}">
             {{ song[3][0][1] }}</a>
@@ -22,12 +22,12 @@
                     {%- endfor -%}
                 {% endif %}
             </td>
-            <td>{{ song[4] }}</td>
-            <td>
+            <td id="length">{{ song[4] }}</td>
+            <td id="playlist_function">
                 {% if song[4] != "" %}
                     <form id="add_to_playlist" name="add_to_playlist"
                     action="/playlists/add/" method="GET">
-                        <select id="playlist" name="add_song"
+                        <select class="playlist_add" name="add_song"
                         onchange="this.form.submit()">
                             <option>+</option>
                             {% if playlists %}
