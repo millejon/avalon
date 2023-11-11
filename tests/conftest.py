@@ -4,6 +4,7 @@ import tempfile
 
 from avalon import create_app
 
+
 @pytest.fixture
 def app(tmp_path):
     # Create a temporary database for testing purposes.
