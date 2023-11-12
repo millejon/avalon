@@ -1,6 +1,8 @@
 import os
 from flask import Flask
 
+from avalon import database
+
 
 def create_app(test_config: dict = None) -> Flask:
     """Initialize and return the Avalon application."""
@@ -22,5 +24,7 @@ def create_app(test_config: dict = None) -> Flask:
         os.makedirs(app.instance_path)
     except OSError:
         pass
+
+    database.initialize_app(app)
 
     return app

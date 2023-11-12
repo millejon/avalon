@@ -1,8 +1,9 @@
 import pytest
-import os
 import tempfile
+import os
 
 from avalon import create_app
+from avalon.database import initialize_database
 
 
 @pytest.fixture
@@ -13,6 +14,9 @@ def app(tmp_path):
     app = create_app(test_config={"TESTING": True,
                                   "DATABASE": database_path,
                                   "MUSIC_DIRECTORY": tmp_path})
+
+    with app.app_context():
+        initialize_database()
 
     yield app
 
