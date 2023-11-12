@@ -27,19 +27,8 @@ def test_close_database_connection(app):
 
 # When a select query is executed, the results should have all expected
 # data.
-@pytest.mark.parametrize("table", [
-    ("artists"),
-    ("albums"),
-    ("discs"),
-    ("songs"),
-    ("artists_albums"),
-    ("artists_songs"),
-    ("producers_songs"),
-    ("playlists"),
-    ("playlists_songs"),
-    ("hubs"),
-    ("hubs_albums"),
-])
+tables = list(data.keys())
+@pytest.mark.parametrize("table", tables)
 def test_execute_read_query(app, table):
     with app.app_context():
         database = db.get_database_connection()
@@ -56,19 +45,7 @@ def test_execute_read_query(app, table):
 
 # When an insert query is executed, the new entity should be correctly
 # added to the database and its database id should be returned.
-@pytest.mark.parametrize("table", [
-    ("artists"),
-    ("albums"),
-    ("discs"),
-    ("songs"),
-    ("artists_albums"),
-    ("artists_songs"),
-    ("producers_songs"),
-    ("playlists"),
-    ("playlists_songs"),
-    ("hubs"),
-    ("hubs_albums"),
-])
+@pytest.mark.parametrize("table", tables)
 def test_execute_write_query(app, table):
     with app.app_context():
         entity_id = db.execute_write_query(query=data[table]["queries"]["write"],
