@@ -38,21 +38,21 @@ database = {
     },
     "songs": {
         "columns": ["album_id", "name", "track_number", "length", "path",
-                    "source", "play_count", "disc_id"],
+                    "source", "disc_id"],
         "queries": {
             "read": {
                 "id": """SELECT id FROM songs WHERE path = ?""",
                 "all": """SELECT id, album_id, disc_id, name, track_number,
-                            length, path, source, play_count
+                            length, path, source
                         FROM songs WHERE id = ?""",
             },
             "write": """INSERT INTO songs (album_id, name, track_number,
-                            length, path, source, play_count, disc_id)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                            length, path, source, disc_id)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)""",
         },
         "test_data": (1, "Notorious Thugs", 1, 367,
                       "the-notorious-big/life-after-death/disc-two/01_notorious_thugs.flac",
-                      "Qobuz", 0, 1),
+                      "Qobuz", 1),
     },
     "artists_albums": {
         "columns": ["artist_id", "album_id"],
