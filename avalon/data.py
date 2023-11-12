@@ -37,8 +37,8 @@ database = {
         "test_data": (1, "Disc Two", 2),
     },
     "songs": {
-        "columns": ["album_id", "disc_id", "name", "track_number", "length",
-                    "path", "source", "play_count"],
+        "columns": ["album_id", "name", "track_number", "length", "path",
+                    "source", "disc_id"],
         "queries": {
             "read": {
                 "id": """SELECT id FROM songs WHERE path = ?""",
@@ -46,8 +46,9 @@ database = {
                             length, path, source, play_count
                         FROM songs WHERE id = ?""",
             },
-            "write": """INSERT INTO songs (album_id, name, track_number, length, path, source, disc_id)
-                        VALUES (?, ?, ?, ?, ?, ?)""",
+            "write": """INSERT INTO songs (album_id, name, track_number,
+                            length, path, source, disc_id)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)""",
         },
         "test_data": (1, "Notorious Thugs", 1, 367,
                       "the-notorious-big/life-after-death/disc-two/01_notorious_thugs.flac",
@@ -59,6 +60,8 @@ database = {
             "read": {
                 "id": """SELECT id FROM artists_albums
                         WHERE artist_id = ? AND album_id = ?""",
+                "all": """SELECT id, artist_id, album_id
+                        FROM artists_albums WHERE id = ?""",
             },
             "write": """INSERT INTO artists_albums (artist_id, album_id)
                         VALUES (?, ?)""",
@@ -71,6 +74,8 @@ database = {
             "read": {
                 "id": """SELECT id FROM artists_songs
                         WHERE artist_id = ? AND song_id = ?""",
+                "all": """SELECT id, artist_id, song_id, group_member
+                        FROM artists_songs WHERE id = ?""",
             },
             "write": """INSERT INTO artists_songs (artist_id, song_id, group_member)
                         VALUES (?, ?, ?)""",
@@ -83,11 +88,14 @@ database = {
             "read": {
                 "id": """SELECT id FROM producers_songs
                         WHERE artist_id = ? AND song_id = ?""",
+                "all": """SELECT id, artist_id, song_id, coproducer, additional
+                        FROM producers_songs WHERE id = ?""",
             },
-            "write": """INSERT INTO producers_songs (artist_id, song_id, coproducer, additional)
+            "write": """INSERT INTO producers_songs (artist_id, song_id,
+                            coproducer, additional)
                         VALUES (?, ?, ?, ?)""",
         },
-        "test_data": (2, 1, 0, 0),
+        "test_data": (1, 1, False, False),
     },
     "playlists": {
         "columns": ["name"],
@@ -106,6 +114,8 @@ database = {
             "read": {
                 "id": """SELECT id FROM playlists_songs
                         WHERE playlist_id = ? AND song_id = ?""",
+                "all": """SELECT id, playlist_id, song_id
+                        FROM playlists_songs WHERE id = ?""",
             },
             "write": """INSERT INTO playlists_songs (playlist_id, song_id)
                         VALUES (?, ?)""",
@@ -129,6 +139,8 @@ database = {
             "read": {
                 "id": """SELECT id FROM hubs_albums
                         WHERE hub_id = ? AND album_id = ?""",
+                "all": """SELECT id, hub_id, album_id
+                        FROM hubs_albums WHERE id = ?""",
             },
             "write": """INSERT INTO hubs_albums (hub_id, album_id)
                         VALUES (?, ?)""",
