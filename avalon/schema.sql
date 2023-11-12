@@ -86,10 +86,10 @@ CREATE TABLE producers_songs (
     song_id INTEGER NOT NULL,
     coproducer INTEGER DEFAULT FALSE,
     additional INTEGER DEFAULT FALSE,
-    FOREIGN KEY (song_id) REFERENCES songs (id)
+    FOREIGN KEY (artist_id) REFERENCES artists (id)
         ON DELETE CASCADE
         ON UPDATE NO ACTION,
-    FOREIGN KEY (artist_id) REFERENCES artists (id)
+    FOREIGN KEY (song_id) REFERENCES songs (id)
         ON DELETE CASCADE
         ON UPDATE NO ACTION,
     UNIQUE (artist_id, song_id)
