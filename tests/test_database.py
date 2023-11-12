@@ -25,9 +25,11 @@ def test_close_database_connection(app):
     assert "closed" in str(error.value)
 
 
+tables = list(data.keys())
+
+
 # When a select query is executed, the results should have all expected
 # data.
-tables = list(data.keys())
 @pytest.mark.parametrize("table", tables)
 def test_execute_read_query(app, table):
     with app.app_context():
