@@ -11,11 +11,11 @@
     <div>
       <label for="directory">Directory: </label>
       <input type="text" name="directory" id="directory"
-        {% if session["directory"] %}
-          value="{{ session['directory'] }}"
+        {% if request.form["directory"] %}
+          value="{{ request.form['directory'] }}"
         {% endif %}
         required>
-      {% if not session["directory"] %}
+      {% if not request.form["directory"] %}
         <input type="submit" value="Submit">
       {% endif %}
     </div>

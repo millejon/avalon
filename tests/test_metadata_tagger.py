@@ -29,14 +29,3 @@ def test_input_metadata_invalid_directory(client):
                            data={"directory": "not/a/directory"})
     assert b"Directory does not exist!" in response.data
     assert response.status_code == 200
-
-
-# Session["directory"] should be cleared every time the input-metadata
-# route receives a GET request.
-def test_input_metadata_reload(client, album_directory):
-    with client:
-        client.post("/metadata-tagger/input-metadata",
-                    data={"directory": album_directory})
-        assert session["directory"] == str(album_directory)
-        client.get("/metadata-tagger/input-metadata")
-        assert "directory" not in session.keys()
