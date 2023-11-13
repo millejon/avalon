@@ -8,7 +8,6 @@ database = {
             },
             "write": """INSERT INTO artists (name) VALUES (?)""",
         },
-        "test_data": ("The Notorious B.I.G.",),
     },
     "albums": {
         "columns": ["name", "release_date", "multidisc", "single"],
@@ -21,7 +20,6 @@ database = {
             "write": """INSERT INTO albums (name, release_date, multidisc, single)
                         VALUES (?, ?, ?, ?)""",
         },
-        "test_data": ("Life After Death", "1997-03-25", True, False),
     },
     "discs": {
         "columns": ["album_id", "name", "disc_number"],
@@ -34,7 +32,6 @@ database = {
             "write": """INSERT INTO discs (album_id, name, disc_number)
                         VALUES (?, ?, ?)""",
         },
-        "test_data": (1, "Disc Two", 2),
     },
     "songs": {
         "columns": ["album_id", "name", "track_number", "length", "path",
@@ -50,9 +47,6 @@ database = {
                             length, path, source, disc_id)
                         VALUES (?, ?, ?, ?, ?, ?, ?)""",
         },
-        "test_data": (1, "Notorious Thugs", 1, 367,
-                      "the-notorious-big/life-after-death/disc-two/01_notorious_thugs.flac",
-                      "Qobuz", 1),
     },
     "artists_albums": {
         "columns": ["artist_id", "album_id"],
@@ -66,7 +60,6 @@ database = {
             "write": """INSERT INTO artists_albums (artist_id, album_id)
                         VALUES (?, ?)""",
         },
-        "test_data": (1, 1),
     },
     "artists_songs": {
         "columns": ["artist_id", "song_id", "group_member"],
@@ -80,7 +73,6 @@ database = {
             "write": """INSERT INTO artists_songs (artist_id, song_id, group_member)
                         VALUES (?, ?, ?)""",
         },
-        "test_data": (1, 1, False),
     },
     "producers_songs": {
         "columns": ["artist_id", "song_id", "coproducer", "additional"],
@@ -95,7 +87,6 @@ database = {
                             coproducer, additional)
                         VALUES (?, ?, ?, ?)""",
         },
-        "test_data": (1, 1, False, False),
     },
     "playlists": {
         "columns": ["name"],
@@ -106,7 +97,6 @@ database = {
             },
             "write": """INSERT INTO playlists (name) VALUES (?)""",
         },
-        "test_data": ("Paid In Full",),
     },
     "playlists_songs": {
         "columns": ["playlist_id", "song_id"],
@@ -120,7 +110,6 @@ database = {
             "write": """INSERT INTO playlists_songs (playlist_id, song_id)
                         VALUES (?, ?)""",
         },
-        "test_data": (1, 1),
     },
     "hubs": {
         "columns": ["name"],
@@ -131,7 +120,6 @@ database = {
             },
             "write": """INSERT INTO hubs (name) VALUES (?)""",
         },
-        "test_data": ("Bad Boy Records",),
     },
     "hubs_albums": {
         "columns": ["hub_id", "album_id"],
@@ -145,11 +133,11 @@ database = {
             "write": """INSERT INTO hubs_albums (hub_id, album_id)
                         VALUES (?, ?)""",
         },
-        "test_data": (1, 1),
     },
 }
 
 required_metadata_input_fields = {
     "album": ["album_artists", "album", "release_date"],
     "song": ["title", "song_artists", "source"],
+    "multidisc": ["disc_name", "disc_number"],
 }

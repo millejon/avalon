@@ -2,7 +2,8 @@ import pytest
 import sqlite3
 
 import avalon.database as db
-from avalon.data import database as data
+from avalon.data import database as db_data
+from tests.data import database as test_data
 
 
 # get_database_connection() should return he same database connection
@@ -25,7 +26,7 @@ def test_close_database_connection(app):
     assert "closed" in str(error.value)
 
 
-tables = list(data.keys())
+tables = list(db_data.keys())
 
 
 # execute_read_query() should execute the select query passed and return
@@ -34,15 +35,15 @@ tables = list(data.keys())
 def test_execute_read_query(app, table):
     with app.app_context():
         database = db.get_database_connection()
-        entity_id = database.execute(data[table]["queries"]["write"],
-                                     data[table]["test_data"]).lastrowid
+        entity_id = database.execute(db_data[table]["queries"]["write"],
+                                     test_data[table]).lastrowid
         database.commit()
 
-        entity = db.execute_read_query(query=data[table]["queries"]["read"]["all"],
+        entity = db.execute_read_query(query=db_data[table]["queries"]["read"]["all"],
                                        data=(entity_id,))
 
-        for index, value in enumerate(data[table]["columns"]):
-            assert entity[0][value] == data[table]["test_data"][index]
+        for index, value in enumerate(db_data[table]["columns"]):
+            assert entity[0][value] == test_data[table][index]
 
 
 # execute_write_query() should execute the insert query passed and
@@ -50,16 +51,16 @@ def test_execute_read_query(app, table):
 @pytest.mark.parametrize("table", tables)
 def test_execute_write_query(app, table):
     with app.app_context():
-        entity_id = db.execute_write_query(query=data[table]["queries"]["write"],
-                                           data=data[table]["test_data"])
+        entity_id = db.execute_write_query(query=db_data[table]["queries"]["write"],
+                                           data=test_data[table])
 
         database = db.get_database_connection()
-        entity = database.execute(data[table]["queries"]["read"]["all"],
+        entity = database.execute(db_data[table]["queries"]["read"]["all"],
                                   (entity_id,)).fetchone()
 
         assert entity["id"] == entity_id
-        for index, value in enumerate(data[table]["columns"]):
-            assert entity[value] == data[table]["test_data"][index]
+        for index, value in enumerate(db_data[table]["columns"]):
+            assert entity[value] == test_data[table][index]
 
 
 # The "initialize-database" CLI command should call
