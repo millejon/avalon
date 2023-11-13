@@ -148,3 +148,8 @@ database = {
         "test_data": (1, 1),
     },
 }
+
+required_metadata_input_fields = {
+    "album": ["album_artists", "album", "release_date"],
+    "song": ["title", "song_artists", "source"],
+}
