@@ -33,3 +33,14 @@ def client(app):
 @pytest.fixture
 def runner(app):
     return app.test_cli_runner()
+
+
+@pytest.fixture
+def album_directory(tmp_path):
+    for x in range(3):
+        tempfile.mkstemp(suffix=".flac", dir=tmp_path)
+    tempfile.mkstemp(suffix=".mp3", dir=tmp_path)
+    tempfile.mkstemp(suffix=".jpeg", dir=tmp_path)
+    tempfile.mkstemp(suffix=".txt", dir=tmp_path)
+
+    return tmp_path
