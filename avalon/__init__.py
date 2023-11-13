@@ -2,13 +2,14 @@ import os
 from flask import Flask
 
 from avalon import database
+from avalon import metadata_tagger
 
 
 def create_app(test_config: dict = None) -> Flask:
     """Initialize and return the Avalon application."""
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
-        SECRET_KEY="should_put_your_own_value_in_config",
+        SECRET_KEY="you_should_put_your_own_value_in_config",
         DATABASE=os.path.join(app.instance_path, "avalon.sqlite"),
     )
 
@@ -26,5 +27,7 @@ def create_app(test_config: dict = None) -> Flask:
         pass
 
     database.initialize_app(app)
+
+    app.register_blueprint(metadata_tagger.bp)
 
     return app
