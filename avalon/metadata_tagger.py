@@ -32,6 +32,8 @@ def process_metadata():
         flash(error.message)
         for exception in error.exceptions:
             flash(str(exception))
+    else:
+        add_metadata(metadata=format_metadata(request.form))
     finally:
         return redirect(url_for("metadata-tagger.input_metadata"))
 
@@ -75,3 +77,30 @@ def validate_metadata_form(form: dict) -> None:
     if exceptions:
         raise ExceptionGroup("Invalid metadata form submitted! Please check "
                              "data and resubmit form!", exceptions)
+
+
+def format_metadata(form: dict) -> list[dict]:
+    """Return formatted data from user's submitted metadata form in a
+    list of dictionaries where each dictionary contains the metadata
+    for one song.
+    """
+    metadata = []
+
+    for x in range(int(form["track_count"])):
+        metadata.append({"track_number": f"{x+1}"})
+        prefix = f"track{x+1}_"
+
+        for key, value in form.items():
+            if key.startswith(prefix):
+                metadata[x][key.replace(prefix, "")] = value
+            elif key.startswith("track"):
+                # Ignore song-specific metadata for other songs.
+                continue
+            else:
+                metadata[x][key] = value
+    
+    return metadata
+
+
+def add_metadata(metadata):
+    pass
