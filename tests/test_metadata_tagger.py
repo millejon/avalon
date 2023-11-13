@@ -3,6 +3,7 @@ import pytest
 import avalon.metadata_tagger as tagger
 from avalon.data import required_metadata_input_fields as form_fields
 from tests.data import metadata_form
+from tests.data import formatted_metadata
 
 
 # Submitting a valid directory to the input-metadata route should
@@ -95,3 +96,17 @@ def test_validate_metadata_form_incomplete_multidisc(field):
 
     assert f"Value for 'multidisc' is missing!" == str(error.value.exceptions[0])
     assert f"Value for '{field}' is missing!" == str(error.value.exceptions[1])
+
+
+# format_metadata() should return a list of dictionaries containing the
+# formatted metadata.
+def test_format_metadata():
+    metadata = tagger.format_metadata(metadata_form.copy())
+
+    assert len(metadata) == int(metadata_form["track_count"])
+
+    for index, song in enumerate(metadata):
+        assert song.keys() == formatted_metadata[index].keys()
+
+        for key, value in formatted_metadata[index].items():
+            assert song[key] == value

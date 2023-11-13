@@ -33,3 +33,25 @@ metadata_form = {
     "track1_source": "Soulseek",
     "track1_path": "01_notorious_thugs.flac",
 }
+
+formatted_metadata = [
+    {
+        "track_number": "1",
+        "album_artists": "The Notorious B.I.G.",
+        "album": "Life After Death",
+        "release_date": "1997-03-25",
+        "hubs": "Bad Boy Records",
+        "multidisc": "True",
+        "disc_name": "Disc Two",
+        "disc_number": "2",
+        "title": "Notorious Thugs",
+        "song_artists": "The Notorious B.I.G.; Bone Thugs-N-Harmony",
+        "group_members": "Layzie Bone; Krayzie Bone; Bizzy Bone",
+        "producers": "Stevie J; Puff Daddy",
+        "coproducers": "Easy Mo Bee",
+        "additional_producers": "RZA",
+        "comment": "Remove intro at ~0:00",
+        "source": "Soulseek",
+        "path": "01_notorious_thugs.flac",
+    }
+]
