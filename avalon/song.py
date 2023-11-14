@@ -36,7 +36,7 @@ class Song:
         """Add album cover metadata to FLAC music file."""
         cover = Picture()
 
-        with open(f"{util.get_directory(self.path)}\\cover.jpg", "rb") as image:
+        with open(f"{util.get_directory(self.path)}/cover.jpg", "rb") as image:
             cover.data = image.read()
 
         cover.type = id3.PictureType.COVER_FRONT
