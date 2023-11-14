@@ -1,9 +1,8 @@
 import pytest
 
 import avalon.metadata_tagger as tagger
-from avalon.data import required_metadata_input_fields as form_fields
-from tests.data import metadata_form
-from tests.data import formatted_metadata
+from avalon.data import required_metadata_input_fields as required_fields
+import tests.data as data
 
 
 # Submitting a valid directory to the input-metadata route should
@@ -36,49 +35,49 @@ def test_input_metadata_invalid_directory(client):
     assert response.status_code == 200
 
 
-fields = (form_fields["album"] + form_fields["multidisc"]
-          + [f"track1_{field}" for field in form_fields["song"]])
-fields.append(f"track1_producers")
+fields = (required_fields["album"] + required_fields["multidisc"]
+          + [f"track1_{field}" for field in required_fields["song"]])
+fields.append("track1_producers")
 
 
 # Submitting a metadata form that is missing one of the required fields
 # should raise an exception that specifies what field is missing.
 @pytest.mark.parametrize("field", fields)
 def test_validate_metadata_form_missing_required_fields(field):
-    metadata = metadata_form.copy()
+    metadata = data.metadata_form.copy()
     metadata[field] = ""
 
     with pytest.raises(ExceptionGroup) as error:
         tagger.validate_metadata_form(metadata)
 
     assert f"Value for '{field}' is missing!" == str(error.value.exceptions[0])
-    
+
 
 # Submitting a metadata form that has both single and multidisc flags
 # set should raise an exception.
 def test_validate_metadata_form_single_multidisc():
-    metadata = metadata_form.copy()
+    metadata = data.metadata_form.copy()
     metadata["single"] = "True"
 
     with pytest.raises(ExceptionGroup) as error:
         tagger.validate_metadata_form(metadata)
 
-    assert f"An album can not be a single and multidisc!" == str(error.value.exceptions[0])
+    assert "An album can not be a single and multidisc!" == str(error.value.exceptions[0])
 
 
 # Submitting a metadata form with complete multidisc metadata but
 # without the multidisc flag set should raise an exception.
 def test_validate_metadata_form_missing_multidisc_flag():
-    metadata = metadata_form.copy()
+    metadata = data.metadata_form.copy()
     metadata.pop("multidisc")
 
     with pytest.raises(ExceptionGroup) as error:
         tagger.validate_metadata_form(metadata)
 
-    assert f"Value for 'multidisc' is missing!" == str(error.value.exceptions[0])
+    assert "Value for 'multidisc' is missing!" == str(error.value.exceptions[0])
 
 
-fields = form_fields["multidisc"].copy()
+fields = required_fields["multidisc"].copy()
 
 
 # Submitting a metadata form with incomplete multidisc metadata and
@@ -87,26 +86,26 @@ fields = form_fields["multidisc"].copy()
 # missing.
 @pytest.mark.parametrize("field", fields)
 def test_validate_metadata_form_incomplete_multidisc(field):
-    metadata = metadata_form.copy()
+    metadata = data.metadata_form.copy()
     metadata.pop("multidisc")
     metadata[field] = ""
 
     with pytest.raises(ExceptionGroup) as error:
         tagger.validate_metadata_form(metadata)
 
-    assert f"Value for 'multidisc' is missing!" == str(error.value.exceptions[0])
+    assert "Value for 'multidisc' is missing!" == str(error.value.exceptions[0])
     assert f"Value for '{field}' is missing!" == str(error.value.exceptions[1])
 
 
 # format_metadata() should return a list of dictionaries containing the
 # formatted metadata.
 def test_format_metadata():
-    metadata = tagger.format_metadata(metadata_form.copy())
+    metadata = tagger.format_metadata(data.metadata_form.copy())
 
-    assert len(metadata) == int(metadata_form["track_count"])
+    assert len(metadata) == int(data.metadata_form["track_count"])
 
     for index, song in enumerate(metadata):
-        assert song.keys() == formatted_metadata[index].keys()
+        assert song.keys() == data.formatted_metadata[index].keys()
 
-        for key, value in formatted_metadata[index].items():
+        for key, value in data.formatted_metadata[index].items():
             assert song[key] == value
