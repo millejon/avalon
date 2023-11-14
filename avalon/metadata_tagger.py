@@ -48,9 +48,8 @@ def validate_metadata_form(form: dict) -> None:
 
     if "multidisc" in form.keys():
         validate_multidisc_metadata(form, exceptions)
-    else:
-        if form["disc_name"] or form["disc_number"]:
-            exceptions.append(ValueError("Value for 'multidisc' is missing!"))
+    elif form["disc_name"] or form["disc_number"]:
+        exceptions.append(ValueError("Value for 'multidisc' is missing!"))
         validate_multidisc_metadata(form, exceptions)
 
     if exceptions:

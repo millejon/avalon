@@ -77,14 +77,11 @@ def test_validate_metadata_form_missing_multidisc_flag():
     assert "Value for 'multidisc' is missing!" == str(error.value.exceptions[0])
 
 
-fields = required_fields["multidisc"].copy()
-
-
 # Submitting a metadata form with incomplete multidisc metadata and
 # without the multidisc flag set should raise an exception about setting
 # the multidisc flag and an exception that specifies what field is
 # missing.
-@pytest.mark.parametrize("field", fields)
+@pytest.mark.parametrize("field", required_fields["multidisc"])
 def test_validate_metadata_form_incomplete_multidisc(field):
     metadata = data.metadata_form.copy()
     metadata.pop("multidisc")
