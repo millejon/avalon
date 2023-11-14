@@ -4,6 +4,7 @@ import os
 
 from avalon import create_app
 from avalon.database import initialize_database
+import tests.data as data
 
 
 @pytest.fixture
@@ -40,7 +41,23 @@ def album_directory(tmp_path):
     for x in range(3):
         tempfile.mkstemp(suffix=".flac", dir=tmp_path)
     tempfile.mkstemp(suffix=".mp3", dir=tmp_path)
-    tempfile.mkstemp(suffix=".jpeg", dir=tmp_path)
+    tempfile.mkstemp(suffix=".jpg", dir=tmp_path)
     tempfile.mkstemp(suffix=".txt", dir=tmp_path)
 
     return tmp_path
+
+
+@pytest.fixture
+def dummy_file(tmp_path):
+    def create_dummy_file(suffix: str) -> str:
+        file, file_path = tempfile.mkstemp(suffix=suffix, dir=tmp_path)
+        with open(file_path, "bw") as dummy_file:
+            dummy_file.write(data.dummy_files[suffix])
+
+        if suffix == ".jpg":
+            os.close(file)
+            os.rename(file_path, f"{tmp_path}/cover.jpg")
+
+        return file_path
+
+    return create_dummy_file
