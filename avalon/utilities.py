@@ -1,10 +1,16 @@
 import os
 
+
 def is_directory(directory: str) -> bool:
     """Return True if directory exists on local machine, otherwise
     return False.
     """
     return os.path.isdir(directory)
+
+
+def get_directory(path: str) -> str:
+    """Return directory name of file path."""
+    return os.path.dirname(path)
 
 
 def get_song_file_paths(directory: str) -> list[str]:

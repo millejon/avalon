@@ -1,6 +1,7 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 import avalon.utilities as util
+from avalon.song import Song
 from avalon.data import required_metadata_input_fields as required_fields
 
 bp = Blueprint("metadata-tagger", __name__, url_prefix="/metadata-tagger")
@@ -33,7 +34,7 @@ def process_metadata():
         for exception in error.exceptions:
             flash(str(exception))
     else:
-        add_metadata(metadata=format_metadata(request.form))
+        process_songs(metadata=format_metadata(request.form))
     finally:
         return redirect(url_for("metadata-tagger.input_metadata"))
 
@@ -102,5 +103,13 @@ def format_metadata(form: dict) -> list[dict]:
     return metadata
 
 
-def add_metadata(metadata):
-    pass
+def process_songs(metadata: dict) -> None:
+    """Add metadata to music files and rename the music files to
+    correspond with the metadata.
+    """
+    for track in metadata:
+        song = Song(metadata[track]["path"])
+        metadata[track].pop("path")
+
+        song.add_metadata(metadata[track])
+        song.rename_file()
