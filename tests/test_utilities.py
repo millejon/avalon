@@ -111,17 +111,6 @@ def test_format_filename(filename, formatted_filename):
     assert util.format_filename(filename) == formatted_filename
 
 
-# format_directory() should format the directory passed by removing
-# punctuation and replacing spaces with hyphens.
-@pytest.mark.parametrize(("directory", "formatted_directory"), (
-    ("THIS    IS  AN    ALBUM TITLE", "this-is-an-album-title"),
-    ("Enter The Wu-Tang (36 Chambers)", "enter-the-wutang-36-chambers"),
-    ("Lifestylez Ov Da Poor & Dangerous", "lifestylez-ov-da-poor-and-dangerous"),
-))
-def test_format_directory(directory, formatted_directory):
-    assert util.format_directory(directory) == formatted_directory
-
-
 # replace_punctuation() should remove all punctuation from the string
 # passed, except for special cases where the punctuation is replaced
 # with a word.

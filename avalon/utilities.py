@@ -52,11 +52,6 @@ def format_filename(filename: str) -> str:
     return replace_punctuation(filename).replace(" ", "_").lower()
 
 
-def format_directory(directory: str) -> str:
-    """Format directory for use in a file path."""
-    return replace_punctuation(directory).replace(" ", "-").lower()
-
-
 def replace_punctuation(name: str) -> str:
     """Remove/replace punctuation in string passed."""
     for mark in list(string.punctuation):
