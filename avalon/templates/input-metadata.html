@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}Metadata Tagger{% endblock %}
+
+{% block header %}
+  <h1>Enter Metadata: </h1>
+{% endblock %}
+
+{% block content %}
+  <form action="/metadata-tagger/input-metadata" method="post">
+    <div>
+      <label for="directory">Directory: </label>
+      <input type="text" name="directory" id="directory"
+        {% if request.form["directory"] %}
+          value="{{ request.form['directory'] }}"
+        {% endif %}
+        required>
+      {% if not request.form["directory"] %}
+        <input type="submit" value="Submit">
+      {% endif %}
+    </div>
+  </form>
+
+  {% if songs %}
+    <form action="/metadata-tagger/process-metadata" method="post">
+      <div>
+        <label for="album_artists">Album Artist(s): </label>
+        <input type="text" name="album_artists" id="album_artists"
+          value="{{ request.form['album_artists'] }}" required>
+      </div>
+      <div>
+        <label for="album">Album Name: </label>
+        <input type="text" name="album" id="album"
+          value="{{ request.form['album'] }}" required>
+        <input type="hidden" name="track_count"
+          id="track_count" value="{{ songs|length }}">
+      </div>
+      <div>
+        <label for="release_date">Release Date: </label>
+        <input type="date" name="release_date" id="release_date"
+          value="{{ request.form['release_date'] }}" required>
+        <label for="hubs">Hub(s): </label>
+        <input type="text" name="hubs" id="hubs"
+          value="{{ request.form['hubs'] }}">
+      </div>
+      <div>
+        <label for="single">Single: </label>
+        <input type="checkbox" name="single" id="single" value="True">
+        <label for="multidisc">Multi-Disc: </label>
+        <input type="checkbox" name="multidisc" id="multidisc" value="True">
+        <label for="disc_name">Disc Name: </label>
+        <input type="text" name="disc_name" id="disc_name"
+          value="{{ request.form['disc_name'] }}">
+        <label for="disc_number">Disc Number: </label>
+        <input type="number" name="disc_number" id="disc_number"
+          value="{{ request.form['disc_number'] }}">
+      </div>
+      {% for x in range(songs|length) %}
+        <div>
+          <label for="track{{ x+1 }}_title">Track {{ x+1 }}: </label>
+          <input type="text" name="track{{ x+1 }}_title" id="track{{ x+1 }}_title"
+            value="{{ request.form['track{{ x+1 }}_title'] }}" required>
+          <label for="track{{ x+1 }}_song_artists">Song Artist(s): </label>
+          <input type="text" name="track{{ x+1 }}_song_artists"
+            id="track{{ x+1 }}_song_artists"
+            value="{{ request.form['track{{ x+1 }}_song_artists'] }}" required>
+          <label for="track{{ x+1 }}_group_members">Group Member(s): </label>
+          <input type="text" name="track{{ x+1 }}_group_members"
+            id="track{{ x+1 }}_group_members"
+            value="{{ request.form['track{{ x+1 }}_group_members'] }}"><br>
+          <label for="track{{ x+1 }}_producers">Producer(s): </label>
+          <input type="text" name="track{{ x+1 }}_producers"
+            id="track{{ x+1 }}_producers"
+            value="{{ request.form['track{{ x+1 }}_producers'] }}">
+          <label for="track{{ x+1 }}_coproducers">Co-Producer(s): </label>
+          <input type="text" name="track{{ x+1 }}_coproducers"
+            id="track{{ x+1 }}_coproducers"
+            value="{{ request.form['track{{ x+1 }}_coproducers'] }}">
+          <label
+            for="track{{ x+1 }}_additional_producers">Additional Producer(s):
+          </label>
+          <input type="text" name="track{{ x+1 }}_additional_producers"
+            id="track{{ x+1 }}_additional_producers"
+            value="{{ request.form['track{{ x+1 }}_additional_producers'] }}"><br>
+          <label for="track{{ x+1 }}_comment">Notes: </label>
+          <input type="text" name="track{{ x+1 }}_comment" id="track{{ x+1 }}_comment"
+            value="{{ request.form['track{{ x+1 }}_comment'] }}">
+          <label for="track{{ x+1 }}_source">Source: </label>
+          <input type="text" name="track{{ x+1 }}_source" id="track{{ x+1 }}_source"
+            value="{{ request.form['track{{ x+1 }}_source'] }}" required>
+          <input type="hidden" name="track{{ x+1 }}_path"
+            id="track{{ x+1 }}_path" value="{{ songs[x] }}">
+        </div>
+      {% endfor %}
+      <input type="submit" value="Submit">
+    </form>
+  {% endif %}
+{% endblock %}
