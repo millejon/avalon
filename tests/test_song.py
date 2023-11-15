@@ -1,6 +1,5 @@
 import pytest
 import os
-from mutagen import File as MutagenFile
 from mutagen.flac import FLAC
 from mutagen.mp3 import MP3
 
