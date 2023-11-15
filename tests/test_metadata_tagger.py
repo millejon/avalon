@@ -1,4 +1,6 @@
 import pytest
+import os
+from mutagen import File as MutagenFile
 
 import avalon.metadata_tagger as tagger
 from avalon.data import required_metadata_input_fields as required_fields
@@ -106,3 +108,26 @@ def test_format_metadata():
 
         for key, value in data.formatted_metadata[index].items():
             assert song[key] == value
+
+
+# process_songs() should add metadata to all music files and rename
+# the files to correspond with their respective metadata.
+def test_process_songs(dummy_file):
+    metadata = data.formatted_metadata.copy()
+    file_paths = [dummy_file(".flac") * len(metadata)]
+    dummy_file(".jpg")
+    new_file_paths = [metadata[x]["path"] for x in range(len(metadata))]
+
+    for x in range(len(metadata)):
+        metadata[x]["path"] = file_paths[x]
+
+    tagger.process_songs(metadata)
+
+    for x in range(len(metadata)):
+        file_path = f"{os.path.dirname(file_paths[0])}/{new_file_paths[x]}"
+        assert not os.path.isfile(file_paths[x])
+        assert os.path.isfile(file_path)
+        song = MutagenFile(file_path)
+
+        for key, value in metadata[x].items():
+            assert song[key][0] == value

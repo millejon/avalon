@@ -53,9 +53,9 @@ def dummy_file(tmp_path):
         file, file_path = tempfile.mkstemp(suffix=suffix, dir=tmp_path)
         with open(file_path, "bw") as dummy_file:
             dummy_file.write(data.dummy_files[suffix])
+        os.close(file)
 
         if suffix == ".jpg":
-            os.close(file)
             os.rename(file_path, f"{tmp_path}/cover.jpg")
 
         return file_path
