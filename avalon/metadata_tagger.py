@@ -89,9 +89,9 @@ def validate_multidisc_metadata(form: dict, exceptions: list[ValueError]) -> Non
 
 
 def format_metadata(form: dict) -> list[dict]:
-    """Return formatted data from user's submitted metadata form in a
-    list of dictionaries where each dictionary contains the metadata
-    for one song.
+    """Format data from user's submitted metadata form in a list of
+    dictionaries where each dictionary contains the metadata for one
+    song.
     """
     metadata = []
 
@@ -111,13 +111,13 @@ def format_metadata(form: dict) -> list[dict]:
     return metadata
 
 
-def process_songs(metadata: dict) -> None:
+def process_songs(metadata: list) -> None:
     """Add metadata to music files and rename the music files to
-    correspond with the metadata.
+    correspond with their respective metadata.
     """
-    for track in metadata:
-        song = Song(metadata[track]["path"])
-        metadata[track].pop("path")
+    for x in range(len(metadata)):
+        song = Song(metadata[x]["path"])
+        metadata[x].pop("path")
 
-        song.add_metadata(metadata[track])
+        song.add_metadata(metadata[x])
         song.rename_file()

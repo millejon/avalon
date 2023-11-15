@@ -141,3 +141,10 @@ required_metadata_input_fields = {
     "song": ["title", "song_artists", "source"],
     "multidisc": ["disc_name", "disc_number"],
 }
+
+punctuation_replacements = {
+        "+": "and",
+        "&": "and",
+        "#": "number",
+        "=": "equals",
+    }
