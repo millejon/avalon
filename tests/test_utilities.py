@@ -17,13 +17,6 @@ def test_is_not_directory():
     assert not util.is_directory(directory)
 
 
-# get_song_file_paths() should return an empty list when passed an empty
-# directory.
-def test_get_song_file_paths_empty_directory(tmp_path):
-    file_paths = util.get_song_file_paths(directory=tmp_path)
-    assert file_paths == []
-
-
 # get_directory() should return the directory name of the file path
 # passed.
 @pytest.mark.parametrize(("path, directory"), (
@@ -33,6 +26,13 @@ def test_get_song_file_paths_empty_directory(tmp_path):
 ))
 def test_get_directory(path, directory):
     assert util.get_directory(path) == directory
+
+
+# get_song_file_paths() should return an empty list when passed an empty
+# directory.
+def test_get_song_file_paths_empty_directory(tmp_path):
+    file_paths = util.get_song_file_paths(directory=tmp_path)
+    assert file_paths == []
 
 
 # get_song_file_paths() should return a list of file paths for only the
