@@ -66,11 +66,11 @@ def test_rename_music_file(suffix, filename, dummy_file):
     file_path = dummy_file(suffix)
     directory = os.path.dirname(file_path)
 
-    util.rename_music_file(file_path, filename)
+    renamed = util.rename_music_file(file_path, filename)
 
     assert not os.path.isfile(file_path), f"{file_path} still exists in {directory}"
-    assert os.path.isfile(f"{directory}/{filename}{suffix}"), \
-        f"{file_path} was not renamed to {filename}{suffix} in {directory}"
+    assert os.path.isfile(f"{renamed}"), \
+        f"{file_path} was not renamed to {renamed} in {directory}"
 
 
 # format_song_filename() should format song filenames to correspond
