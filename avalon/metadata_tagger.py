@@ -100,7 +100,10 @@ def format_metadata(form: dict) -> list[dict]:
         prefix = f"track{x+1}_"
 
         for key, value in form.items():
-            if key.startswith(prefix):
+            if not form[key]:
+                # Ignore empty form fields.
+                continue
+            elif key.startswith(prefix):
                 metadata[x][key.replace(prefix, "")] = value
             elif key.startswith("track"):
                 # Ignore song-specific metadata for other songs.

@@ -4,6 +4,7 @@ from mutagen.mp3 import MP3
 import mutagen.id3 as id3
 
 import avalon.utilities as util
+from avalon.data import metadata_modifications as metadata_mods
 
 
 class Song:
@@ -73,3 +74,48 @@ class Song:
         filename = util.format_song_filename(title=self.metadata["title"],
                                              number=self.metadata["track_number"])
         self.path = util.rename_music_file(self.path, filename)
+
+    def extract_metadata(self) -> dict:
+        """Extract metadata from music file."""
+        if isinstance(self.mutagen, FLAC):
+            return self.format_metadata_from_flac()
+        elif isinstance(self.mutagen, MP3):
+            return self.format_metadata_from_mp3()
+
+    def format_metadata_from_flac(self) -> dict:
+        """Format metadata from FLAC music file."""
+        metadata = {}
+
+        for key, value in self.mutagen.items():
+            if key in metadata_mods["lists"]:
+                metadata[key] = value[0].split("; ")
+            elif key in metadata_mods["integers"]:
+                metadata[key] = int(value[0])
+            elif key in metadata_mods["bools"]:
+                metadata[key] = True
+            else:
+                metadata[key] = value[0]
+
+        return metadata
+
+    def format_metadata_from_mp3(self) -> dict:
+        """Format metadata from music file."""
+        metadata = {
+            "album": self.mutagen["TALB"].text[0],
+            "title": self.mutagen["TIT2"].text[0],
+        }
+
+        for key, value in self.mutagen.items():
+            if key.startswith("TXXX:"):
+                key = key.replace("TXXX:", "")
+
+                if key in metadata_mods["lists"]:
+                    metadata[key] = value.text[0].split("; ")
+                elif key in metadata_mods["integers"]:
+                    metadata[key] = int(value.text[0])
+                elif key in metadata_mods["bools"]:
+                    metadata[key] = True
+                else:
+                    metadata[key] = value.text[0]
+
+        return metadata

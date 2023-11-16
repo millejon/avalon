@@ -147,4 +147,18 @@ punctuation_replacements = {
         "&": "and",
         "#": "number",
         "=": "equals",
-    }
+}
+
+metadata_modifications = {
+    "lists": [
+        "album_artists",
+        "hubs",
+        "song_artists",
+        "group_members",
+        "producers",
+        "coproducers",
+        "additional_producers",
+    ],
+    "integers": ["track_number", "disc_number"],
+    "bools": ["single", "multidisc"],
+}
