@@ -84,7 +84,7 @@ class Song:
 
     def format_metadata_from_flac(self) -> dict:
         """Format metadata from FLAC music file."""
-        metadata = {}
+        metadata = {"length": self.mutagen.info.length}
 
         for key, value in self.mutagen.items():
             if key in metadata_mods["lists"]:
@@ -103,6 +103,7 @@ class Song:
         metadata = {
             "album": self.mutagen["TALB"].text[0],
             "title": self.mutagen["TIT2"].text[0],
+            "length": self.mutagen.info.length
         }
 
         for key, value in self.mutagen.items():

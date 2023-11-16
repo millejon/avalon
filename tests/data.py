@@ -104,6 +104,7 @@ song_metadata = [
 avalon_metadata = [
     {
         "track_number": 2,
+        "length": 0.01,
         "album_artists": ["Jay-Z"],
         "album": "In My Lifetime",
         "release_date": "1995-07-26",
@@ -116,6 +117,7 @@ avalon_metadata = [
     },
     {
         "track_number": 8,
+        "length": 0.01,
         "album_artists": ["Nas"],
         "album": "It Was Written",
         "release_date": "1996-07-02",
@@ -129,6 +131,7 @@ avalon_metadata = [
     },
     {
         "track_number": 3,
+        "length": 0.01,
         "album_artists": ["Wu-Tang Clan"],
         "album": "Wu-Tang Forever",
         "release_date": "1997-06-03",
