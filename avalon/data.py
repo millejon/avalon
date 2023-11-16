@@ -34,8 +34,15 @@ database = {
         },
     },
     "songs": {
-        "columns": ["album_id", "name", "track_number", "length", "path",
-                    "source", "disc_id"],
+        "columns": [
+            "album_id",
+            "name",
+            "track_number",
+            "length",
+            "path",
+            "source",
+            "disc_id",
+        ],
         "queries": {
             "read": {
                 "id": """SELECT id FROM songs WHERE path = ?""",
@@ -143,10 +150,10 @@ required_metadata_input_fields = {
 }
 
 punctuation_replacements = {
-        "+": "and",
-        "&": "and",
-        "#": "number",
-        "=": "equals",
+    "+": "and",
+    "&": "and",
+    "#": "number",
+    "=": "equals",
 }
 
 metadata_modifications = {

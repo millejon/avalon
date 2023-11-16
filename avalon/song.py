@@ -60,19 +60,22 @@ class Song:
                 self.mutagen["TIT2"] = id3.TIT2(encoding=1, text=self.metadata[key])
             else:
                 # TXXX - Custom ID3 metadata fields
-                self.mutagen[f"TXXX:{key}"] = id3.TXXX(encoding=1, desc=key,
-                                                       text=self.metadata[key])
+                self.mutagen[f"TXXX:{key}"] = id3.TXXX(
+                    encoding=1, desc=key, text=self.metadata[key]
+                )
 
     def add_album_cover_to_mp3(self) -> None:
         """Add album cover metadata to MP3 music file."""
         with open(f"{util.get_directory(self.path)}/cover.jpg", "rb") as image:
-            self.mutagen["APIC"] = id3.APIC(encoding=3, mime="image/jpeg",
-                                            type=3, data=image.read())
+            self.mutagen["APIC"] = id3.APIC(
+                encoding=3, mime="image/jpeg", type=3, data=image.read()
+            )
 
     def rename_file(self) -> None:
         """Rename local music file to correspond with its metadata."""
-        filename = util.format_song_filename(title=self.metadata["title"],
-                                             number=self.metadata["track_number"])
+        filename = util.format_song_filename(
+            title=self.metadata["title"], number=self.metadata["track_number"]
+        )
         self.path = util.rename_music_file(self.path, filename)
 
     def extract_metadata(self) -> dict:
@@ -103,7 +106,7 @@ class Song:
         metadata = {
             "album": self.mutagen["TALB"].text[0],
             "title": self.mutagen["TIT2"].text[0],
-            "length": self.mutagen.info.length
+            "length": self.mutagen.info.length,
         }
 
         for key, value in self.mutagen.items():

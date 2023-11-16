@@ -12,10 +12,7 @@ from tests.data import song_metadata, avalon_metadata, dummy_files
 # the mutagen property to an instance of either the Mutagen FLAC class
 # or the mutagen MP3 class, and set the metadata property to an empty
 # dictionary.
-@pytest.mark.parametrize("suffix, object_type", (
-    (".flac", FLAC),
-    (".mp3", MP3)
-))
+@pytest.mark.parametrize("suffix, object_type", ((".flac", FLAC), (".mp3", MP3)))
 def test_initialize_song_instance(suffix, object_type, dummy_file):
     file_path = dummy_file(suffix)
     song = Song(file_path)
@@ -45,7 +42,7 @@ def test_add_metadata_to_flac(metadata, dummy_file):
 # function so the FLAC file should not have any other metadata.
 def test_add_album_cover_to_flac(dummy_file):
     song = Song(dummy_file(".flac"))
-    dummy_file('.jpg')
+    dummy_file(".jpg")
 
     song.add_album_cover_to_flac()
 
@@ -81,7 +78,7 @@ def test_add_metadata_to_mp3(metadata, dummy_file):
 # function so the MP3 file should not have any other metadata.
 def test_add_album_cover_to_mp3(dummy_file):
     song = Song(dummy_file(".mp3"))
-    dummy_file('.jpg')
+    dummy_file(".jpg")
 
     song.add_album_cover_to_mp3()
 
@@ -127,11 +124,14 @@ def test_add_metadata_mp3(metadata, dummy_file):
 
 # rename_file() should rename the local music file to correspond with
 # the song's metadata.
-@pytest.mark.parametrize(("metadata, suffix, renamed"), (
-    (song_metadata[0], ".flac", "02_in_my_lifetime.flac"),
-    (song_metadata[1], ".mp3", "08_affirmative_action.mp3"),
-    (song_metadata[2], ".flac", "03_impossible.flac"),
-))
+@pytest.mark.parametrize(
+    ("metadata, suffix, renamed"),
+    (
+        (song_metadata[0], ".flac", "02_in_my_lifetime.flac"),
+        (song_metadata[1], ".mp3", "08_affirmative_action.mp3"),
+        (song_metadata[2], ".flac", "03_impossible.flac"),
+    ),
+)
 def test_rename_file(metadata, suffix, renamed, dummy_file):
     song = Song(dummy_file(suffix))
     directory = os.path.dirname(song.path)
@@ -141,19 +141,23 @@ def test_rename_file(metadata, suffix, renamed, dummy_file):
     song.rename_file()
 
     assert not os.path.isfile(prior_path), f"{prior_path} still exists in {directory}"
-    assert os.path.isfile(f"{song.path}"), \
-        f"{prior_path} was not renamed to {renamed} in {directory}"
+    assert os.path.isfile(
+        f"{song.path}"
+    ), f"{prior_path} was not renamed to {renamed} in {directory}"
 
 
 # format_metadata_from_flac() should format and return the metadata
 # from a FLAC file. Formatting involves splitting fields that can have
 # multiple values into lists, converting numerical values to integers,
 # and converting "True" values into bools.
-@pytest.mark.parametrize(["raw", "formatted"], (
-    (song_metadata[0], avalon_metadata[0]),
-    (song_metadata[1], avalon_metadata[1]),
-    (song_metadata[2], avalon_metadata[2]),
-))
+@pytest.mark.parametrize(
+    ["raw", "formatted"],
+    (
+        (song_metadata[0], avalon_metadata[0]),
+        (song_metadata[1], avalon_metadata[1]),
+        (song_metadata[2], avalon_metadata[2]),
+    ),
+)
 def test_format_metadata_from_flac(raw, formatted, dummy_file):
     song = Song(dummy_file(".flac"))
     song.metadata = raw
@@ -166,11 +170,14 @@ def test_format_metadata_from_flac(raw, formatted, dummy_file):
 # from a MP3 file. Formatting involves splitting fields that can have
 # multiple values into lists, converting numerical values to integers,
 # and converting "True" values into bools.
-@pytest.mark.parametrize(["raw", "formatted"], (
-    (song_metadata[0], avalon_metadata[0]),
-    (song_metadata[1], avalon_metadata[1]),
-    (song_metadata[2], avalon_metadata[2]),
-))
+@pytest.mark.parametrize(
+    ["raw", "formatted"],
+    (
+        (song_metadata[0], avalon_metadata[0]),
+        (song_metadata[1], avalon_metadata[1]),
+        (song_metadata[2], avalon_metadata[2]),
+    ),
+)
 def test_format_metadata_from_mp3(raw, formatted, dummy_file):
     song = Song(dummy_file(".mp3"))
     song.metadata = raw

@@ -8,8 +8,10 @@ def get_database_connection() -> sqlite3.Connection:
     open and return a new database connection.
     """
     if "database" not in g:
-        g.database = sqlite3.connect(database=current_app.config["DATABASE"],
-                                     detect_types=sqlite3.PARSE_DECLTYPES)
+        g.database = sqlite3.connect(
+            database=current_app.config["DATABASE"],
+            detect_types=sqlite3.PARSE_DECLTYPES,
+        )
         # Return database rows as dictionaries.
         g.database.row_factory = sqlite3.Row
 

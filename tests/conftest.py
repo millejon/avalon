@@ -12,9 +12,13 @@ def app(tmp_path):
     # Create a temporary database for testing purposes.
     database_file, database_path = tempfile.mkstemp()
 
-    app = create_app(test_config={"TESTING": True,
-                                  "DATABASE": database_path,
-                                  "MUSIC_DIRECTORY": tmp_path})
+    app = create_app(
+        test_config={
+            "TESTING": True,
+            "DATABASE": database_path,
+            "MUSIC_DIRECTORY": tmp_path,
+        }
+    )
 
     with app.app_context():
         initialize_database()

@@ -35,12 +35,14 @@ tables = list(db_data.keys())
 def test_execute_read_query(app, table):
     with app.app_context():
         database = db.get_database_connection()
-        entity_id = database.execute(db_data[table]["queries"]["write"],
-                                     test_data[table]).lastrowid
+        entity_id = database.execute(
+            db_data[table]["queries"]["write"], test_data[table]
+        ).lastrowid
         database.commit()
 
-        entity = db.execute_read_query(query=db_data[table]["queries"]["read"]["all"],
-                                       data=(entity_id,))
+        entity = db.execute_read_query(
+            query=db_data[table]["queries"]["read"]["all"], data=(entity_id,)
+        )
 
         for index, value in enumerate(db_data[table]["columns"]):
             assert entity[0][value] == test_data[table][index]
@@ -51,12 +53,14 @@ def test_execute_read_query(app, table):
 @pytest.mark.parametrize("table", tables)
 def test_execute_write_query(app, table):
     with app.app_context():
-        entity_id = db.execute_write_query(query=db_data[table]["queries"]["write"],
-                                           data=test_data[table])
+        entity_id = db.execute_write_query(
+            query=db_data[table]["queries"]["write"], data=test_data[table]
+        )
 
         database = db.get_database_connection()
-        entity = database.execute(db_data[table]["queries"]["read"]["all"],
-                                  (entity_id,)).fetchone()
+        entity = database.execute(
+            db_data[table]["queries"]["read"]["all"], (entity_id,)
+        ).fetchone()
 
         assert entity["id"] == entity_id
         for index, value in enumerate(db_data[table]["columns"]):
@@ -73,8 +77,7 @@ def test_initialize_database_cli_command(runner, monkeypatch):
     def fake_initialize_database():
         Recorder.called = True
 
-    monkeypatch.setattr("avalon.database.initialize_database",
-                        fake_initialize_database)
+    monkeypatch.setattr("avalon.database.initialize_database", fake_initialize_database)
     result = runner.invoke(args=["initialize-database"])
     assert Recorder.called
     assert "Database initialized." in result.output
