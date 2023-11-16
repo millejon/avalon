@@ -4,7 +4,7 @@ from mutagen.flac import FLAC
 from mutagen.mp3 import MP3
 
 from avalon.song import Song
-from tests.data import song_metadata, dummy_files
+from tests.data import song_metadata, avalon_metadata, dummy_files
 
 
 # Initializing an instance of the Song class should set the path
@@ -143,3 +143,37 @@ def test_rename_file(metadata, suffix, renamed, dummy_file):
     assert not os.path.isfile(prior_path), f"{prior_path} still exists in {directory}"
     assert os.path.isfile(f"{song.path}"), \
         f"{prior_path} was not renamed to {renamed} in {directory}"
+
+
+# format_metadata_from_flac() should format and return the metadata
+# from a FLAC file. Formatting involves splitting fields that can have
+# multiple values into lists, converting numerical values to integers,
+# and converting "True" values into bools.
+@pytest.mark.parametrize(["raw", "formatted"], (
+    (song_metadata[0], avalon_metadata[0]),
+    (song_metadata[1], avalon_metadata[1]),
+    (song_metadata[2], avalon_metadata[2]),
+))
+def test_format_metadata_from_flac(raw, formatted, dummy_file):
+    song = Song(dummy_file(".flac"))
+    song.metadata = raw
+    song.add_metadata_to_flac()
+
+    assert song.format_metadata_from_flac() == formatted
+
+
+# format_metadata_from_mp3() should format and return the metadata
+# from a MP3 file. Formatting involves splitting fields that can have
+# multiple values into lists, converting numerical values to integers,
+# and converting "True" values into bools.
+@pytest.mark.parametrize(["raw", "formatted"], (
+    (song_metadata[0], avalon_metadata[0]),
+    (song_metadata[1], avalon_metadata[1]),
+    (song_metadata[2], avalon_metadata[2]),
+))
+def test_format_metadata_from_mp3(raw, formatted, dummy_file):
+    song = Song(dummy_file(".mp3"))
+    song.metadata = raw
+    song.add_metadata_to_mp3()
+
+    assert song.format_metadata_from_mp3() == formatted

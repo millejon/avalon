@@ -101,6 +101,51 @@ song_metadata = [
     },
 ]
 
+avalon_metadata = [
+    {
+        "track_number": 2,
+        "album_artists": ["Jay-Z"],
+        "album": "In My Lifetime",
+        "release_date": "1995-07-26",
+        "hubs": ["Roc-A-Fella Records"],
+        "single": True,
+        "title": "In My Lifetime",
+        "song_artists": ["Jay-Z"],
+        "producers": ["Ski Beatz"],
+        "source": "Soulseek",
+    },
+    {
+        "track_number": 8,
+        "album_artists": ["Nas"],
+        "album": "It Was Written",
+        "release_date": "1996-07-02",
+        "title": "Affirmative Action",
+        "song_artists": ["The Firm"],
+        "group_members": ["Nas", "AZ", "Foxy Brown", "Cormega"],
+        "producers": ["Dave Atkinson"],
+        "additional_producers": ["Trackmasters"],
+        "comment": "Remove intro at ~0:00",
+        "source": "Qobuz",
+    },
+    {
+        "track_number": 3,
+        "album_artists": ["Wu-Tang Clan"],
+        "album": "Wu-Tang Forever",
+        "release_date": "1997-06-03",
+        "hubs": ["Wu-Tang Clan"],
+        "multidisc": True,
+        "disc_name": "Disc 2",
+        "disc_number": 2,
+        "title": "Impossible",
+        "song_artists": ["Wu-Tang Clan", "Tekitha"],
+        "group_members": ["RZA", "U-God", "Ghostface Killah"],
+        "producers": ["4th Disciple"],
+        "coproducers": ["RZA"],
+        "comment": "Remove intro at ~0:00",
+        "source": "Qobuz",
+    },
+]
+
 dummy_files = {
     ".flac": (
         b'fLaC\x00\x00\x00"\x10\x00\x10\x00\x00\x01c\x00\x01c\n\xc4@\xf0\x00'
