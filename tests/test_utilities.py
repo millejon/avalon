@@ -75,13 +75,13 @@ def test_rename_music_file(suffix, filename, dummy_file):
 
 # format_song_filename() should format song filenames to correspond
 # with the passed arguments.
-@pytest.mark.parametrize(("title", "number", "filename"), (
+@pytest.mark.parametrize(("title", "number", "formatted"), (
     ("Hold On, Be Strong", "1", "01_hold_on_be_strong"),
     ("Return Of The 'G'", "2", "02_return_of_the_g"),
     ("Y'all Scared", "13", "13_yall_scared"),
 ))
-def test_format_song_filename(title, number, filename):
-    assert util.format_song_filename(title, number) == filename
+def test_format_song_filename(title, number, formatted):
+    assert util.format_song_filename(title, number) == formatted
 
 
 # format_track_number() should add a leading zero to numbers less than
@@ -102,13 +102,13 @@ def test_format_track_number(number, track_number):
 
 # format_filename() should format the filename passed by removing
 # punctuation and replacing spaces with underscores.
-@pytest.mark.parametrize(("filename", "formatted_filename"), (
+@pytest.mark.parametrize(("raw", "formatted"), (
     ("THIS    IS  A   SONG TITLE", "this_is_a_song_title"),
     ("Stay Alive In N.Y.C.", "stay_alive_in_nyc"),
     ("I Don't Like To Dream About Gettin' Paid", "i_dont_like_to_dream_about_gettin_paid"),
 ))
-def test_format_filename(filename, formatted_filename):
-    assert util.format_filename(filename) == formatted_filename
+def test_format_filename(raw, formatted):
+    assert util.format_filename(raw) == formatted
 
 
 # replace_punctuation() should remove all punctuation from the string
