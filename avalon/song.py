@@ -8,7 +8,7 @@ from avalon.data import metadata_modifications as metadata_mods
 
 
 class Song:
-    def __init__(self, path):
+    def __init__(self, path: str):
         self.path = path
         self.mutagen = MutagenFile(self.path)
         self.metadata = {}
@@ -99,6 +99,10 @@ class Song:
             else:
                 metadata[key] = value[0]
 
+        for key in metadata_mods["bools"]:
+            if key not in metadata.keys():
+                metadata[key] = False
+
         return metadata
 
     def format_metadata_from_mp3(self) -> dict:
@@ -121,5 +125,9 @@ class Song:
                     metadata[key] = True
                 else:
                     metadata[key] = value.text[0]
+
+        for key in metadata_mods["bools"]:
+            if key not in metadata.keys():
+                metadata[key] = False
 
         return metadata
