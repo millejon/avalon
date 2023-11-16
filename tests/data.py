@@ -4,12 +4,12 @@ database = {
     "discs": (1, "Disc Two", 2),
     "songs": (
         1,
+        1,
         "Notorious Thugs",
         1,
         367,
         "the-notorious-big/life-after-death/disc-two/01_notorious_thugs.flac",
         "Qobuz",
-        1,
     ),
     "artists_albums": (1, 1),
     "artists_songs": (1, 1, False),

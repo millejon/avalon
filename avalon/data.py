@@ -36,12 +36,12 @@ database = {
     "songs": {
         "columns": [
             "album_id",
+            "disc_id",
             "name",
             "track_number",
             "length",
             "path",
             "source",
-            "disc_id",
         ],
         "queries": {
             "read": {
@@ -50,8 +50,8 @@ database = {
                             length, path, source
                         FROM songs WHERE id = ?""",
             },
-            "write": """INSERT INTO songs (album_id, name, track_number,
-                            length, path, source, disc_id)
+            "write": """INSERT INTO songs (album_id, disc_id, name,
+                            track_number, length, path, source)
                         VALUES (?, ?, ?, ?, ?, ?, ?)""",
         },
     },
