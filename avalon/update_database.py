@@ -1,0 +1,34 @@
+import os
+from flask import current_app
+
+from avalon.song import Song
+from avalon.metadata_mapper import MetadataMapper
+
+
+def update_database() -> None:
+    """Update database with metadata extracted from music files in local
+    music library directory.
+    """
+    music_directory = current_app.config["MUSIC_DIRECTORY"]
+
+    for root, directories, files in os.walk(music_directory):
+        for file in files:
+            # These are the only acceptable music file formats.
+            if file.endswith(".flac") or file.endswith(".mp3"):
+                song_path = os.path.join(root, file)
+                metadata = Song(song_path).extract_metadata()
+                metadata["path"] = song_path.replace(music_directory, "")
+                mapper = MetadataMapper(metadata)
+
+                if not mapper.get_song():
+                    mapper.add_album()
+                    mapper.add_album_artists()
+                    mapper.add_song()
+                    mapper.add_song_artists()
+
+                    if "producers" in metadata.keys():
+                        mapper.add_producers()
+
+
+if __name__ == "__main__":
+    update_database()
