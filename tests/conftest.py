@@ -3,7 +3,8 @@ import tempfile
 import os
 
 from avalon import create_app
-from avalon.database import initialize_database
+import avalon.database as db
+from avalon.data import database as db_data
 import tests.data as data
 
 
@@ -21,7 +22,7 @@ def app(tmp_path):
     )
 
     with app.app_context():
-        initialize_database()
+        db.initialize_database()
 
     yield app
 
@@ -65,3 +66,53 @@ def dummy_file(tmp_path):
         return file_path
 
     return create_dummy_file
+
+
+@pytest.fixture
+def database_album():
+    def add_album_to_database(metadata: dict) -> int:
+        return db.execute_write_query(
+            query=db_data["albums"]["queries"]["write"],
+            data=(
+                metadata["album"],
+                metadata["release_date"],
+                metadata["multidisc"],
+                metadata["single"],
+            ),
+        )
+
+    return add_album_to_database
+
+
+@pytest.fixture
+def database_disc():
+    def add_disc_to_database(metadata: dict, album: int) -> int:
+        return db.execute_write_query(
+            query=db_data["discs"]["queries"]["write"],
+            data=(
+                album,
+                metadata["disc_name"],
+                metadata["disc_number"],
+            ),
+        )
+
+    return add_disc_to_database
+
+
+@pytest.fixture
+def database_song():
+    def add_song_to_database(metadata: dict, album: int) -> int:
+        return db.execute_write_query(
+            query=db_data["songs"]["queries"]["write"],
+            data=(
+                album,
+                None,
+                metadata["title"],
+                metadata["track_number"],
+                metadata["length"],
+                metadata["path"],
+                metadata["source"],
+            ),
+        )
+
+    return add_song_to_database
