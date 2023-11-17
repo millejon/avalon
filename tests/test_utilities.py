@@ -14,6 +14,7 @@ def test_is_directory(tmp_path):
 # that does not exist locally.
 def test_is_not_directory():
     directory = "this/is/not/a/directory"
+
     assert not util.is_directory(directory)
 
 
@@ -35,6 +36,7 @@ def test_get_directory(path, directory):
 # directory.
 def test_get_song_file_paths_empty_directory(tmp_path):
     file_paths = util.get_song_file_paths(directory=tmp_path)
+
     assert file_paths == []
 
 
@@ -50,6 +52,7 @@ def test_get_song_file_paths(album_directory):
 
     for file in file_paths:
         file_path = os.path.join(album_directory, file)
+
         if file_path.endswith(".flac") or file_path.endswith(".mp3"):
             assert (
                 file_path in music_file_paths

@@ -16,6 +16,7 @@ from tests.data import song_metadata, avalon_metadata, dummy_files
 def test_initialize_song_instance(dummy_file, suffix, object_type):
     file_path = dummy_file(suffix)
     song = Song(file_path)
+
     assert song.path == file_path
     assert isinstance(song.mutagen, object_type)
     assert song.metadata == {}

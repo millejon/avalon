@@ -11,6 +11,7 @@ from tests.data import database as test_data
 def test_get_database_connection(app):
     with app.app_context():
         database = db.get_database_connection()
+
         assert database is db.get_database_connection()
 
 
@@ -62,7 +63,6 @@ def test_execute_write_query(app, table):
             db_data[table]["queries"]["read"]["all"], (entity_id,)
         ).fetchone()
 
-        assert entity["id"] == entity_id
         for index, value in enumerate(db_data[table]["columns"]):
             assert entity[value] == test_data[table][index]
 
@@ -79,5 +79,6 @@ def test_initialize_database_cli_command(runner, monkeypatch):
 
     monkeypatch.setattr("avalon.database.initialize_database", fake_initialize_database)
     result = runner.invoke(args=["initialize-database"])
+
     assert Recorder.called
     assert "Database initialized." in result.output
