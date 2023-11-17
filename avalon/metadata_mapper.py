@@ -18,7 +18,7 @@ class MetadataMapper:
             data=(self.metadata["path"],),
         )
 
-        return song[0][0] if song else None
+        return song[0]["id"] if song else None
 
     def get_album(self) -> int | None:
         """Return database id of an album or None if the album is not in
@@ -29,7 +29,7 @@ class MetadataMapper:
             data=(self.metadata["album"], self.metadata["release_date"]),
         )
 
-        return album[0][0] if album else None
+        return album[0]["id"] if album else None
 
     def get_hub(self, name: str) -> int | None:
         """Return database id of a hub or None if the hub is not in the
@@ -38,7 +38,7 @@ class MetadataMapper:
             query=database["hubs"]["queries"]["read"]["id"], data=(name,)
         )
 
-        return hub[0][0] if hub else None
+        return hub[0]["id"] if hub else None
 
     def get_disc(self) -> int | None:
         """Return database id of a disc or None if the disc is not in
@@ -49,7 +49,7 @@ class MetadataMapper:
             data=(self.album, self.metadata["disc_number"]),
         )
 
-        return disc[0][0] if disc else None
+        return disc[0]["id"] if disc else None
 
     def get_artist(self, name: str) -> int | None:
         """Return database id of an artist or None if the artist is not
@@ -59,7 +59,7 @@ class MetadataMapper:
             query=database["artists"]["queries"]["read"]["id"], data=(name,)
         )
 
-        return artist[0][0] if artist else None
+        return artist[0]["id"] if artist else None
 
     def add_album(self) -> None:
         """Add album metadata to database."""
@@ -74,60 +74,42 @@ class MetadataMapper:
                 ),
             )
 
-            if "hubs" in self.metadata.keys():
-                self.add_hubs()
+        if self.metadata["multidisc"]:
+            self.disc = self.get_disc()
 
-        if "multidisc" in self.metadata.keys():
-            self.add_disc()
-
-    def add_hubs(self) -> None:
-        """Add hubs to database and link album to hubs in database."""
-        for hub in self.metadata["hubs"]:
-            hub_id = self.get_hub(hub)
-
-            if not hub_id:
-                hub_id = db.execute_write_query(
-                    query=database["hubs"]["queries"]["write"], data=(hub,)
-                )
-
-            db.execute_write_query(
-                query=database["hubs_albums"]["queries"]["write"],
-                data=(hub_id, self.album),
-            )
+            if not self.disc:
+                self.add_disc()
 
     def add_disc(self) -> None:
         """Add individual disc metadata of multi-disc album to
         database.
         """
-        self.disc = self.get_disc()
-
-        if not self.disc:
-            self.disc = db.execute_write_query(
-                query=database["discs"]["queries"]["write"],
-                data=(
-                    self.album,
-                    self.metadata["disc_name"],
-                    self.metadata["disc_number"],
-                ),
-            )
+        self.disc = db.execute_write_query(
+            query=database["discs"]["queries"]["write"],
+            data=(
+                self.album,
+                self.metadata["disc_name"],
+                self.metadata["disc_number"],
+            ),
+        )
 
     def add_artists(self, artists: list[str]) -> list[int]:
         """Add artist metadata to database and return database ids of
         artists.
         """
-        ids = []
+        artist_ids = []
 
         for artist in artists:
-            id = self.get_artist(artist)
+            artist_id = self.get_artist(artist)
 
-            if not id:
-                id = db.execute_write_query(
+            if not artist_id:
+                artist_id = db.execute_write_query(
                     query=database["artists"]["queries"]["write"], data=(artist,)
                 )
 
-            ids.append(id)
+            artist_ids.append(artist_id)
 
-        return ids
+        return artist_ids
 
     def add_album_artists(self) -> None:
         """Add album artists to database and link artists to album in
@@ -194,3 +176,18 @@ class MetadataMapper:
                     query=database["producers_songs"]["queries"]["write"],
                     data=(producer, self.song, False, True),
                 )
+
+    def add_hubs(self) -> None:
+        """Add hubs to database and link album to hubs in database."""
+        for hub in self.metadata["hubs"]:
+            hub_id = self.get_hub(hub)
+
+            if not hub_id:
+                hub_id = db.execute_write_query(
+                    query=database["hubs"]["queries"]["write"], data=(hub,)
+                )
+
+            db.execute_write_query(
+                query=database["hubs_albums"]["queries"]["write"],
+                data=(hub_id, self.album),
+            )
