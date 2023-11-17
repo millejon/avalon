@@ -71,7 +71,7 @@ def test_get_song_file_paths(album_directory):
         "16_its_bigger_than_hiphop",
     ),
 )
-def test_rename_music_file(suffix, filename, dummy_file):
+def test_rename_music_file(dummy_file, suffix, filename):
     file_path = dummy_file(suffix)
     directory = os.path.dirname(file_path)
 
