@@ -2,6 +2,7 @@ import pytest
 import os
 
 import avalon.utilities as util
+from tests.data import avalon_metadata
 
 
 # is_directory() should return True when passed a path to a local
@@ -46,8 +47,8 @@ def test_get_song_file_paths(album_directory):
     file_paths = os.listdir(album_directory)
     music_file_paths = util.get_song_file_paths(directory=album_directory)
 
-    assert (
-        len(music_file_paths) == 4
+    assert len(music_file_paths) == len(
+        avalon_metadata
     ), f"{len(music_file_paths)} music files found in {album_directory}, expected: 4"
 
     for file in file_paths:

@@ -17,7 +17,7 @@ def app(tmp_path):
         test_config={
             "TESTING": True,
             "DATABASE": database_path,
-            "MUSIC_DIRECTORY": tmp_path,
+            "MUSIC_DIRECTORY": str(tmp_path),
         }
     )
 
@@ -42,12 +42,11 @@ def runner(app):
 
 
 @pytest.fixture
-def album_directory(tmp_path):
-    for x in range(3):
-        tempfile.mkstemp(suffix=".flac", dir=tmp_path)
-    tempfile.mkstemp(suffix=".mp3", dir=tmp_path)
-    tempfile.mkstemp(suffix=".jpg", dir=tmp_path)
-    tempfile.mkstemp(suffix=".txt", dir=tmp_path)
+def album_directory(tmp_path, dummy_file):
+    for x in range(len(data.avalon_metadata) - 1):
+        dummy_file(".flac")
+    dummy_file(".mp3")
+    dummy_file(".jpg")
 
     return tmp_path
 
