@@ -203,14 +203,14 @@ def test_add_artists_new_artists(app, metadata):
 
         assert len(artist_ids) == len(metadata["album_artists"])
 
-        for x in range(len(metadata["album_artists"])):
+        for index, name in enumerate(metadata["album_artists"]):
             artist = db.execute_read_query(
                 query=db_data["artists"]["queries"]["read"]["all"],
-                data=(artist_ids[x],),
+                data=(artist_ids[index],),
             )[0]
 
-            assert artist_ids[x] == x + 1
-            assert artist["name"] == metadata["album_artists"][x]
+            assert artist_ids[index] == index + 1
+            assert artist["name"] == name
 
 
 # If an artist has already been added to the database, add_artists()
@@ -258,20 +258,20 @@ def test_add_album_artists(app, metadata):
 
         mapper.add_album_artists()
 
-        for x in range(len(metadata["album_artists"])):
+        for index, name in enumerate(metadata["album_artists"]):
             artist = db.execute_read_query(
                 query=db_data["artists"]["queries"]["read"]["all"],
-                data=(x + 1,),
+                data=(index + 1,),
             )[0]
 
             assert (
                 db.execute_read_query(
                     query=db_data["artists_albums"]["queries"]["read"]["id"],
-                    data=(x + 1, mapper.album),
+                    data=(index + 1, mapper.album),
                 )
                 is not None
             )
-            assert artist["name"] == metadata["album_artists"][x]
+            assert artist["name"] == name
 
 
 # add_song() should add song metadata and set the song property of the
@@ -319,20 +319,20 @@ def test_add_song_artists(app, metadata):
         if "group_members" in metadata.keys():
             artists.extend(metadata["group_members"])
 
-        for x in range(len(artists)):
+        for index, name in enumerate(artists):
             artist = db.execute_read_query(
                 query=db_data["artists"]["queries"]["read"]["all"],
-                data=(x + 1,),
+                data=(index + 1,),
             )[0]
 
             link = db.execute_read_query(
                 query=db_data["artists_songs"]["queries"]["read"]["all"],
-                data=(x + 1,),
+                data=(index + 1,),
             )[0]
 
-            assert artist["name"] == artists[x]
+            assert artist["name"] == name
 
-            if artists[x] in metadata["song_artists"]:
+            if name in metadata["song_artists"]:
                 assert link["group_member"] == 0  # False in SQLite
             else:
                 assert link["group_member"] == 1  # True in SQLite
@@ -357,26 +357,23 @@ def test_add_producers(app, metadata):
         if "additional_producers" in metadata.keys():
             producers.extend(metadata["additional_producers"])
 
-        for x in range(len(producers)):
+        for index, name in enumerate(producers):
             producer = db.execute_read_query(
                 query=db_data["artists"]["queries"]["read"]["all"],
-                data=(x + 1,),
+                data=(index + 1,),
             )[0]
 
             link = db.execute_read_query(
                 query=db_data["producers_songs"]["queries"]["read"]["all"],
-                data=(x + 1,),
+                data=(index + 1,),
             )[0]
 
-            assert producer["name"] == producers[x]
+            assert producer["name"] == name
 
-            if producers[x] in metadata["producers"]:
+            if name in metadata["producers"]:
                 assert link["coproducer"] == 0  # False in SQLite
                 assert link["additional"] == 0
-            elif (
-                "coproducers" in metadata.keys()
-                and producers[x] in metadata["coproducers"]
-            ):
+            elif "coproducers" in metadata.keys() and name in metadata["coproducers"]:
                 assert link["coproducer"] == 1  # True in SQLite
                 assert link["additional"] == 0
             else:
@@ -395,17 +392,17 @@ def test_add_hubs(app, metadata):
 
             mapper.add_hubs()
 
-            for x in range(len(metadata["hubs"])):
+            for index, name in enumerate(metadata["hubs"]):
                 hub = db.execute_read_query(
                     query=db_data["hubs"]["queries"]["read"]["all"],
-                    data=(x + 1,),
+                    data=(index + 1,),
                 )[0]
 
                 assert (
                     db.execute_read_query(
                         query=db_data["hubs_albums"]["queries"]["read"]["id"],
-                        data=(x + 1, mapper.album),
+                        data=(index + 1, mapper.album),
                     )
                     is not None
                 )
-                assert hub["name"] == metadata["hubs"][x]
+                assert hub["name"] == name
