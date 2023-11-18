@@ -115,3 +115,56 @@ def database_song():
         )
 
     return add_song_to_database
+
+
+@pytest.fixture
+def artist_count(album_artists, song_artists, producers):
+    return len(set(album_artists + song_artists + producers))
+
+
+@pytest.fixture
+def album_artists():
+    artists = []
+
+    for song in data.avalon_metadata:
+        artists.extend(song["album_artists"])
+
+    return artists
+
+
+@pytest.fixture
+def song_artists():
+    artists = []
+
+    for song in data.avalon_metadata:
+        artists.extend(song["song_artists"])
+
+        if "group_members" in song.keys():
+            artists.extend(song["group_members"])
+
+    return artists
+
+
+@pytest.fixture
+def producers():
+    producers = []
+
+    for song in data.avalon_metadata:
+        if "producers" in song.keys():
+            producers.extend(song["producers"])
+        if "co_producers" in song.keys():
+            producers.extend(song["co_producers"])
+        if "additional_producers" in song.keys():
+            producers.extend(song["additional_producers"])
+
+    return producers
+
+
+@pytest.fixture
+def hub_count():
+    hubs = []
+
+    for song in data.avalon_metadata:
+        hubs.extend(song["hubs"])
+
+    return len(set(hubs))
