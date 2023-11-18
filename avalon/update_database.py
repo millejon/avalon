@@ -7,7 +7,7 @@ from avalon.metadata_mapper import MetadataMapper
 
 def update_database() -> None:
     """Update database with metadata extracted from music files in local
-    music library directory.
+    music library.
     """
     music_directory = current_app.config["MUSIC_DIRECTORY"]
 
@@ -28,6 +28,8 @@ def update_database() -> None:
 
                     if "producers" in metadata.keys():
                         mapper.add_producers()
+                    if "hubs" in metadata.keys():
+                        mapper.add_hubs()
 
 
 if __name__ == "__main__":
