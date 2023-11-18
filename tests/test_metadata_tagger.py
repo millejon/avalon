@@ -11,8 +11,11 @@ import tests.data as data
 # display the form to input metadata.
 def test_input_metadata(client, album_directory):
     assert client.get("/metadata-tagger/input-metadata").status_code == 200
-    response = client.post("/metadata-tagger/input-metadata",
-                           data={"directory": album_directory})
+
+    response = client.post(
+        "/metadata-tagger/input-metadata", data={"directory": album_directory}
+    )
+
     assert response.status_code == 200
     assert b'<label for="album_artists">' in response.data
 
@@ -21,8 +24,10 @@ def test_input_metadata(client, album_directory):
 # the input-metadata route should alert the user of the error and
 # reload the page.
 def test_input_metadata_empty_directory(client, tmp_path):
-    response = client.post("/metadata-tagger/input-metadata",
-                           data={"directory": tmp_path})
+    response = client.post(
+        "/metadata-tagger/input-metadata", data={"directory": tmp_path}
+    )
+
     assert b"No music files in directory!" in response.data
     assert response.status_code == 200
 
@@ -31,14 +36,19 @@ def test_input_metadata_empty_directory(client, tmp_path):
 # input-metadata route should alert the user of the error and reload
 # the page.
 def test_input_metadata_invalid_directory(client):
-    response = client.post("/metadata-tagger/input-metadata",
-                           data={"directory": "not/a/directory"})
+    response = client.post(
+        "/metadata-tagger/input-metadata", data={"directory": "not/a/directory"}
+    )
+
     assert b"Directory does not exist!" in response.data
     assert response.status_code == 200
 
 
-fields = (required_fields["album"] + required_fields["multidisc"]
-          + [f"track1_{field}" for field in required_fields["song"]])
+fields = (
+    required_fields["album"]
+    + required_fields["multidisc"]
+    + [f"track1_{field}" for field in required_fields["song"]]
+)
 fields.append("track1_producers")
 
 
@@ -64,7 +74,9 @@ def test_validate_metadata_form_single_multidisc():
     with pytest.raises(ExceptionGroup) as error:
         tagger.validate_metadata_form(metadata)
 
-    assert "An album can not be a single and multidisc!" == str(error.value.exceptions[0])
+    assert "An album can not be a single and multidisc!" == str(
+        error.value.exceptions[0]
+    )
 
 
 # Submitting a metadata form with complete multidisc metadata but
@@ -125,8 +137,10 @@ def test_process_songs(dummy_file):
 
     for x in range(len(metadata)):
         file_path = f"{os.path.dirname(file_paths[0])}/{new_file_paths[x]}"
+
         assert not os.path.isfile(file_paths[x])
         assert os.path.isfile(file_path)
+
         song = MutagenFile(file_path)
 
         for key, value in metadata[x].items():

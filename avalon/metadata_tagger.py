@@ -53,8 +53,10 @@ def validate_metadata_form(form: dict) -> None:
         validate_multidisc_metadata(form, exceptions)
 
     if exceptions:
-        raise ExceptionGroup("Invalid metadata form submitted! Please check "
-                             "data and resubmit form!", exceptions)
+        raise ExceptionGroup(
+            "Invalid metadata form submitted! Please check data and resubmit form!",
+            exceptions,
+        )
 
 
 def validate_album_metadata(form: dict, exceptions: list[ValueError]) -> None:
@@ -70,11 +72,13 @@ def validate_song_metadata(form: dict, exceptions: list[ValueError]) -> None:
         prefix = f"track{x+1}_"
         for field in required_fields["song"]:
             if not form[f"{prefix}{field}"]:
-                exceptions.append(ValueError(f"Value for '{prefix}{field}' "
-                                             "is missing!"))
+                exceptions.append(
+                    ValueError(f"Value for '{prefix}{field}' " "is missing!")
+                )
 
-        if ((form[f"{prefix}coproducers"] or form[f"{prefix}additional_producers"])
-                and not form[f"{prefix}producers"]):
+        if (
+            form[f"{prefix}coproducers"] or form[f"{prefix}additional_producers"]
+        ) and not form[f"{prefix}producers"]:
             exceptions.append(ValueError(f"Value for '{prefix}producers' is missing!"))
 
 
@@ -100,7 +104,10 @@ def format_metadata(form: dict) -> list[dict]:
         prefix = f"track{x+1}_"
 
         for key, value in form.items():
-            if key.startswith(prefix):
+            if not form[key]:
+                # Ignore empty form fields.
+                continue
+            elif key.startswith(prefix):
                 metadata[x][key.replace(prefix, "")] = value
             elif key.startswith("track"):
                 # Ignore song-specific metadata for other songs.

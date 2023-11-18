@@ -3,7 +3,8 @@ import tempfile
 import os
 
 from avalon import create_app
-from avalon.database import initialize_database
+import avalon.database as db
+from avalon.data import database as db_data
 import tests.data as data
 
 
@@ -12,12 +13,16 @@ def app(tmp_path):
     # Create a temporary database for testing purposes.
     database_file, database_path = tempfile.mkstemp()
 
-    app = create_app(test_config={"TESTING": True,
-                                  "DATABASE": database_path,
-                                  "MUSIC_DIRECTORY": tmp_path})
+    app = create_app(
+        test_config={
+            "TESTING": True,
+            "DATABASE": database_path,
+            "MUSIC_DIRECTORY": str(tmp_path),
+        }
+    )
 
     with app.app_context():
-        initialize_database()
+        db.initialize_database()
 
     yield app
 
@@ -37,12 +42,11 @@ def runner(app):
 
 
 @pytest.fixture
-def album_directory(tmp_path):
-    for x in range(3):
-        tempfile.mkstemp(suffix=".flac", dir=tmp_path)
-    tempfile.mkstemp(suffix=".mp3", dir=tmp_path)
-    tempfile.mkstemp(suffix=".jpg", dir=tmp_path)
-    tempfile.mkstemp(suffix=".txt", dir=tmp_path)
+def album_directory(tmp_path, dummy_file):
+    for x in range(len(data.avalon_metadata) - 1):
+        dummy_file(".flac")
+    dummy_file(".mp3")
+    dummy_file(".jpg")
 
     return tmp_path
 
@@ -61,3 +65,106 @@ def dummy_file(tmp_path):
         return file_path
 
     return create_dummy_file
+
+
+@pytest.fixture
+def database_album():
+    def add_album_to_database(metadata: dict) -> int:
+        return db.execute_write_query(
+            query=db_data["albums"]["queries"]["write"],
+            data=(
+                metadata["album"],
+                metadata["release_date"],
+                metadata["multidisc"],
+                metadata["single"],
+            ),
+        )
+
+    return add_album_to_database
+
+
+@pytest.fixture
+def database_disc():
+    def add_disc_to_database(metadata: dict, album: int) -> int:
+        return db.execute_write_query(
+            query=db_data["discs"]["queries"]["write"],
+            data=(
+                album,
+                metadata["disc_name"],
+                metadata["disc_number"],
+            ),
+        )
+
+    return add_disc_to_database
+
+
+@pytest.fixture
+def database_song():
+    def add_song_to_database(metadata: dict, album: int) -> int:
+        return db.execute_write_query(
+            query=db_data["songs"]["queries"]["write"],
+            data=(
+                album,
+                None,
+                metadata["title"],
+                metadata["track_number"],
+                metadata["length"],
+                metadata["path"],
+                metadata["source"],
+            ),
+        )
+
+    return add_song_to_database
+
+
+@pytest.fixture
+def artist_count(album_artists, song_artists, producers):
+    return len(set(album_artists + song_artists + producers))
+
+
+@pytest.fixture
+def album_artists():
+    artists = []
+
+    for song in data.avalon_metadata:
+        artists.extend(song["album_artists"])
+
+    return artists
+
+
+@pytest.fixture
+def song_artists():
+    artists = []
+
+    for song in data.avalon_metadata:
+        artists.extend(song["song_artists"])
+
+        if "group_members" in song.keys():
+            artists.extend(song["group_members"])
+
+    return artists
+
+
+@pytest.fixture
+def producers():
+    producers = []
+
+    for song in data.avalon_metadata:
+        if "producers" in song.keys():
+            producers.extend(song["producers"])
+        if "co_producers" in song.keys():
+            producers.extend(song["co_producers"])
+        if "additional_producers" in song.keys():
+            producers.extend(song["additional_producers"])
+
+    return producers
+
+
+@pytest.fixture
+def hub_count():
+    hubs = []
+
+    for song in data.avalon_metadata:
+        hubs.extend(song["hubs"])
+
+    return len(set(hubs))

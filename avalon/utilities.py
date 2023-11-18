@@ -30,11 +30,15 @@ def get_song_file_paths(directory: str) -> list[str]:
     return songs
 
 
-def rename_music_file(path: str, filename: str) -> None:
-    """Rename local music file passed to filename passed."""
+def rename_music_file(path: str, filename: str) -> str:
+    """Rename local music file passed to filename passed and return
+    new file path.
+    """
     directory = get_directory(path)
     extension = os.path.splitext(path)[1]
     os.rename(path, f"{directory}/{filename}{extension}")
+
+    return f"{directory}/{filename}{extension}"
 
 
 def format_song_filename(title: str, number: str) -> str:
