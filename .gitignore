@@ -9,6 +9,6 @@ dist/
 build/
 *.egg-info/
 
-avalon/static/img/albums/
-avalon/static/img/artists/
+avalon/static/img/
+avalon/static/video/
 docs/
