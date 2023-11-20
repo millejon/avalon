@@ -73,6 +73,10 @@ class MetadataMapper:
                     self.metadata["single"],
                 ),
             )
+            self.add_album_artists()
+
+            if "hubs" in self.metadata.keys():
+                self.add_hubs()
 
         if self.metadata["multidisc"]:
             self.disc = self.get_disc()
@@ -116,6 +120,7 @@ class MetadataMapper:
         database.
         """
         for artist in self.add_artists(self.metadata["album_artists"]):
+            print(artist)
             db.execute_write_query(
                 query=database["artists_albums"]["queries"]["write"],
                 data=(artist, self.album),

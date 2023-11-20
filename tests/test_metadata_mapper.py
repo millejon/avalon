@@ -251,10 +251,10 @@ def test_add_artists_existing_artists(app, group1, group2, ids1, ids2):
 # album artists field and create the database links between the album
 # and each of its album artists.
 @pytest.mark.parametrize("metadata", avalon_metadata)
-def test_add_album_artists(app, metadata):
+def test_add_album_artists(app, database_album, metadata):
     with app.app_context():
         mapper = MetadataMapper(metadata)
-        mapper.add_album()
+        mapper.album = database_album(metadata)
 
         mapper.add_album_artists()
 
@@ -306,11 +306,11 @@ def test_add_song(app, metadata):
 # song artists and group members fields and create the database links
 # between the song and each of its song artists.
 @pytest.mark.parametrize("metadata", avalon_metadata)
-def test_add_song_artists(app, metadata):
+def test_add_song_artists(app, database_album, metadata):
     with app.app_context():
         mapper = MetadataMapper(metadata.copy())
         mapper.metadata["path"] = f"{metadata['title']}.flac"
-        mapper.add_album()
+        mapper.album = database_album(metadata)
         mapper.add_song()
 
         mapper.add_song_artists()
@@ -342,11 +342,11 @@ def test_add_song_artists(app, metadata):
 # producers, coproducers, and additional producers fields and create
 # the database links between the song and each of its producers.
 @pytest.mark.parametrize("metadata", avalon_metadata)
-def test_add_producers(app, metadata):
+def test_add_producers(app, database_album, metadata):
     with app.app_context():
         mapper = MetadataMapper(metadata.copy())
         mapper.metadata["path"] = f"{metadata['title']}.flac"
-        mapper.add_album()
+        mapper.album = database_album(metadata)
         mapper.add_song()
 
         mapper.add_producers()
@@ -384,11 +384,11 @@ def test_add_producers(app, metadata):
 # add_hubs() should add hub metadata for all hubs in the hubs field
 # and create the database link between the album and each of its hubs.
 @pytest.mark.parametrize("metadata", avalon_metadata)
-def test_add_hubs(app, metadata):
+def test_add_hubs(app, database_album, metadata):
     if "hubs" in metadata.keys():
         with app.app_context():
             mapper = MetadataMapper(metadata)
-            mapper.add_album()
+            mapper.album = database_album(metadata)
 
             mapper.add_hubs()
 

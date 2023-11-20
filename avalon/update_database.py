@@ -22,14 +22,11 @@ def update_database() -> None:
 
                 if not mapper.get_song():
                     mapper.add_album()
-                    mapper.add_album_artists()
                     mapper.add_song()
                     mapper.add_song_artists()
 
                     if "producers" in metadata.keys():
                         mapper.add_producers()
-                    if "hubs" in metadata.keys():
-                        mapper.add_hubs()
 
 
 if __name__ == "__main__":
