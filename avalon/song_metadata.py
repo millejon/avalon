@@ -7,15 +7,15 @@ import avalon.utilities as util
 from avalon.data import metadata_modifications as metadata_mods
 
 
-class Song:
+class SongMetadata:
     def __init__(self, path: str):
         self.path = path
         self.mutagen = MutagenFile(self.path)
-        self.metadata = {}
+        self.data = {}
 
     def add_metadata(self, metadata: dict) -> None:
         """Add metadata to music file."""
-        self.metadata = metadata
+        self.data = metadata
 
         if isinstance(self.mutagen, FLAC):
             self.add_metadata_to_flac()
@@ -32,8 +32,8 @@ class Song:
         self.mutagen.clear_pictures()
         self.mutagen.delete()
 
-        for key in self.metadata.keys():
-            self.mutagen[key] = self.metadata[key]
+        for key in self.data.keys():
+            self.mutagen[key] = self.data[key]
 
     def add_album_cover_to_flac(self) -> None:
         """Add album cover metadata to FLAC music file."""
@@ -51,17 +51,17 @@ class Song:
         # Initialize MP3 metadata.
         self.mutagen.tags = id3.ID3()
 
-        for key in self.metadata.keys():
+        for key in self.data.keys():
             if key == "album":
                 # TALB - Album title field
-                self.mutagen["TALB"] = id3.TALB(encoding=1, text=self.metadata[key])
+                self.mutagen["TALB"] = id3.TALB(encoding=1, text=self.data[key])
             elif key == "title":
                 # TIT2 - Song title field
-                self.mutagen["TIT2"] = id3.TIT2(encoding=1, text=self.metadata[key])
+                self.mutagen["TIT2"] = id3.TIT2(encoding=1, text=self.data[key])
             else:
                 # TXXX - Custom ID3 metadata fields
                 self.mutagen[f"TXXX:{key}"] = id3.TXXX(
-                    encoding=1, desc=key, text=self.metadata[key]
+                    encoding=1, desc=key, text=self.data[key]
                 )
 
     def add_album_cover_to_mp3(self) -> None:
@@ -74,7 +74,7 @@ class Song:
     def rename_file(self) -> None:
         """Rename local music file to correspond with its metadata."""
         filename = util.format_song_filename(
-            title=self.metadata["title"], number=self.metadata["track_number"]
+            title=self.data["title"], number=self.data["track_number"]
         )
         self.path = util.rename_music_file(self.path, filename)
 

@@ -1,10 +1,10 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 import avalon.utilities as util
-from avalon.song import Song
+from avalon.song_metadata import SongMetadata
 from avalon.data import required_metadata_input_fields as required_fields
 
-bp = Blueprint("metadata-tagger", __name__, url_prefix="/metadata-tagger")
+bp = Blueprint("metadata-tagger", __name__, url_prefix="/")
 
 
 @bp.route("/input-metadata", methods=("GET", "POST"))
@@ -123,7 +123,7 @@ def process_songs(metadata: list) -> None:
     correspond with their respective metadata.
     """
     for x in range(len(metadata)):
-        song = Song(metadata[x]["path"])
+        song = SongMetadata(metadata[x]["path"])
         metadata[x].pop("path")
 
         song.add_metadata(metadata[x])

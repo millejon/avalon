@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block content %}
-  <form action="/metadata-tagger/input-metadata" method="post">
+  <form action="/input-metadata" method="post">
     <div>
       <label for="directory">Directory: </label>
       <input type="text" name="directory" id="directory"
@@ -15,14 +15,14 @@
           value="{{ request.form['directory'] }}"
         {% endif %}
         required>
-      {% if not request.form["directory"] %}
+      {% if not songs %}
         <input type="submit" value="Submit">
       {% endif %}
     </div>
   </form>
 
   {% if songs %}
-    <form action="/metadata-tagger/process-metadata" method="post">
+    <form action="/process-metadata" method="post">
       <div>
         <label for="album_artists">Album Artist(s): </label>
         <input type="text" name="album_artists" id="album_artists"

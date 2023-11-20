@@ -1,7 +1,7 @@
 import os
 from flask import current_app
 
-from avalon.song import Song
+from avalon.song_metadata import SongMetadata
 from avalon.metadata_mapper import MetadataMapper
 
 
@@ -16,7 +16,7 @@ def update_database() -> None:
             # These are the only acceptable music file formats.
             if file.endswith(".flac") or file.endswith(".mp3"):
                 song_path = os.path.join(root, file)
-                metadata = Song(song_path).extract_metadata()
+                metadata = SongMetadata(song_path).extract_metadata()
                 metadata["path"] = song_path.replace(music_directory, "")
                 mapper = MetadataMapper(metadata)
 

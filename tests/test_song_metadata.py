@@ -3,11 +3,11 @@ import os
 from mutagen.flac import FLAC
 from mutagen.mp3 import MP3
 
-from avalon.song import Song
+from avalon.song_metadata import SongMetadata
 from tests.data import song_metadata, avalon_metadata, dummy_files
 
 
-# Initializing an instance of the Song class should set the path
+# Initializing an instance of the SongMetadata class should set the path
 # property of the instance to the path passed at initialization, set
 # the mutagen property to an instance of either the Mutagen FLAC class
 # or the mutagen MP3 class, and set the metadata property to an empty
@@ -15,11 +15,11 @@ from tests.data import song_metadata, avalon_metadata, dummy_files
 @pytest.mark.parametrize("suffix, object_type", ((".flac", FLAC), (".mp3", MP3)))
 def test_initialize_song_instance(dummy_file, suffix, object_type):
     file_path = dummy_file(suffix)
-    song = Song(file_path)
+    song = SongMetadata(file_path)
 
     assert song.path == file_path
     assert isinstance(song.mutagen, object_type)
-    assert song.metadata == {}
+    assert song.data == {}
 
 
 # add_metadata_to_flac() should properly tag FLAC file with the
@@ -27,8 +27,8 @@ def test_initialize_song_instance(dummy_file, suffix, object_type):
 # function so the FLAC file should not have an album cover tag.
 @pytest.mark.parametrize("metadata", song_metadata)
 def test_add_metadata_to_flac(dummy_file, metadata):
-    song = Song(dummy_file(".flac"))
-    song.metadata = metadata
+    song = SongMetadata(dummy_file(".flac"))
+    song.data = metadata
 
     song.add_metadata_to_flac()
 
@@ -42,7 +42,7 @@ def test_add_metadata_to_flac(dummy_file, metadata):
 # cover. Tagging the rest of the metadata is handled by a separate
 # function so the FLAC file should not have any other metadata.
 def test_add_album_cover_to_flac(dummy_file):
-    song = Song(dummy_file(".flac"))
+    song = SongMetadata(dummy_file(".flac"))
     dummy_file(".jpg")
 
     song.add_album_cover_to_flac()
@@ -58,8 +58,8 @@ def test_add_album_cover_to_flac(dummy_file):
 # the MP3 file should not have an album cover tag.
 @pytest.mark.parametrize("metadata", song_metadata)
 def test_add_metadata_to_mp3(dummy_file, metadata):
-    song = Song(dummy_file(".mp3"))
-    song.metadata = metadata
+    song = SongMetadata(dummy_file(".mp3"))
+    song.data = metadata
 
     song.add_metadata_to_mp3()
 
@@ -78,7 +78,7 @@ def test_add_metadata_to_mp3(dummy_file, metadata):
 # cover. Tagging the rest of the metadata is handled by a separate
 # function so the MP3 file should not have any other metadata.
 def test_add_album_cover_to_mp3(dummy_file):
-    song = Song(dummy_file(".mp3"))
+    song = SongMetadata(dummy_file(".mp3"))
     dummy_file(".jpg")
 
     song.add_album_cover_to_mp3()
@@ -91,7 +91,7 @@ def test_add_album_cover_to_mp3(dummy_file):
 # and the album cover.
 @pytest.mark.parametrize("metadata", song_metadata)
 def test_add_metadata_flac(dummy_file, metadata):
-    song = Song(dummy_file(".flac"))
+    song = SongMetadata(dummy_file(".flac"))
     dummy_file(".jpg")
 
     song.add_metadata(metadata)
@@ -106,7 +106,7 @@ def test_add_metadata_flac(dummy_file, metadata):
 
 @pytest.mark.parametrize("metadata", song_metadata)
 def test_add_metadata_mp3(dummy_file, metadata):
-    song = Song(dummy_file(".mp3"))
+    song = SongMetadata(dummy_file(".mp3"))
     dummy_file(".jpg")
 
     song.add_metadata(metadata)
@@ -134,9 +134,9 @@ def test_add_metadata_mp3(dummy_file, metadata):
     ),
 )
 def test_rename_file(dummy_file, metadata, suffix, renamed):
-    song = Song(dummy_file(suffix))
+    song = SongMetadata(dummy_file(suffix))
     directory = os.path.dirname(song.path)
-    song.metadata = metadata
+    song.data = metadata
     prior_path = song.path
 
     song.rename_file()
@@ -160,8 +160,8 @@ def test_rename_file(dummy_file, metadata, suffix, renamed):
     ),
 )
 def test_format_metadata_from_flac(dummy_file, raw, formatted):
-    song = Song(dummy_file(".flac"))
-    song.metadata = raw
+    song = SongMetadata(dummy_file(".flac"))
+    song.data = raw
     song.add_metadata_to_flac()
 
     assert song.format_metadata_from_flac() == formatted
@@ -180,8 +180,8 @@ def test_format_metadata_from_flac(dummy_file, raw, formatted):
     ),
 )
 def test_format_metadata_from_mp3(dummy_file, raw, formatted):
-    song = Song(dummy_file(".mp3"))
-    song.metadata = raw
+    song = SongMetadata(dummy_file(".mp3"))
+    song.data = raw
     song.add_metadata_to_mp3()
 
     assert song.format_metadata_from_mp3() == formatted
