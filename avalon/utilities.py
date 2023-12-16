@@ -73,3 +73,12 @@ def replace_punctuation(name: str) -> str:
         name = name.replace("  ", " ")
 
     return name
+
+
+def format_song_file_path(metadata: dict) -> str:
+    """Format file path for song to correspond with its metadata."""
+    artist = format_directory(metadata["album_artists"][0])
+    album = format_directory(metadata["album"])
+    song = format_song_filename(metadata["track_number"], metadata["title"])
+
+    return f"{artist}/{album}/{song}.flac"

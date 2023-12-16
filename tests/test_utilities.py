@@ -2,7 +2,7 @@ import pytest
 import os
 
 import avalon.utilities as util
-from tests.data import avalon_metadata
+import tests.data as data
 
 
 # is_directory() should return True when passed a path to a local
@@ -45,7 +45,7 @@ def test_get_song_file_paths(dummy_album_directory):
     file_paths = os.listdir(dummy_album_directory)
     music_file_paths = util.get_song_file_paths(dummy_album_directory)
 
-    assert len(music_file_paths) == len(avalon_metadata)
+    assert len(music_file_paths) == len(data.avalon_metadata)
 
     for file in file_paths:
         file_path = os.path.join(dummy_album_directory, file)
@@ -149,3 +149,17 @@ def test_format_directory(raw, formatted):
 )
 def test_replace_punctuation(raw, formatted):
     assert util.replace_punctuation(raw) == formatted
+
+
+# format_song_file_path() should format the file path to a local music
+# file to correspond with its metadata.
+@pytest.mark.parametrize(
+    ("metadata", "file_path"),
+    (
+        (data.avalon_metadata[0], data.avalon_metadata_file_paths[0]),
+        (data.avalon_metadata[1], data.avalon_metadata_file_paths[1]),
+        (data.avalon_metadata[2], data.avalon_metadata_file_paths[2]),
+    ),
+)
+def test_format_song_file_paths(metadata, file_path):
+    assert util.format_song_file_path(metadata) == file_path
