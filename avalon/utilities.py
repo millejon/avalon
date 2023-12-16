@@ -18,30 +18,29 @@ def get_directory(path: str) -> str:
 
 def get_song_file_paths(directory: str) -> list[str]:
     """Return list of music file paths in directory passed."""
-    songs = os.listdir(directory)
+    files = os.listdir(directory)
 
-    for song in songs.copy():
+    for file in files.copy():
         # These are the only acceptable music file formats.
-        if not song.endswith(".flac") and not song.endswith(".mp3"):
-            songs.remove(song)
-        else:
-            songs[songs.index(song)] = os.path.join(directory, song)
+        if not file.endswith(".flac") and not file.endswith(".mp3"):
+            files.remove(file)
 
-    return songs
+    return [os.path.join(directory, song) for song in files]
 
 
-def rename_music_file(path: str, filename: str) -> str:
+def rename_music_file(current_file_path: str, filename: str) -> str:
     """Rename local music file passed to filename passed and return
     new file path.
     """
-    directory = get_directory(path)
-    extension = os.path.splitext(path)[1]
-    os.rename(path, f"{directory}/{filename}{extension}")
+    directory = get_directory(current_file_path)
+    extension = os.path.splitext(current_file_path)[1]
+    new_file_path = f"{directory}/{filename}{extension}"
+    os.rename(current_file_path, new_file_path)
 
-    return f"{directory}/{filename}{extension}"
+    return new_file_path
 
 
-def format_song_filename(title: str, number: str) -> str:
+def format_song_filename(number: str, title: str) -> str:
     """Format song filename for use in a file path."""
     return f"{format_track_number(number)}_{format_filename(title)}"
 
@@ -54,6 +53,11 @@ def format_track_number(number: str) -> str:
 def format_filename(filename: str) -> str:
     """Format filename for use in a file path."""
     return replace_punctuation(filename).replace(" ", "_").lower()
+
+
+def format_directory(directory: str) -> str:
+    """Format directory filename for use in a file path."""
+    return replace_punctuation(directory).replace(" ", "-").lower()
 
 
 def replace_punctuation(name: str) -> str:
