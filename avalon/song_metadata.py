@@ -74,7 +74,7 @@ class SongMetadata:
     def rename_file(self) -> None:
         """Rename local music file to correspond with its metadata."""
         filename = util.format_song_filename(
-            title=self.data["title"], number=self.data["track_number"]
+            number=self.data["track_number"], title=self.data["title"]
         )
         self.path = util.rename_music_file(self.path, filename)
 

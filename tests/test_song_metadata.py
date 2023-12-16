@@ -135,16 +135,14 @@ def test_add_metadata_mp3(dummy_file, metadata):
 )
 def test_rename_file(dummy_file, metadata, suffix, renamed):
     song = SongMetadata(dummy_file(suffix))
-    directory = os.path.dirname(song.path)
     song.data = metadata
-    prior_path = song.path
+    original_path = song.path
 
     song.rename_file()
 
-    assert not os.path.isfile(prior_path), f"{prior_path} still exists in {directory}"
-    assert os.path.isfile(
-        f"{song.path}"
-    ), f"{prior_path} was not renamed to {renamed} in {directory}"
+    assert not os.path.isfile(original_path)
+    assert os.path.isfile(song.path)
+    assert os.path.basename(song.path) == renamed
 
 
 # format_metadata_from_flac() should format and return the metadata
@@ -152,7 +150,7 @@ def test_rename_file(dummy_file, metadata, suffix, renamed):
 # multiple values into lists, converting numerical values to integers,
 # and converting "True" values into bools.
 @pytest.mark.parametrize(
-    ["raw", "formatted"],
+    ("raw", "formatted"),
     (
         (song_metadata[0], avalon_metadata[0]),
         (song_metadata[1], avalon_metadata[1]),
@@ -172,7 +170,7 @@ def test_format_metadata_from_flac(dummy_file, raw, formatted):
 # multiple values into lists, converting numerical values to integers,
 # and converting "True" values into bools.
 @pytest.mark.parametrize(
-    ["raw", "formatted"],
+    ("raw", "formatted"),
     (
         (song_metadata[0], avalon_metadata[0]),
         (song_metadata[1], avalon_metadata[1]),

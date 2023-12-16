@@ -73,7 +73,7 @@ def validate_song_metadata(form: dict, exceptions: list[ValueError]) -> None:
         for field in required_fields["song"]:
             if not form[f"{prefix}{field}"]:
                 exceptions.append(
-                    ValueError(f"Value for '{prefix}{field}' " "is missing!")
+                    ValueError(f"Value for '{prefix}{field}' is missing!")
                 )
 
         if (
@@ -93,7 +93,7 @@ def validate_multidisc_metadata(form: dict, exceptions: list[ValueError]) -> Non
 
 
 def format_metadata(form: dict) -> list[dict]:
-    """Format data from user's submitted metadata form in a list of
+    """Format data from user's submitted metadata form into a list of
     dictionaries where each dictionary contains the metadata for one
     song.
     """

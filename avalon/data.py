@@ -5,6 +5,7 @@ database = {
             "read": {
                 "id": """SELECT id FROM artists WHERE name = ?""",
                 "all": """SELECT name FROM artists WHERE id = ?""",
+                "all_artists": """SELECT id FROM artists""",
             },
             "write": """INSERT INTO artists (name) VALUES (?)""",
         },
@@ -16,6 +17,9 @@ database = {
                 "id": """SELECT id FROM albums WHERE name = ? AND release_date = ?""",
                 "all": """SELECT name, release_date, multidisc, single
                         FROM albums WHERE id = ?""",
+                "length": """SELECT SUM(songs.length) FROM songs
+                        INNER JOIN albums ON songs.album_id = albums.id
+                        WHERE albums.id = ?""",
             },
             "write": """INSERT INTO albums (name, release_date, multidisc, single)
                         VALUES (?, ?, ?, ?)""",
@@ -49,6 +53,7 @@ database = {
                 "all": """SELECT album_id, disc_id, name, track_number,
                             length, path, source
                         FROM songs WHERE id = ?""",
+                "album": """SELECT id FROM songs WHERE album_id = ?""",
             },
             "write": """INSERT INTO songs (album_id, disc_id, name,
                             track_number, length, path, source)
@@ -63,6 +68,17 @@ database = {
                         WHERE artist_id = ? AND album_id = ?""",
                 "all": """SELECT artist_id, album_id
                         FROM artists_albums WHERE id = ?""",
+                "albums": """SELECT albums.id FROM albums
+                        INNER JOIN artists_albums ON albums.id = artists_albums.album_id
+                        WHERE artists_albums.artist_id = ? AND albums.single = 0
+                        ORDER BY albums.release_date DESC""",
+                "singles": """SELECT albums.id FROM albums
+                        INNER JOIN artists_albums ON albums.id = artists_albums.album_id
+                        WHERE artists_albums.artist_id = ? AND albums.single = 1
+                        ORDER BY albums.release_date DESC""",
+                "artists": """SELECT artists.id, artists.name FROM artists
+                        INNER JOIN artists_albums ON artists.id = artists_albums.artist_id
+                        WHERE artists_albums.album_id = ?""",
             },
             "write": """INSERT INTO artists_albums (artist_id, album_id)
                         VALUES (?, ?)""",
@@ -76,6 +92,14 @@ database = {
                         WHERE artist_id = ? AND song_id = ?""",
                 "all": """SELECT artist_id, song_id, group_member
                         FROM artists_songs WHERE id = ?""",
+                "songs": """SELECT songs.id FROM songs
+                        INNER JOIN artists_songs ON songs.id = artists_songs.song_id
+                        INNER JOIN albums on songs.album_id = albums.id
+                        WHERE artists_songs.artist_id = ?
+                        ORDER BY songs.play_count DESC, albums.release_date DESC""",
+                "artists": """SELECT artists.id, artists.name FROM artists
+                        INNER JOIN artists_songs ON artists.id = artists_songs.artist_id
+                        WHERE artists_songs.song_id = ? AND artists_songs.group_member = 0""",
             },
             "write": """INSERT INTO artists_songs (artist_id, song_id, group_member)
                         VALUES (?, ?, ?)""",
@@ -89,6 +113,13 @@ database = {
                         WHERE artist_id = ? AND song_id = ?""",
                 "all": """SELECT artist_id, song_id, coproducer, additional
                         FROM producers_songs WHERE id = ?""",
+                "songs": """SELECT songs.id, producers_songs.coproducer, producers_songs.additional
+                        FROM SONGS
+                        INNER JOIN producers_songs ON songs.id = producers_songs.song_id
+                        WHERE producers_songs.artist_id = ?""",
+                "producers": """SELECT artists.id, artists.name FROM artists
+                            INNER JOIN producers_songs ON artists.id = producers_songs.artist_id
+                            WHERE producers_songs.song_id = ?""",
             },
             "write": """INSERT INTO producers_songs (artist_id, song_id,
                             coproducer, additional)

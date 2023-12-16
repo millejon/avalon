@@ -9,10 +9,10 @@ import tests.data as data
 
 # Submitting a valid directory to the input-metadata route should
 # display the form to input metadata.
-def test_input_metadata(client, album_directory):
+def test_input_metadata(client, dummy_album_directory):
     assert client.get("/input-metadata").status_code == 200
 
-    response = client.post("/input-metadata", data={"directory": album_directory})
+    response = client.post("/input-metadata", data={"directory": dummy_album_directory})
 
     assert response.status_code == 200
     assert b'<label for="album_artists">' in response.data
@@ -110,32 +110,33 @@ def test_format_metadata():
     assert len(metadata) == int(data.metadata_form["track_count"])
 
     for index, song in enumerate(metadata):
-        assert song.keys() == data.formatted_metadata[index].keys()
+        assert song.keys() == data.formatted_metadata_form[index].keys()
 
-        for key, value in data.formatted_metadata[index].items():
+        for key, value in data.formatted_metadata_form[index].items():
             assert song[key] == value
 
 
 # process_songs() should add metadata to all music files and rename
 # the files to correspond with their respective metadata.
 def test_process_songs(dummy_file):
-    metadata = data.formatted_metadata.copy()
-    file_paths = [dummy_file(".flac") * len(metadata)]
+    metadata = data.formatted_metadata_form.copy()
+    original_file_paths = [dummy_file(".flac") * len(metadata)]
+    album_directory = os.path.dirname(original_file_paths[0])
     dummy_file(".jpg")
-    new_file_paths = [metadata[x]["path"] for x in range(len(metadata))]
+    expected_file_paths = [
+        os.path.join(album_directory, metadata[x]["path"]) for x in range(len(metadata))
+    ]
 
     for x in range(len(metadata)):
-        metadata[x]["path"] = file_paths[x]
+        metadata[x]["path"] = original_file_paths[x]
 
     tagger.process_songs(metadata)
 
     for x in range(len(metadata)):
-        file_path = f"{os.path.dirname(file_paths[0])}/{new_file_paths[x]}"
+        assert not os.path.isfile(original_file_paths[x])
+        assert os.path.isfile(expected_file_paths[x])
 
-        assert not os.path.isfile(file_paths[x])
-        assert os.path.isfile(file_path)
-
-        song = MutagenFile(file_path)
+        song = MutagenFile(expected_file_paths[x])
 
         for key, value in metadata[x].items():
             assert song[key][0] == value

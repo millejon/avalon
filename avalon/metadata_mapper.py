@@ -6,7 +6,7 @@ class MetadataMapper:
     def __init__(self, metadata: dict):
         self.metadata = metadata
         self.album = self.get_album()
-        self.disc = None
+        self.disc = self.get_disc() if self.metadata["multidisc"] else None
         self.song = None
 
     def get_song(self) -> int | None:
@@ -78,11 +78,8 @@ class MetadataMapper:
             if "hubs" in self.metadata.keys():
                 self.add_hubs()
 
-        if self.metadata["multidisc"]:
-            self.disc = self.get_disc()
-
-            if not self.disc:
-                self.add_disc()
+        if self.metadata["multidisc"] and not self.disc:
+            self.add_disc()
 
     def add_disc(self) -> None:
         """Add individual disc metadata of multi-disc album to
@@ -120,7 +117,6 @@ class MetadataMapper:
         database.
         """
         for artist in self.add_artists(self.metadata["album_artists"]):
-            print(artist)
             db.execute_write_query(
                 query=database["artists_albums"]["queries"]["write"],
                 data=(artist, self.album),
