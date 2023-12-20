@@ -32,7 +32,7 @@ class Album:
         )
 
     def get_songs(self) -> list[Song]:
-        """Return database id for all of the songs on the album."""
+        """Return Song instance for all of the songs on the album."""
         songs = db.execute_read_query(
             query=database["songs"]["queries"]["read"]["album"],
             data=(self.id,),
