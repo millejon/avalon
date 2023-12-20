@@ -1,10 +1,13 @@
 import os
-from flask import current_app
+from flask import Blueprint, current_app
 
 from avalon.song_metadata import SongMetadata
 from avalon.metadata_mapper import MetadataMapper
 
+bp = Blueprint("update-database", __name__, url_prefix="/")
 
+
+@bp.route("/update-database", methods=("GET",))
 def update_database() -> None:
     """Update database with metadata extracted from music files in local
     music library.
@@ -28,6 +31,4 @@ def update_database() -> None:
                     if "producers" in metadata.keys():
                         mapper.add_producers()
 
-
-if __name__ == "__main__":
-    update_database()
+    return "Database update complete!"
