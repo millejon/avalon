@@ -40,7 +40,7 @@ metadata_form = {
     "track1_path": "01_notorious_thugs.flac",
 }
 
-formatted_metadata = [
+formatted_metadata_form = [
     {
         "track_number": "1",
         "album_artists": "The Notorious B.I.G.",
@@ -159,6 +159,12 @@ avalon_metadata = [
         "comment": "Remove intro at ~0:00",
         "source": "Qobuz",
     },
+]
+
+avalon_metadata_file_paths = [
+    "jayz/in-my-lifetime/02_in_my_lifetime.flac",
+    "nas/it-was-written/08_affirmative_action.flac",
+    "wutang-clan/wutang-forever/03_impossible.flac",
 ]
 
 dummy_files = {

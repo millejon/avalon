@@ -2,6 +2,7 @@ import pytest
 
 from avalon.metadata_mapper import MetadataMapper
 import avalon.database as db
+import avalon.utilities as util
 from avalon.data import database as db_data
 from tests.data import avalon_metadata
 
@@ -28,7 +29,7 @@ def test_initialize_metadata_mapper_instance(app, metadata):
 def test_get_song_new_song(app, metadata):
     with app.app_context():
         mapper = MetadataMapper(metadata.copy())
-        mapper.metadata["path"] = f"{metadata['title']}.flac"
+        mapper.metadata["path"] = util.format_song_file_path(metadata)
 
         assert mapper.get_song() is None
 
@@ -39,7 +40,7 @@ def test_get_song_new_song(app, metadata):
 def test_get_song_existing_song(app, database_album, database_song, metadata):
     with app.app_context():
         metadata = metadata.copy()
-        metadata["path"] = f"{metadata['title']}.flac"
+        metadata["path"] = util.format_song_file_path(metadata)
         song_id = database_song(metadata, database_album(metadata))
         mapper = MetadataMapper(metadata)
 
@@ -217,7 +218,7 @@ def test_add_artists_new_artists(app, metadata):
 # should retrieve the database id of the artist rather than try to add
 # the artist again.
 @pytest.mark.parametrize(
-    "group1, group2, ids1, ids2",
+    "artists1, artists2, ids1, ids2",
     (
         (
             ["2pac", "Tha Dogg Pound", "Redman", "Method Man"],
@@ -239,22 +240,22 @@ def test_add_artists_new_artists(app, metadata):
         ),
     ),
 )
-def test_add_artists_existing_artists(app, group1, group2, ids1, ids2):
+def test_add_artists_existing_artists(app, artists1, artists2, ids1, ids2):
     with app.app_context():
         mapper = MetadataMapper(avalon_metadata[0])
 
-        assert ids1 == mapper.add_artists(group1)
-        assert ids2 == mapper.add_artists(group2)
+        assert ids1 == mapper.add_artists(artists1)
+        assert ids2 == mapper.add_artists(artists2)
 
 
 # add_album_artists() should add artist metadata for all artists in the
 # album artists field and create the database links between the album
 # and each of its album artists.
 @pytest.mark.parametrize("metadata", avalon_metadata)
-def test_add_album_artists(app, metadata):
+def test_add_album_artists(app, database_album, metadata):
     with app.app_context():
         mapper = MetadataMapper(metadata)
-        mapper.add_album()
+        mapper.album = database_album(metadata)
 
         mapper.add_album_artists()
 
@@ -265,11 +266,13 @@ def test_add_album_artists(app, metadata):
             )[0]
 
             assert (
-                db.execute_read_query(
-                    query=db_data["artists_albums"]["queries"]["read"]["id"],
-                    data=(index + 1, mapper.album),
+                len(
+                    db.execute_read_query(
+                        query=db_data["artists_albums"]["queries"]["read"]["id"],
+                        data=(index + 1, mapper.album),
+                    )
                 )
-                is not None
+                == 1
             )
             assert artist["name"] == name
 
@@ -280,7 +283,7 @@ def test_add_album_artists(app, metadata):
 def test_add_song(app, metadata):
     with app.app_context():
         mapper = MetadataMapper(metadata.copy())
-        mapper.metadata["path"] = f"{metadata['title']}.flac"
+        mapper.metadata["path"] = util.format_song_file_path(metadata)
         mapper.add_album()
 
         mapper.add_song()
@@ -298,7 +301,7 @@ def test_add_song(app, metadata):
         assert song["name"] == metadata["title"]
         assert song["track_number"] == metadata["track_number"]
         assert song["length"] == metadata["length"]
-        assert song["path"] == f"{metadata['title']}.flac"
+        assert song["path"] == util.format_song_file_path(metadata)
         assert song["source"] == metadata["source"]
 
 
@@ -306,11 +309,11 @@ def test_add_song(app, metadata):
 # song artists and group members fields and create the database links
 # between the song and each of its song artists.
 @pytest.mark.parametrize("metadata", avalon_metadata)
-def test_add_song_artists(app, metadata):
+def test_add_song_artists(app, database_album, metadata):
     with app.app_context():
         mapper = MetadataMapper(metadata.copy())
-        mapper.metadata["path"] = f"{metadata['title']}.flac"
-        mapper.add_album()
+        mapper.metadata["path"] = util.format_song_file_path(metadata)
+        mapper.album = database_album(metadata)
         mapper.add_song()
 
         mapper.add_song_artists()
@@ -342,11 +345,11 @@ def test_add_song_artists(app, metadata):
 # producers, coproducers, and additional producers fields and create
 # the database links between the song and each of its producers.
 @pytest.mark.parametrize("metadata", avalon_metadata)
-def test_add_producers(app, metadata):
+def test_add_producers(app, database_album, metadata):
     with app.app_context():
         mapper = MetadataMapper(metadata.copy())
-        mapper.metadata["path"] = f"{metadata['title']}.flac"
-        mapper.add_album()
+        mapper.metadata["path"] = util.format_song_file_path(metadata)
+        mapper.album = database_album(metadata)
         mapper.add_song()
 
         mapper.add_producers()
@@ -384,11 +387,11 @@ def test_add_producers(app, metadata):
 # add_hubs() should add hub metadata for all hubs in the hubs field
 # and create the database link between the album and each of its hubs.
 @pytest.mark.parametrize("metadata", avalon_metadata)
-def test_add_hubs(app, metadata):
+def test_add_hubs(app, database_album, metadata):
     if "hubs" in metadata.keys():
         with app.app_context():
             mapper = MetadataMapper(metadata)
-            mapper.add_album()
+            mapper.album = database_album(metadata)
 
             mapper.add_hubs()
 
@@ -399,10 +402,12 @@ def test_add_hubs(app, metadata):
                 )[0]
 
                 assert (
-                    db.execute_read_query(
-                        query=db_data["hubs_albums"]["queries"]["read"]["id"],
-                        data=(index + 1, mapper.album),
+                    len(
+                        db.execute_read_query(
+                            query=db_data["hubs_albums"]["queries"]["read"]["id"],
+                            data=(index + 1, mapper.album),
+                        )
                     )
-                    is not None
+                    == 1
                 )
                 assert hub["name"] == name

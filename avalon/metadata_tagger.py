@@ -1,10 +1,10 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 import avalon.utilities as util
-from avalon.song import Song
+from avalon.song_metadata import SongMetadata
 from avalon.data import required_metadata_input_fields as required_fields
 
-bp = Blueprint("metadata-tagger", __name__, url_prefix="/metadata-tagger")
+bp = Blueprint("metadata-tagger", __name__, url_prefix="/")
 
 
 @bp.route("/input-metadata", methods=("GET", "POST"))
@@ -73,7 +73,7 @@ def validate_song_metadata(form: dict, exceptions: list[ValueError]) -> None:
         for field in required_fields["song"]:
             if not form[f"{prefix}{field}"]:
                 exceptions.append(
-                    ValueError(f"Value for '{prefix}{field}' " "is missing!")
+                    ValueError(f"Value for '{prefix}{field}' is missing!")
                 )
 
         if (
@@ -93,7 +93,7 @@ def validate_multidisc_metadata(form: dict, exceptions: list[ValueError]) -> Non
 
 
 def format_metadata(form: dict) -> list[dict]:
-    """Format data from user's submitted metadata form in a list of
+    """Format data from user's submitted metadata form into a list of
     dictionaries where each dictionary contains the metadata for one
     song.
     """
@@ -123,7 +123,7 @@ def process_songs(metadata: list) -> None:
     correspond with their respective metadata.
     """
     for x in range(len(metadata)):
-        song = Song(metadata[x]["path"])
+        song = SongMetadata(metadata[x]["path"])
         metadata[x].pop("path")
 
         song.add_metadata(metadata[x])

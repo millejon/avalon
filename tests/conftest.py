@@ -11,7 +11,7 @@ import tests.data as data
 @pytest.fixture
 def app(tmp_path):
     # Create a temporary database for testing purposes.
-    database_file, database_path = tempfile.mkstemp()
+    database, database_path = tempfile.mkstemp()
 
     app = create_app(
         test_config={
@@ -27,7 +27,7 @@ def app(tmp_path):
     yield app
 
     # Close and delete temporary database.
-    os.close(database_file)
+    os.close(database)
     os.unlink(database_path)
 
 
@@ -42,8 +42,8 @@ def runner(app):
 
 
 @pytest.fixture
-def album_directory(tmp_path, dummy_file):
-    for x in range(len(data.avalon_metadata) - 1):
+def dummy_album_directory(tmp_path, dummy_file):
+    for _ in range(len(data.avalon_metadata) - 1):
         dummy_file(".flac")
     dummy_file(".mp3")
     dummy_file(".jpg")
@@ -100,12 +100,12 @@ def database_disc():
 
 @pytest.fixture
 def database_song():
-    def add_song_to_database(metadata: dict, album: int) -> int:
+    def add_song_to_database(metadata: dict, album: int, disc: int = None) -> int:
         return db.execute_write_query(
             query=db_data["songs"]["queries"]["write"],
             data=(
                 album,
-                None,
+                disc,
                 metadata["title"],
                 metadata["track_number"],
                 metadata["length"],
@@ -118,46 +118,33 @@ def database_song():
 
 
 @pytest.fixture
-def artist_count(album_artists, song_artists, producers):
-    return len(set(album_artists + song_artists + producers))
-
-
-@pytest.fixture
-def album_artists():
+def artist_count():
     artists = []
 
     for song in data.avalon_metadata:
         artists.extend(song["album_artists"])
-
-    return artists
-
-
-@pytest.fixture
-def song_artists():
-    artists = []
-
-    for song in data.avalon_metadata:
         artists.extend(song["song_artists"])
 
         if "group_members" in song.keys():
             artists.extend(song["group_members"])
+        if "producers" in song.keys():
+            artists.extend(song["producers"])
+        if "coproducers" in song.keys():
+            artists.extend(song["coproducers"])
+        if "additional_producers" in song.keys():
+            artists.extend(song["additional_producers"])
 
-    return artists
+    return len(set(artists))
 
 
 @pytest.fixture
-def producers():
-    producers = []
+def album_count():
+    return len(set([song["album"] for song in data.avalon_metadata]))
 
-    for song in data.avalon_metadata:
-        if "producers" in song.keys():
-            producers.extend(song["producers"])
-        if "co_producers" in song.keys():
-            producers.extend(song["co_producers"])
-        if "additional_producers" in song.keys():
-            producers.extend(song["additional_producers"])
 
-    return producers
+@pytest.fixture
+def song_count():
+    return len(set([tuple(song) for song in data.avalon_metadata]))
 
 
 @pytest.fixture
@@ -165,6 +152,7 @@ def hub_count():
     hubs = []
 
     for song in data.avalon_metadata:
-        hubs.extend(song["hubs"])
+        if "hubs" in song.keys():
+            hubs.extend(song["hubs"])
 
     return len(set(hubs))
