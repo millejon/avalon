@@ -116,10 +116,14 @@ database = {
                 "songs": """SELECT songs.id, producers_songs.coproducer, producers_songs.additional
                         FROM SONGS
                         INNER JOIN producers_songs ON songs.id = producers_songs.song_id
-                        WHERE producers_songs.artist_id = ?""",
+                        INNER JOIN albums on songs.album_id = albums.id
+                        WHERE producers_songs.artist_id = ?
+                        ORDER BY songs.play_count DESC, albums.release_date DESC""",
                 "producers": """SELECT artists.id, artists.name FROM artists
                             INNER JOIN producers_songs ON artists.id = producers_songs.artist_id
-                            WHERE producers_songs.song_id = ?""",
+                            WHERE producers_songs.song_id = ?
+                                AND producers_songs.coproducer = 0
+                                AND producers_songs.additional = 0""",
             },
             "write": """INSERT INTO producers_songs (artist_id, song_id,
                             coproducer, additional)
