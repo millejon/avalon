@@ -160,7 +160,7 @@ database = {
                     FROM SONGS
                     INNER JOIN producers_songs ON songs.id = producers_songs.song_id
                     INNER JOIN albums on songs.album_id = albums.id
-                    WHERE producers_songs.artist_id = ?
+                    WHERE producers_songs.artist_id = ? AND songs.length > 1
                     ORDER BY songs.play_count DESC, albums.release_date DESC
                 """,
                 "producers": """
