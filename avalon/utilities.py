@@ -60,19 +60,19 @@ def format_directory(directory: str) -> str:
     return replace_punctuation(directory).replace(" ", "-").lower()
 
 
-def replace_punctuation(name: str) -> str:
+def replace_punctuation(text: str) -> str:
     """Remove/replace punctuation in string passed."""
     for mark in list(string.punctuation):
         if mark in replacements.keys():
-            name = name.replace(mark, replacements[mark])
+            text = text.replace(mark, replacements[mark])
         else:
-            name = name.replace(mark, "")
+            text = text.replace(mark, "")
 
     # Remove superfluous spaces.
-    while "  " in name:
-        name = name.replace("  ", " ")
+    while "  " in text:
+        text = text.replace("  ", " ")
 
-    return name
+    return text
 
 
 def format_song_file_path(metadata: dict) -> str:
