@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% import "tables.html" as tables  %}
+
+{% block title %}{{ artist.name }}{% endblock %}
+
+{% block header %}
+  <h1>{{ artist.name }}</h1>
+{% endblock %}
+
+{% block content %}
+  <img src="/static/img/{{ artist.photo }}">
+
+  {% if artist.songs %}
+    <h2>Songs</h2>
+    {{ tables.songs(songs=artist.songs) }}
+  {% endif %}
+
+  {% if artist.albums %}
+    <h2>Albums</h2>
+    {{ tables.albums(albums=artist.albums[:4]) }}
+  {% endif %}
+
+  {% if artist.singles %}
+    <h2>Singles / Remixes</h2>
+    {{ tables.albums(albums=artist.singles[:4]) }}
+  {% endif %}
+
+  {% if artist.produced_songs %}
+    <h2>Production Credits</h2>
+    {{ tables.produced_songs(songs=artist.produced_songs) }}
+  {% endif %}
+
+{% endblock %}

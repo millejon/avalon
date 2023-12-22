@@ -1,0 +1,12 @@
+{% macro artists(artists) %}
+  <a href="/artists/{{ artists[0]['id'] }}">
+    {{- artists[0]["name"] -}}
+  </a>
+  {%- if artists|length > 1 -%}
+    {%- for artist in artists[1:] -%}
+      , <a href="/artists/{{ artist['id'] }}">
+        {{ artist["name"] -}}
+      </a>
+    {%- endfor -%}
+  {%- endif -%}
+{% endmacro %}

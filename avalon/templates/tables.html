@@ -1,0 +1,96 @@
+{% import "data_cells.html" as cells  %}
+
+{% macro albums(albums) %}
+  <table class="albums_table">
+    <tbody>
+      {% for row in albums|batch(5) %}
+        <tr>
+          {% for album in row %}
+            <td class="album">
+              <a href="/albums/{{ album.id }}">
+                <img src="/static/img/{{ album.cover }}"><br>
+                {{ album.title }}<br>
+              </a>
+              {{ cells.artists(album.album_artists) }}<br>
+              {{ album.release_date[:4] }}
+            </td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endmacro %}
+
+{% macro songs(songs) %}
+  <table>
+    <thead>
+      <th></th>
+      <th>Title</th>
+      <th>Artist</th>
+      <th>Album</th>
+      <th>Producer</th>
+      <th>Length</th>
+    </thead>
+    <tbody>
+      {% for song in songs %}
+        <tr class="playlist">
+          <td class="playlist_album_cover">
+            <a href="/albums/{{ song.album_id }}">
+            <img src="/static/img/{{ song.album_cover }}">
+            </a>
+          </td>
+          <td>{{ song.title }}</td>
+          <td>{{ cells.artists(song.song_artists) }}</td>
+          <td>
+            <a href="/albums/{{ song.album_id }}">
+              {{ song.album }}
+            </a>
+          </td>
+          <td>
+            {% if song.producers %}
+              {{ cells.artists(song.producers)}}
+            {% endif %}
+          </td>
+          <td>
+            {{ song.length }}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endmacro %}
+
+{% macro produced_songs(songs) %}
+  <table>
+    <thead>
+      <th></th>
+      <th>Title</th>
+      <th>Role</th>
+      <th>Artist</th>
+      <th>Album</th>
+      <th>Length</th>
+    </thead>
+    <tbody>
+      {% for song in songs %}
+        <tr class="playlist">
+          <td class="playlist_album_cover">
+            <a href="/albums/{{ song.album_id }}">
+            <img src="/static/img/{{ song.album_cover }}">
+            </a>
+          </td>
+          <td>{{ song.title }}</td>
+          <td>{{ song.producer_role }}</td>
+          <td>{{ cells.artists(song.song_artists) }}</td>
+          <td>
+            <a href="/albums/{{ song.album_id }}">
+              {{ song.album }}
+            </a>
+          </td>
+          <td>
+            {{ song.length }}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endmacro %}

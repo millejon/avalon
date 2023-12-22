@@ -4,6 +4,7 @@ from flask import Flask
 from avalon import database
 from avalon import metadata_tagger
 from avalon import update_database
+from avalon import library
 
 
 def create_app(test_config: dict = None) -> Flask:
@@ -31,5 +32,6 @@ def create_app(test_config: dict = None) -> Flask:
 
     app.register_blueprint(metadata_tagger.bp)
     app.register_blueprint(update_database.bp)
+    app.register_blueprint(library.bp)
 
     return app

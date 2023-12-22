@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Artists{% endblock %}
+
+{% block header %}
+  <h1>Artists</h1>
+{% endblock %}
+
+{% block content %}
+  <table class="all_artists">
+    {% for row in artists|batch(5) %}
+      <tr>
+        {% for artist in row %}
+            <td class="artist">
+              <a href="/artists/{{ artist.id }}">
+                <img src="/static/img/{{ artist.photo }}"><br>
+                {{ artist.name }}
+              </a>
+            </td>
+        {% endfor %}
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

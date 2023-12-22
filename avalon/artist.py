@@ -1,3 +1,5 @@
+import sqlite3
+
 import avalon.database as db
 import avalon.utilities as util
 from avalon.album import Album
@@ -36,12 +38,18 @@ class Artist:
     def get_songs(self) -> list[Song]:
         """Return Song instance for all of the songs the artist is
         featured on."""
-        songs = db.execute_read_query(
+        songs = []
+        artist_songs = db.execute_read_query(
             query=database["artists_songs"]["queries"]["read"]["songs"],
             data=(self.id,),
         )
 
-        return [Song(song["id"]) for song in songs] if songs else None
+        for artist_song in artist_songs:
+            song = Song(artist_song["id"])
+            song.album_cover = Album(song.album_id).cover
+            songs.append(song)
+
+        return songs if artist_songs else None
 
     def get_singles(self) -> list[Album]:
         """Return Album instance for all of the singles released by the
@@ -58,23 +66,30 @@ class Artist:
         """Return Song instance for all of the songs the artist
         produced.
         """
-        songs = db.execute_read_query(
+        songs = []
+        produced_songs = db.execute_read_query(
             query=database["producers_songs"]["queries"]["read"]["songs"],
             data=(self.id,),
         )
 
-        produced_songs = [Song(song["id"]) for song in songs] if songs else None
+        for produced_song in produced_songs:
+            song = Song(produced_song["id"])
+            song.producer_role = self.get_producer_role(produced_song)
+            song.album_cover = Album(song.album_id).cover
+            songs.append(song)
 
-        if produced_songs:
-            for index, song in enumerate(produced_songs):
-                if songs[index]["coproducer"]:
-                    song.producer_role = "Co-Producer"
-                elif songs[index]["additional"]:
-                    song.producer_role = "Additional Producer"
-                else:
-                    song.producer_role = "Producer"
+        return songs if produced_songs else None
 
-        return produced_songs
+    def get_producer_role(self, song: sqlite3.Row) -> str:
+        """Return type of producer the artist was credited as on a
+        song.
+        """
+        if song["coproducer"]:
+            return "Co-Producer"
+        elif song["additional"]:
+            return "Additional Producer"
+        else:
+            return "Producer"
 
     def get_artist_photo(self) -> str:
         """Return file path to artist profile picture."""
