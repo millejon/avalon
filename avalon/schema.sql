@@ -17,17 +17,17 @@ CREATE TABLE artists (
 
 CREATE TABLE albums (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
+    title TEXT NOT NULL,
     release_date TEXT NOT NULL,
     multidisc INTEGER DEFAULT FALSE,
     single INTEGER DEFAULT FALSE,
-    UNIQUE (name, release_date)
+    UNIQUE (title, release_date)
 );
 
 CREATE TABLE discs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     album_id INTEGER NOT NULL,
-    name TEXT NOT NULL,
+    title TEXT NOT NULL,
     disc_number INTEGER NOT NULL,
     FOREIGN KEY (album_id) REFERENCES albums (id)
         ON DELETE CASCADE
@@ -39,7 +39,7 @@ CREATE TABLE songs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     album_id INTEGER NOT NULL,
     disc_id INTEGER,
-    name TEXT NOT NULL,
+    title TEXT NOT NULL,
     track_number INTEGER NOT NULL,
     length INTEGER NOT NULL,
     path TEXT UNIQUE NOT NULL,
@@ -97,7 +97,7 @@ CREATE TABLE producers_songs (
 
 CREATE TABLE playlists (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT UNIQUE NOT NULL
+    title TEXT UNIQUE NOT NULL
 );
 
 CREATE TABLE playlists_songs (

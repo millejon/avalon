@@ -89,7 +89,7 @@ class MetadataMapper:
             query=database["discs"]["queries"]["write"],
             data=(
                 self.album,
-                self.metadata["disc_name"],
+                self.metadata["disc_title"],
                 self.metadata["disc_number"],
             ),
         )
