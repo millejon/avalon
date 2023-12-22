@@ -90,7 +90,7 @@ def database_disc():
             query=db_data["discs"]["queries"]["write"],
             data=(
                 album,
-                metadata["disc_name"],
+                metadata["disc_title"],
                 metadata["disc_number"],
             ),
         )

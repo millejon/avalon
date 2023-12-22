@@ -163,7 +163,7 @@ def test_add_album(app, metadata):
             data=(mapper.album,),
         )[0]
 
-        assert album["name"] == metadata["album"]
+        assert album["title"] == metadata["album"]
         assert album["release_date"] == metadata["release_date"]
         assert album["multidisc"] == metadata["multidisc"]
         assert album["single"] == metadata["single"]
@@ -189,7 +189,7 @@ def test_add_disc(app, database_album, metadata):
             )[0]
 
             assert disc["album_id"] == mapper.album
-            assert disc["name"] == metadata["disc_name"]
+            assert disc["title"] == metadata["disc_title"]
             assert disc["disc_number"] == metadata["disc_number"]
 
 
@@ -298,7 +298,7 @@ def test_add_song(app, metadata):
 
         assert song["album_id"] == mapper.album
         assert song["disc_id"] == mapper.disc
-        assert song["name"] == metadata["title"]
+        assert song["title"] == metadata["title"]
         assert song["track_number"] == metadata["track_number"]
         assert song["length"] == metadata["length"]
         assert song["path"] == util.format_song_file_path(metadata)

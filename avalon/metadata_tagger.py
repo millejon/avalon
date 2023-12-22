@@ -48,7 +48,7 @@ def validate_metadata_form(form: dict) -> None:
 
     if "multidisc" in form.keys():
         validate_multidisc_metadata(form, exceptions)
-    elif form["disc_name"] or form["disc_number"]:
+    elif form["disc_title"] or form["disc_number"]:
         exceptions.append(ValueError("Value for 'multidisc' is missing!"))
         validate_multidisc_metadata(form, exceptions)
 
@@ -86,8 +86,8 @@ def validate_multidisc_metadata(form: dict, exceptions: list[ValueError]) -> Non
     """Validate user's submitted multidisc metadata."""
     if "single" in form.keys():
         exceptions.append(ValueError("An album can not be a single and multidisc!"))
-    if not form["disc_name"]:
-        exceptions.append(ValueError("Value for 'disc_name' is missing!"))
+    if not form["disc_title"]:
+        exceptions.append(ValueError("Value for 'disc_title' is missing!"))
     if not form["disc_number"]:
         exceptions.append(ValueError("Value for 'disc_number' is missing!"))
 
