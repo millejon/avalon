@@ -5,7 +5,11 @@ database = {
             "read": {
                 "id": """SELECT id FROM artists WHERE name = ?""",
                 "all": """SELECT name FROM artists WHERE id = ?""",
-                "all_artists": """SELECT id FROM artists""",
+                "all_artists": """
+                    SELECT DISTINCT artists.id, artists.name FROM artists
+                    INNER JOIN artists_albums on artists.id = artists_albums.artist_id
+                    ORDER BY name
+                """,
             },
             "write": """INSERT INTO artists (name) VALUES (?)""",
         },
@@ -124,7 +128,7 @@ database = {
                     SELECT songs.id FROM songs
                     INNER JOIN artists_songs ON songs.id = artists_songs.song_id
                     INNER JOIN albums on songs.album_id = albums.id
-                    WHERE artists_songs.artist_id = ?
+                    WHERE artists_songs.artist_id = ? AND songs.length > 1
                     ORDER BY songs.play_count DESC, albums.release_date DESC
                 """,
                 "artists": """
