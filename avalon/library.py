@@ -15,3 +15,8 @@ def view_all_artists():
     artists = [Artist(data["id"]) for data in artists_data]
 
     return render_template("all_artists.html", artists=artists)
+
+
+@bp.route("/artists/<int:id>", methods=("GET",))
+def view_artist(id):
+    return render_template("artist.html", artist=Artist(id))

@@ -14,7 +14,8 @@ class Song:
         self.path = None
         self.album_id = None
         self.album = None
-        self.producer_role = None
+        self.album_cover = None  # Value assigned in Artist class.
+        self.producer_role = None  # Value assigned in Artist class.
         self.populate_song_info()
         self.song_artists = self.get_song_artists()
         self.producers = self.get_producers()
