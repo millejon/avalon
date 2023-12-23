@@ -29,7 +29,7 @@
           value="{{ request.form['album_artists'] }}" required>
       </div>
       <div>
-        <label for="album">Album Name: </label>
+        <label for="album">Album Title: </label>
         <input type="text" name="album" id="album"
           value="{{ request.form['album'] }}" required>
         <input type="hidden" name="track_count"
@@ -48,9 +48,9 @@
         <input type="checkbox" name="single" id="single" value="True">
         <label for="multidisc">Multi-Disc: </label>
         <input type="checkbox" name="multidisc" id="multidisc" value="True">
-        <label for="disc_name">Disc Name: </label>
-        <input type="text" name="disc_name" id="disc_name"
-          value="{{ request.form['disc_name'] }}">
+        <label for="disc_title">Disc Title: </label>
+        <input type="text" name="disc_title" id="disc_title"
+          value="{{ request.form['disc_title'] }}">
         <label for="disc_number">Disc Number: </label>
         <input type="number" name="disc_number" id="disc_number"
           value="{{ request.form['disc_number'] }}">
