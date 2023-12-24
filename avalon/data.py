@@ -30,6 +30,13 @@ database = {
                     INNER JOIN albums ON songs.album_id = albums.id
                     WHERE albums.id = ?
                 """,
+                "all_albums": """
+                    SELECT DISTINCT albums.id FROM albums
+                    INNER JOIN artists_albums on albums.id = artists_albums.album_id
+                    INNER JOIN artists on artists_albums.artist_id = artists.id
+                    WHERE albums.single = 0
+                    ORDER BY artists.name, albums.release_date
+                """,
             },
             "write": """
                 INSERT INTO albums (title, release_date, multidisc, single)
