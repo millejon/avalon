@@ -8,6 +8,8 @@ database = {
                 "all_artists": """
                     SELECT DISTINCT artists.id, artists.name FROM artists
                     INNER JOIN artists_albums on artists.id = artists_albums.artist_id
+                    INNER JOIN albums on artists_albums.album_id = albums.id
+                    WHERE albums.single = 0
                     ORDER BY name
                 """,
             },
