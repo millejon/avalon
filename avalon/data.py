@@ -6,11 +6,11 @@ database = {
                 "id": """SELECT id FROM artists WHERE name = ?""",
                 "all": """SELECT name FROM artists WHERE id = ?""",
                 "all_artists": """
-                    SELECT DISTINCT artists.id, artists.name FROM artists
+                    SELECT DISTINCT artists.id FROM artists
                     INNER JOIN artists_albums on artists.id = artists_albums.artist_id
                     INNER JOIN albums on artists_albums.album_id = albums.id
                     WHERE albums.single = 0
-                    ORDER BY name
+                    ORDER BY artists.name
                 """,
             },
             "write": """INSERT INTO artists (name) VALUES (?)""",
