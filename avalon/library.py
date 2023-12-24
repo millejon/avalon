@@ -31,3 +31,8 @@ def view_all_albums():
     albums = [Album(data["id"]) for data in albums_data]
 
     return render_template("all_albums.html", albums=albums)
+
+
+@bp.route("/albums/<int:id>", methods=("GET",))
+def view_album(id):
+    return render_template("album.html", album=Album(id))
