@@ -3,6 +3,7 @@ from flask import Blueprint, redirect, render_template, request
 import avalon.database as db
 from avalon.artist import Artist
 from avalon.album import Album
+from avalon.playlist import Playlist
 from avalon.data import database
 
 bp = Blueprint("library", __name__, url_prefix="/")
@@ -49,10 +50,14 @@ def create_playlist():
 
 
 @bp.route("/playlists/<int:playlist_id>/songs/<int:song_id>/", methods=("POST",))
-def add_song_to_playlist(playlist_id, song_id):
-    db.execute_write_query(
-        query=database["playlists_songs"]["queries"]["write"],
-        data=(playlist_id, song_id),
-    )
+def add_song_to_playlist(playlist_id: int, song_id: int):
+    Playlist(playlist_id).add_song(song_id)
+
+    return redirect(request.referrer)
+
+
+@bp.route("/playlists/<int:playlist_id>/songs/<int:song_id>/delete/", methods=("POST",))
+def delete_song_from_playlist(playlist_id: int, song_id: int):
+    Playlist(playlist_id).delete_song(song_id)
 
     return redirect(request.referrer)

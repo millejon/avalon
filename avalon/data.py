@@ -209,10 +209,16 @@ database = {
                     FROM playlists_songs WHERE id = ?
                 """,
             },
-            "write": """
-                INSERT INTO playlists_songs (playlist_id, song_id)
-                VALUES (?, ?)
-            """,
+            "write": {
+                "add": """
+                    INSERT INTO playlists_songs (playlist_id, song_id)
+                    VALUES (?, ?)
+                """,
+                "delete": """
+                    DELETE FROM playlists_songs
+                    WHERE playlist_id = ? AND song_id = ?
+                """,
+            },
         },
     },
     "hubs": {
