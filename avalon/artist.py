@@ -24,7 +24,7 @@ class Artist:
             data=(self.id,),
         )[0]["name"]
 
-    def get_albums(self) -> list[Album]:
+    def get_albums(self) -> list[Album] | None:
         """Return Album instance for all of the albums released by the
         artist.
         """
@@ -35,7 +35,7 @@ class Artist:
 
         return [Album(album["id"]) for album in albums] if albums else None
 
-    def get_songs(self) -> list[Song]:
+    def get_songs(self) -> list[Song] | None:
         """Return Song instance for all of the songs the artist is
         featured on."""
         songs = []
@@ -51,7 +51,7 @@ class Artist:
 
         return songs if artist_songs else None
 
-    def get_singles(self) -> list[Album]:
+    def get_singles(self) -> list[Album] | None:
         """Return Album instance for all of the singles released by the
         artist.
         """
@@ -62,7 +62,7 @@ class Artist:
 
         return [Album(single["id"]) for single in singles] if singles else None
 
-    def get_produced_songs(self) -> list[Song]:
+    def get_produced_songs(self) -> list[Song] | None:
         """Return Song instance for all of the songs the artist
         produced.
         """
