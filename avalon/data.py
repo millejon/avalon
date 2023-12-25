@@ -208,6 +208,13 @@ database = {
                     SELECT playlist_id, song_id
                     FROM playlists_songs WHERE id = ?
                 """,
+                "songs": """
+                    SELECT songs.id FROM songs
+                    INNER JOIN playlists_songs ON songs.id = playlists_songs.song_id
+                    INNER JOIN albums on songs.album_id = albums.id
+                    WHERE playlists_songs.playlist_id = ?
+                    ORDER BY playlists_songs.id
+                """,
             },
             "write": {
                 "add": """

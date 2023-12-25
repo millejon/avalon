@@ -39,6 +39,11 @@ def view_album(id: int):
     return render_template("album.html", album=Album(id))
 
 
+@bp.route("/playlists/<int:id>/", methods=("GET",))
+def view_playlist(id: int):
+    return render_template("playlist.html", playlist=Playlist(id))
+
+
 @bp.route("/playlists/create/", methods=("POST",))
 def create_playlist():
     db.execute_write_query(
