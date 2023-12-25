@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, redirect, render_template, request
 
 import avalon.database as db
 from avalon.artist import Artist
@@ -19,7 +19,7 @@ def view_all_artists():
 
 
 @bp.route("/artists/<int:id>", methods=("GET",))
-def view_artist(id):
+def view_artist(id: int):
     return render_template("artist.html", artist=Artist(id))
 
 
@@ -34,5 +34,15 @@ def view_all_albums():
 
 
 @bp.route("/albums/<int:id>", methods=("GET",))
-def view_album(id):
+def view_album(id: int):
     return render_template("album.html", album=Album(id))
+
+
+@bp.route("/playlists/create/", methods=("POST",))
+def create_playlist():
+    db.execute_write_query(
+        query=database["playlists"]["queries"]["write"],
+        data=(request.form["playlist_name"],),
+    )
+
+    return redirect(request.referrer)
