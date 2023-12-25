@@ -96,4 +96,4 @@ class Artist:
         if self.albums:
             return f"{util.format_directory(self.name)}/profile.jpg"
         else:
-            return "default.jpg"
+            return "default.png"

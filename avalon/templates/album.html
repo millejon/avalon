@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% import "tables.html" as tables %}
+{% import "data_cells.html" as cells  %}
+
+{% block title %}{{ album.title }}{% endblock %}
+
+{% block header %}
+  <h1>{{ album.title }}</h1>
+{% endblock %}
+
+{% block content %}
+  <img src="/static/img/{{ album.cover }}">
+
+  <div class="album_info">
+    {{ cells.artists(album.album_artists) }}<br>
+    {{ album.song_count }} TRACKS ({{ album.length }})<br>
+    {{ album.release_date[:4] }}
+  </div>
+
+  {{ tables.album_songs(songs=album.songs) }}
+
+{% endblock %}

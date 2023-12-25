@@ -7,7 +7,7 @@ from avalon.data import required_metadata_input_fields as required_fields
 bp = Blueprint("metadata-tagger", __name__, url_prefix="/")
 
 
-@bp.route("/input-metadata", methods=("GET", "POST"))
+@bp.route("/input-metadata/", methods=("GET", "POST"))
 def input_metadata():
     if request.method == "POST":
         if util.is_directory(request.form["directory"]):
@@ -25,7 +25,7 @@ def input_metadata():
     return render_template("input-metadata.html")
 
 
-@bp.route("/process-metadata", methods=("POST",))
+@bp.route("/process-metadata/", methods=("POST",))
 def process_metadata():
     try:
         validate_metadata_form(request.form)

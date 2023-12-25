@@ -6,9 +6,11 @@ database = {
                 "id": """SELECT id FROM artists WHERE name = ?""",
                 "all": """SELECT name FROM artists WHERE id = ?""",
                 "all_artists": """
-                    SELECT DISTINCT artists.id, artists.name FROM artists
+                    SELECT DISTINCT artists.id FROM artists
                     INNER JOIN artists_albums on artists.id = artists_albums.artist_id
-                    ORDER BY name
+                    INNER JOIN albums on artists_albums.album_id = albums.id
+                    WHERE albums.single = 0
+                    ORDER BY artists.name
                 """,
             },
             "write": """INSERT INTO artists (name) VALUES (?)""",
@@ -27,6 +29,13 @@ database = {
                     SELECT SUM(songs.length) FROM songs
                     INNER JOIN albums ON songs.album_id = albums.id
                     WHERE albums.id = ?
+                """,
+                "all_albums": """
+                    SELECT DISTINCT albums.id FROM albums
+                    INNER JOIN artists_albums on albums.id = artists_albums.album_id
+                    INNER JOIN artists on artists_albums.artist_id = artists.id
+                    WHERE albums.single = 0
+                    ORDER BY artists.name, albums.release_date
                 """,
             },
             "write": """

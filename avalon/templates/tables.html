@@ -9,8 +9,8 @@
             <td class="album">
               <a href="/albums/{{ album.id }}">
                 <img src="/static/img/{{ album.cover }}"><br>
-                {{ album.title }}<br>
-              </a>
+                {{ album.title }}
+              </a><br>
               {{ cells.artists(album.album_artists) }}<br>
               {{ album.release_date[:4] }}
             </td>
@@ -36,7 +36,7 @@
         <tr class="playlist">
           <td class="playlist_album_cover">
             <a href="/albums/{{ song.album_id }}">
-            <img src="/static/img/{{ song.album_cover }}">
+              <img src="/static/img/{{ song.album_cover }}">
             </a>
           </td>
           <td>{{ song.title }}</td>
@@ -51,9 +51,7 @@
               {{ cells.artists(song.producers)}}
             {% endif %}
           </td>
-          <td>
-            {{ song.length }}
-          </td>
+          <td>{{ song.length }}</td>
         </tr>
       {% endfor %}
     </tbody>
@@ -86,8 +84,37 @@
               {{ song.album }}
             </a>
           </td>
+          <td>{{ song.length }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endmacro %}
+
+{% macro album_songs(songs) %}
+  <table>
+    <thead>
+      <th>#</th>
+      <th>Title</th>
+      <th>Artist</th>
+      <th>Producer</th>
+      <th>Length</th>
+    </thead>
+    <tbody>
+      {% for song in songs %}
+        <tr class="album">
+          <td>{{ song.track_number }}</td>
+          <td>{{ song.title }}</td>
+          <td>{{ cells.artists(song.song_artists) }}</td>
           <td>
-            {{ song.length }}
+            {% if song.producers %}
+              {{ cells.artists(song.producers)}}
+            {% endif %}
+          </td>
+          <td>
+            {% if song.length != "0:01" %}
+              {{ song.length }}
+            {% endif %}
           </td>
         </tr>
       {% endfor %}

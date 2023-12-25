@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% import "tables.html" as tables  %}
+
+{% block title %}Albums{% endblock %}
+
+{% block header %}
+  <h1>Albums</h1>
+{% endblock %}
+
+{% block content %}
+  {{ tables.albums(albums=albums) }}
+{% endblock %}
