@@ -9,6 +9,6 @@
 
 {% block content %}
   {% if content.songs %}
-    {{ tables.songs(songs=content.songs) }}
+    {{ tables.songs(songs=content.songs, playlist=content.id) }}
   {% endif %}
 {% endblock %}

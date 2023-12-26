@@ -52,13 +52,13 @@ def view_playlist(id: int):
 def create_playlist():
     db.execute_write_query(
         query=database["playlists"]["queries"]["write"],
-        data=(request.form["playlist_name"],),
+        data=(request.form["playlist_title"],),
     )
 
     return redirect(request.referrer)
 
 
-@bp.route("/playlists/<int:playlist_id>/songs/<int:song_id>/", methods=("POST",))
+@bp.route("/playlists/<int:playlist_id>/songs/<int:song_id>/", methods=("GET",))
 def add_song_to_playlist(playlist_id: int, song_id: int):
     Playlist(playlist_id).add_song(song_id)
 

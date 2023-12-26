@@ -17,5 +17,5 @@
     {{ content.release_date[:4] }}
   </div>
 
-  {{ tables.album_songs(songs=content.songs) }}
+  {{ tables.album_songs(songs=content.songs, playlists=playlists) }}
 {% endblock %}

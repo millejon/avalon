@@ -12,7 +12,7 @@
 
   {% if content.songs %}
     <h2>Songs</h2>
-    {{ tables.songs(songs=content.songs) }}
+    {{ tables.songs(songs=content.songs, playlists=playlists) }}
   {% endif %}
 
   {% if content.albums %}
@@ -27,6 +27,6 @@
 
   {% if content.produced_songs %}
     <h2>Production Credits</h2>
-    {{ tables.produced_songs(songs=content.produced_songs) }}
+    {{ tables.produced_songs(songs=content.produced_songs, playlists=playlists) }}
   {% endif %}
 {% endblock %}
