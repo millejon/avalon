@@ -2,20 +2,20 @@
 {% import "tables.html" as tables %}
 {% import "data_cells.html" as cells  %}
 
-{% block title %}{{ album.title }}{% endblock %}
+{% block title %}{{ content.title }}{% endblock %}
 
 {% block header %}
-  <h1>{{ album.title }}</h1>
+  <h1>{{ content.title }}</h1>
 {% endblock %}
 
 {% block content %}
-  <img src="/static/img/{{ album.cover }}">
+  <img src="/static/img/{{ content.cover }}">
 
   <div class="album_info">
-    {{ cells.artists(album.album_artists) }}<br>
-    {{ album.song_count }} TRACKS ({{ album.length }})<br>
-    {{ album.release_date[:4] }}
+    {{ cells.artists(content.album_artists) }}<br>
+    {{ content.song_count }} TRACKS ({{ content.length }})<br>
+    {{ content.release_date[:4] }}
   </div>
 
-  {{ tables.album_songs(songs=album.songs) }}
+  {{ tables.album_songs(songs=content.songs) }}
 {% endblock %}

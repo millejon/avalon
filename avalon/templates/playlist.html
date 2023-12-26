@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% import "tables.html" as tables %}
 
-{% block title %}{{ playlist.title }}{% endblock %}
+{% block title %}{{ content.title }}{% endblock %}
 
 {% block header %}
-  <h1>{{ playlist.title }}</h1>
+  <h1>{{ content.title }}</h1>
 {% endblock %}
 
 {% block content %}
-  {% if playlist.songs %}
-    {{ tables.songs(songs=playlist.songs) }}
+  {% if content.songs %}
+    {{ tables.songs(songs=content.songs) }}
   {% endif %}
 {% endblock %}
