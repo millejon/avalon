@@ -10,11 +10,9 @@ import tests.data as data
 # Submitting a valid directory to the input-metadata route should
 # display the form to input metadata.
 def test_input_metadata(client, dummy_album_directory):
-    assert client.get("/input-metadata/").status_code == 200
+    assert client.get("/input-metadata").status_code == 200
 
-    response = client.post(
-        "/input-metadata/", data={"directory": dummy_album_directory}
-    )
+    response = client.post("/input-metadata", data={"directory": dummy_album_directory})
 
     assert response.status_code == 200
     assert b'<label for="album_artists">' in response.data
@@ -24,7 +22,7 @@ def test_input_metadata(client, dummy_album_directory):
 # the input-metadata route should alert the user of the error and
 # reload the page.
 def test_input_metadata_empty_directory(client, tmp_path):
-    response = client.post("/input-metadata/", data={"directory": tmp_path})
+    response = client.post("/input-metadata", data={"directory": tmp_path})
 
     assert b"No music files in directory!" in response.data
     assert response.status_code == 200
@@ -34,7 +32,7 @@ def test_input_metadata_empty_directory(client, tmp_path):
 # input-metadata route should alert the user of the error and reload
 # the page.
 def test_input_metadata_invalid_directory(client):
-    response = client.post("/input-metadata/", data={"directory": "not/a/directory"})
+    response = client.post("/input-metadata", data={"directory": "not/a/directory"})
 
     assert b"Directory does not exist!" in response.data
     assert response.status_code == 200
