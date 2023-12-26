@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, render_template, request
+from flask import Blueprint, redirect, render_template, request, url_for
 
 import avalon.database as db
 from avalon.artist import Artist
@@ -13,7 +13,12 @@ def render_page(template: str, content):
     return render_template(template, content=content, playlists=get_playlists())
 
 
-@bp.route("/artists", methods=("GET",))
+@bp.route("/", methods=("GET",))
+def home():
+    return redirect(url_for("library.view_all_artists"))
+
+
+@bp.route("/artists/", methods=("GET",))
 def view_all_artists():
     artists_data = db.execute_read_query(
         query=database["artists"]["queries"]["read"]["all_artists"]
@@ -28,7 +33,7 @@ def view_artist(id: int):
     return render_page(template="artist.html", content=Artist(id))
 
 
-@bp.route("/albums", methods=("GET",))
+@bp.route("/albums/", methods=("GET",))
 def view_all_albums():
     albums_data = db.execute_read_query(
         query=database["albums"]["queries"]["read"]["all_albums"]
@@ -48,7 +53,7 @@ def view_playlist(id: int):
     return render_page("playlist.html", content=Playlist(id))
 
 
-@bp.route("/playlists/create", methods=("POST",))
+@bp.route("/playlists/create/", methods=("POST",))
 def create_playlist():
     db.execute_write_query(
         query=database["playlists"]["queries"]["write"]["add"],
@@ -65,7 +70,7 @@ def add_song_to_playlist(playlist_id: int, song_id: int):
     return redirect(request.referrer)
 
 
-@bp.route("/playlists/<int:playlist_id>/songs/<int:song_id>/delete", methods=("POST",))
+@bp.route("/playlists/<int:playlist_id>/songs/<int:song_id>/delete/", methods=("POST",))
 def delete_song_from_playlist(playlist_id: int, song_id: int):
     Playlist(playlist_id).delete_song(song_id)
 
