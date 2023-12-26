@@ -8,7 +8,7 @@
 
 {% block content %}
   <table class="all_artists">
-    {% for row in artists|batch(5) %}
+    {% for row in content|batch(5) %}
       <tr>
         {% for artist in row %}
             <td class="artist">

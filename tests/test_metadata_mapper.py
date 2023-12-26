@@ -88,7 +88,7 @@ def test_get_hub_existing_hub(app, metadata):
     with app.app_context():
         for hub in metadata["hubs"]:
             hub_id = db.execute_write_query(
-                query=db_data["hubs"]["queries"]["write"],
+                query=db_data["hubs"]["queries"]["write"]["add"],
                 data=(hub,),
             )
             mapper = MetadataMapper(metadata)
@@ -138,7 +138,7 @@ def test_get_artist_existing_artist(app, metadata):
     with app.app_context():
         for artist in metadata["album_artists"]:
             artist_id = db.execute_write_query(
-                query=db_data["artists"]["queries"]["write"],
+                query=db_data["artists"]["queries"]["write"]["add"],
                 data=(artist,),
             )
             mapper = MetadataMapper(metadata)

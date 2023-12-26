@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% import "tables.html" as tables  %}
+{% import "tables.html" as tables %}
 
 {% block title %}Albums{% endblock %}
 
@@ -8,5 +8,5 @@
 {% endblock %}
 
 {% block content %}
-  {{ tables.albums(albums=albums) }}
+  {{ tables.albums(albums=content) }}
 {% endblock %}

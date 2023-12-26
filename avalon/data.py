@@ -13,7 +13,9 @@ database = {
                     ORDER BY artists.name
                 """,
             },
-            "write": """INSERT INTO artists (name) VALUES (?)""",
+            "write": {
+                "add": """INSERT INTO artists (name) VALUES (?)""",
+            },
         },
     },
     "albums": {
@@ -38,10 +40,12 @@ database = {
                     ORDER BY artists.name, albums.release_date
                 """,
             },
-            "write": """
-                INSERT INTO albums (title, release_date, multidisc, single)
-                VALUES (?, ?, ?, ?)
-            """,
+            "write": {
+                "add": """
+                    INSERT INTO albums (title, release_date, multidisc, single)
+                    VALUES (?, ?, ?, ?)
+                """,
+            },
         },
     },
     "discs": {
@@ -54,10 +58,12 @@ database = {
                     FROM discs WHERE id = ?
                 """,
             },
-            "write": """
-                INSERT INTO discs (album_id, title, disc_number)
-                VALUES (?, ?, ?)
-            """,
+            "write": {
+                "add": """
+                    INSERT INTO discs (album_id, title, disc_number)
+                    VALUES (?, ?, ?)
+                """,
+            },
         },
     },
     "songs": {
@@ -79,10 +85,13 @@ database = {
                 """,
                 "album": """SELECT id FROM songs WHERE album_id = ?""",
             },
-            "write": """
-                INSERT INTO songs (album_id, disc_id, title, track_number, length, path, source)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            """,
+            "write": {
+                "add": """
+                    INSERT INTO songs (album_id, disc_id, title, track_number,
+                        length, path, source)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+            },
         },
     },
     "artists_albums": {
@@ -115,10 +124,12 @@ database = {
                     WHERE artists_albums.album_id = ?
                 """,
             },
-            "write": """
-                INSERT INTO artists_albums (artist_id, album_id)
-                VALUES (?, ?)
-            """,
+            "write": {
+                "add": """
+                    INSERT INTO artists_albums (artist_id, album_id)
+                    VALUES (?, ?)
+                """,
+            },
         },
     },
     "artists_songs": {
@@ -146,10 +157,12 @@ database = {
                     WHERE artists_songs.song_id = ? AND artists_songs.group_member = 0
                 """,
             },
-            "write": """
-                INSERT INTO artists_songs (artist_id, song_id, group_member)
-                VALUES (?, ?, ?)
-            """,
+            "write": {
+                "add": """
+                    INSERT INTO artists_songs (artist_id, song_id, group_member)
+                    VALUES (?, ?, ?)
+                """,
+            },
         },
     },
     "producers_songs": {
@@ -180,10 +193,12 @@ database = {
                         AND producers_songs.additional = 0
                 """,
             },
-            "write": """
-                INSERT INTO producers_songs (artist_id, song_id, coproducer, additional)
-                VALUES (?, ?, ?, ?)
-            """,
+            "write": {
+                "add": """
+                    INSERT INTO producers_songs (artist_id, song_id, coproducer, additional)
+                    VALUES (?, ?, ?, ?)
+                """,
+            },
         },
     },
     "playlists": {
@@ -192,8 +207,11 @@ database = {
             "read": {
                 "id": """SELECT id FROM playlists WHERE title = ?""",
                 "all": """SELECT title FROM playlists WHERE id = ?""",
+                "all_playlists": """SELECT id FROM playlists""",
             },
-            "write": """INSERT INTO playlists (title) VALUES (?)""",
+            "write": {
+                "add": """INSERT INTO playlists (title) VALUES (?)""",
+            },
         },
     },
     "playlists_songs": {
@@ -208,11 +226,24 @@ database = {
                     SELECT playlist_id, song_id
                     FROM playlists_songs WHERE id = ?
                 """,
+                "songs": """
+                    SELECT songs.id FROM songs
+                    INNER JOIN playlists_songs ON songs.id = playlists_songs.song_id
+                    INNER JOIN albums on songs.album_id = albums.id
+                    WHERE playlists_songs.playlist_id = ?
+                    ORDER BY playlists_songs.id
+                """,
             },
-            "write": """
-                INSERT INTO playlists_songs (playlist_id, song_id)
-                VALUES (?, ?)
-            """,
+            "write": {
+                "add": """
+                    INSERT INTO playlists_songs (playlist_id, song_id)
+                    VALUES (?, ?)
+                """,
+                "delete": """
+                    DELETE FROM playlists_songs
+                    WHERE playlist_id = ? AND song_id = ?
+                """,
+            },
         },
     },
     "hubs": {
@@ -222,7 +253,9 @@ database = {
                 "id": """SELECT id FROM hubs WHERE name = ?""",
                 "all": """SELECT name FROM hubs WHERE id = ?""",
             },
-            "write": """INSERT INTO hubs (name) VALUES (?)""",
+            "write": {
+                "add": """INSERT INTO hubs (name) VALUES (?)""",
+            },
         },
     },
     "hubs_albums": {
@@ -238,10 +271,12 @@ database = {
                     FROM hubs_albums WHERE id = ?
                 """,
             },
-            "write": """
-                INSERT INTO hubs_albums (hub_id, album_id)
-                VALUES (?, ?)
-            """,
+            "write": {
+                "add": """
+                    INSERT INTO hubs_albums (hub_id, album_id)
+                    VALUES (?, ?)
+                """,
+            },
         },
     },
 }
