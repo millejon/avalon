@@ -192,7 +192,7 @@ database = {
             "read": {
                 "id": """SELECT id FROM playlists WHERE title = ?""",
                 "all": """SELECT title FROM playlists WHERE id = ?""",
-                "all_playlists": """SELECT id, title FROM playlists""",
+                "all_playlists": """SELECT id FROM playlists""",
             },
             "write": """INSERT INTO playlists (title) VALUES (?)""",
         },
