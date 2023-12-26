@@ -65,7 +65,7 @@ class MetadataMapper:
         """Add album metadata to database."""
         if not self.album:
             self.album = db.execute_write_query(
-                query=database["albums"]["queries"]["write"],
+                query=database["albums"]["queries"]["write"]["add"],
                 data=(
                     self.metadata["album"],
                     self.metadata["release_date"],
@@ -86,7 +86,7 @@ class MetadataMapper:
         database.
         """
         self.disc = db.execute_write_query(
-            query=database["discs"]["queries"]["write"],
+            query=database["discs"]["queries"]["write"]["add"],
             data=(
                 self.album,
                 self.metadata["disc_title"],
@@ -105,7 +105,7 @@ class MetadataMapper:
 
             if not artist_id:
                 artist_id = db.execute_write_query(
-                    query=database["artists"]["queries"]["write"], data=(artist,)
+                    query=database["artists"]["queries"]["write"]["add"], data=(artist,)
                 )
 
             artist_ids.append(artist_id)
@@ -118,14 +118,14 @@ class MetadataMapper:
         """
         for artist in self.add_artists(self.metadata["album_artists"]):
             db.execute_write_query(
-                query=database["artists_albums"]["queries"]["write"],
+                query=database["artists_albums"]["queries"]["write"]["add"],
                 data=(artist, self.album),
             )
 
     def add_song(self) -> None:
         """Add song metadata to database."""
         self.song = db.execute_write_query(
-            query=database["songs"]["queries"]["write"],
+            query=database["songs"]["queries"]["write"]["add"],
             data=(
                 self.album,
                 self.disc,
@@ -143,14 +143,14 @@ class MetadataMapper:
         """
         for artist in self.add_artists(self.metadata["song_artists"]):
             db.execute_write_query(
-                query=database["artists_songs"]["queries"]["write"],
+                query=database["artists_songs"]["queries"]["write"]["add"],
                 data=(artist, self.song, False),
             )
 
         if "group_members" in self.metadata.keys():
             for artist in self.add_artists(self.metadata["group_members"]):
                 db.execute_write_query(
-                    query=database["artists_songs"]["queries"]["write"],
+                    query=database["artists_songs"]["queries"]["write"]["add"],
                     data=(artist, self.song, True),
                 )
 
@@ -160,21 +160,21 @@ class MetadataMapper:
         """
         for producer in self.add_artists(self.metadata["producers"]):
             db.execute_write_query(
-                query=database["producers_songs"]["queries"]["write"],
+                query=database["producers_songs"]["queries"]["write"]["add"],
                 data=(producer, self.song, False, False),
             )
 
         if "coproducers" in self.metadata.keys():
             for producer in self.add_artists(self.metadata["coproducers"]):
                 db.execute_write_query(
-                    query=database["producers_songs"]["queries"]["write"],
+                    query=database["producers_songs"]["queries"]["write"]["add"],
                     data=(producer, self.song, True, False),
                 )
 
         if "additional_producers" in self.metadata.keys():
             for producer in self.add_artists(self.metadata["additional_producers"]):
                 db.execute_write_query(
-                    query=database["producers_songs"]["queries"]["write"],
+                    query=database["producers_songs"]["queries"]["write"]["add"],
                     data=(producer, self.song, False, True),
                 )
 
@@ -185,10 +185,10 @@ class MetadataMapper:
 
             if not hub_id:
                 hub_id = db.execute_write_query(
-                    query=database["hubs"]["queries"]["write"], data=(hub,)
+                    query=database["hubs"]["queries"]["write"]["add"], data=(hub,)
                 )
 
             db.execute_write_query(
-                query=database["hubs_albums"]["queries"]["write"],
+                query=database["hubs_albums"]["queries"]["write"]["add"],
                 data=(hub_id, self.album),
             )

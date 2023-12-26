@@ -51,7 +51,7 @@ def view_playlist(id: int):
 @bp.route("/playlists/create/", methods=("POST",))
 def create_playlist():
     db.execute_write_query(
-        query=database["playlists"]["queries"]["write"],
+        query=database["playlists"]["queries"]["write"]["add"],
         data=(request.form["playlist_title"],),
     )
 

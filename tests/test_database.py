@@ -37,7 +37,7 @@ def test_execute_read_query(app, table):
     with app.app_context():
         database = db.get_database_connection()
         entity_id = database.execute(
-            db_data[table]["queries"]["write"], test_data[table]
+            db_data[table]["queries"]["write"]["add"], test_data[table]
         ).lastrowid
         database.commit()
 
@@ -55,7 +55,7 @@ def test_execute_read_query(app, table):
 def test_execute_write_query(app, table):
     with app.app_context():
         entity_id = db.execute_write_query(
-            query=db_data[table]["queries"]["write"], data=test_data[table]
+            query=db_data[table]["queries"]["write"]["add"], data=test_data[table]
         )
 
         database = db.get_database_connection()

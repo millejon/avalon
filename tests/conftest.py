@@ -71,7 +71,7 @@ def dummy_file(tmp_path):
 def database_album():
     def add_album_to_database(metadata: dict) -> int:
         return db.execute_write_query(
-            query=db_data["albums"]["queries"]["write"],
+            query=db_data["albums"]["queries"]["write"]["add"],
             data=(
                 metadata["album"],
                 metadata["release_date"],
@@ -87,7 +87,7 @@ def database_album():
 def database_disc():
     def add_disc_to_database(metadata: dict, album: int) -> int:
         return db.execute_write_query(
-            query=db_data["discs"]["queries"]["write"],
+            query=db_data["discs"]["queries"]["write"]["add"],
             data=(
                 album,
                 metadata["disc_title"],
@@ -102,7 +102,7 @@ def database_disc():
 def database_song():
     def add_song_to_database(metadata: dict, album: int, disc: int = None) -> int:
         return db.execute_write_query(
-            query=db_data["songs"]["queries"]["write"],
+            query=db_data["songs"]["queries"]["write"]["add"],
             data=(
                 album,
                 disc,
