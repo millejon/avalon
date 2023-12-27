@@ -13,5 +13,12 @@
         <li><a href="/playlists/{{ playlist.id }}">{{ playlist.title }}</a></li>
       {% endfor %}
     </uL>
+    <form action="/playlists/create/" method="post">
+        <div>
+            <label for="playlist_title">Create Playlist:</label><br>
+            <input type="text" name="playlist_title" id="playlist_title">
+            <input type="submit" value="Submit">
+        </div>
+    </form>
   </div>
 {% endmacro %}
