@@ -7,7 +7,7 @@ from avalon.metadata_mapper import MetadataMapper
 bp = Blueprint("update-database", __name__, url_prefix="/")
 
 
-@bp.route("/update-database/", methods=("GET",))
+@bp.route("/update-database", methods=("GET",))
 def update_database() -> None:
     """Update database with metadata extracted from music files in local
     music library.

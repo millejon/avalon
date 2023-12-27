@@ -1,0 +1,17 @@
+{% macro menu(playlists) %}
+  <div class="navigation_menu">
+    <h2>Avalon</h2>
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/artists/">Artists</a></li>
+      <li><a href="/albums/">Albums</a></li>
+      <li><a href="/hubs/">Hubs</a></li>
+    </ul>
+    <h3>Playlists</h3>
+    <uL>
+      {% for playlist in playlists %}
+        <li><a href="/playlists/{{ playlist.id }}">{{ playlist.title }}</a></li>
+      {% endfor %}
+    </uL>
+  </div>
+{% endmacro %}
