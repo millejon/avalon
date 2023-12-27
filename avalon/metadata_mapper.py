@@ -133,6 +133,7 @@ class MetadataMapper:
                 self.metadata["track_number"],
                 self.metadata["length"],
                 self.metadata["path"],
+                self.metadata["comment"] if "comment" in self.metadata.keys() else None,
                 self.metadata["source"],
             ),
         )

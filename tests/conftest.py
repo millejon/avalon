@@ -110,6 +110,7 @@ def database_song():
                 metadata["track_number"],
                 metadata["length"],
                 metadata["path"],
+                metadata["comment"] if "comment" in metadata.keys() else None,
                 metadata["source"],
             ),
         )

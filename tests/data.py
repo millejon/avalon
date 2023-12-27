@@ -9,6 +9,7 @@ database = {
         1,
         367,
         "the-notorious-big/life-after-death/disc-two/01_notorious_thugs.flac",
+        "Remove intro at ~0:11",
         "Qobuz",
     ),
     "artists_albums": (1, 1),
@@ -73,6 +74,7 @@ song_metadata = [
         "title": "In My Lifetime",
         "song_artists": "Jay-Z",
         "producers": "Ski Beatz",
+        "comment": "Remove intro at ~0:00",
         "source": "Soulseek",
     },
     {
@@ -121,6 +123,7 @@ avalon_metadata = [
         "title": "In My Lifetime",
         "song_artists": ["Jay-Z"],
         "producers": ["Ski Beatz"],
+        "comment": "Remove intro at ~0:00",
         "source": "Soulseek",
     },
     {

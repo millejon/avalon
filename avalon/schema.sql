@@ -43,6 +43,7 @@ CREATE TABLE songs (
     track_number INTEGER NOT NULL,
     length INTEGER NOT NULL,
     path TEXT UNIQUE NOT NULL,
+    comment TEXT,
     source TEXT NOT NULL,
     play_count INTEGER DEFAULT 0,
     FOREIGN KEY (album_id) REFERENCES albums (id)
