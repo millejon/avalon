@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, render_template, request, url_for
+from flask import Blueprint, redirect, render_template, request, send_file, url_for
 
 import avalon.database as db
 from avalon.artist import Artist
@@ -38,12 +38,24 @@ def view_artist(id: int):
 
 @bp.route("/artists/<int:id>/songs/", methods=("GET",))
 def view_artist_songs(id: int):
-    return render_page(template="artist_songs.html", content=Artist(id))
+    return render_page(template="artist_songs.html", content=Artist(id), key="artists")
+
+
+@bp.route("/artists/<int:id>/songs/download/", methods=("GET",))
+def download_artist_songs(id: int):
+    Playlist.download_playlist(Artist(id).songs)
+    return send_file("static/playlist.m3u", as_attachment=True)
 
 
 @bp.route("/artists/<int:id>/produced/", methods=("GET",))
 def view_artist_produced_songs(id: int):
     return render_page(template="artist_produced_songs.html", content=Artist(id))
+
+
+@bp.route("/artists/<int:id>/produced/download/", methods=("GET",))
+def download_artist_produced_songs(id: int):
+    Playlist.download_playlist(Artist(id).produced_songs)
+    return send_file("static/playlist.m3u", as_attachment=True)
 
 
 @bp.route("/artists/<int:id>/<album_type>/", methods=("GET",))
@@ -68,9 +80,21 @@ def view_album(id: int):
     return render_page(template="album.html", content=Album(id))
 
 
+@bp.route("/albums/<int:id>/download/", methods=("GET",))
+def download_album_songs(id: int):
+    Playlist.download_playlist(Album(id).songs)
+    return send_file("static/playlist.m3u", as_attachment=True)
+
+
 @bp.route("/playlists/<int:id>", methods=("GET",))
 def view_playlist(id: int):
     return render_page("playlist.html", content=Playlist(id))
+
+
+@bp.route("/playlists/<int:id>/download/", methods=("GET",))
+def download_playlist(id: int):
+    Playlist.download_playlist(Playlist(id).songs)
+    return send_file("static/playlist.m3u", as_attachment=True)
 
 
 @bp.route("/playlists/create/", methods=("POST",))
@@ -122,7 +146,13 @@ def view_hub(id: int):
 
 @bp.route("/hubs/<int:id>/songs/", methods=("GET",))
 def view_hub_songs(id: int):
-    return render_page(template="artist_songs.html", content=Hub(id))
+    return render_page(template="artist_songs.html", content=Hub(id), key="hubs")
+
+
+@bp.route("/hubs/<int:id>/songs/download/", methods=("GET",))
+def download_hub_songs(id: int):
+    Playlist.download_playlist(Hub(id).songs)
+    return send_file("static/playlist.m3u", as_attachment=True)
 
 
 @bp.route("/hubs/<int:id>/albums/", methods=("GET",))

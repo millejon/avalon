@@ -1,3 +1,6 @@
+import os
+from flask import current_app
+
 import avalon.database as db
 from avalon.album import Album
 from avalon.song import Song
@@ -45,3 +48,12 @@ class Playlist:
             query=database["playlists_songs"]["queries"]["write"]["delete"],
             data=(self.id, song_id),
         )
+
+    @staticmethod
+    def download_playlist(songs: list[Song]) -> None:
+        """Export playlist as an M3U file."""
+        music_directory = current_app.config["MUSIC_DIRECTORY"]
+        with open("avalon/static/playlist.m3u", "w") as playlist:
+            for song in songs:
+                song_path = os.path.join(music_directory, song.path)
+                playlist.write(f"{song_path}\n")

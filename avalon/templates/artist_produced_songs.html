@@ -8,5 +8,6 @@
 {% endblock %}
 
 {% block content %}
+  <a href="/artists/{{ content.id }}/produced/download">Export Playlist</a>
   {{ tables.produced_songs(songs=content.produced_songs, playlists=playlists) }}
 {% endblock %}
