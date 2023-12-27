@@ -3,6 +3,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 import avalon.utilities as util
 from avalon.song_metadata import SongMetadata
 from avalon.data import required_metadata_input_fields as required_fields
+from avalon.library import get_playlists
 
 bp = Blueprint("metadata-tagger", __name__, url_prefix="/")
 
@@ -14,7 +15,9 @@ def input_metadata():
             songs = util.get_song_file_paths(request.form["directory"])
 
             if songs:
-                return render_template("input-metadata.html", songs=songs)
+                return render_template(
+                    "input-metadata.html", songs=songs, playlists=get_playlists()
+                )
             else:
                 flash(f"No music files in directory! {request.form['directory']}")
 
@@ -22,7 +25,7 @@ def input_metadata():
             flash(f"Directory does not exist! {request.form['directory']}")
 
     # If GET request received, processing begins here.
-    return render_template("input-metadata.html")
+    return render_template("input-metadata.html", playlists=get_playlists())
 
 
 @bp.route("/process-metadata", methods=("POST",))
