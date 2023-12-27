@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% import "tables.html" as tables %}
+
+{% block title %}{{ key.title() }} By {{ content.name }}{% endblock %}
+
+{% block header %}
+  <h1>{{ key.title() }} by {{ content.name }}</h1>
+{% endblock %}
+
+{% block content %}
+  {% if key == "albums" %}
+    {{ tables.albums(albums=content.albums) }}
+  {% elif key == "singles" %}
+    {{ tables.albums(albums=content.singles) }}
+  {% endif %}
+{% endblock %}

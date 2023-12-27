@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% import "tables.html" as tables %}
+
+{% block title %}Songs By {{ content.name }}{% endblock %}
+
+{% block header %}
+  <h1>Songs by {{ content.name }}</h1>
+{% endblock %}
+
+{% block content %}
+  {{ tables.songs(songs=content.songs, playlists=playlists) }}
+{% endblock %}

@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 
-{% block title %}Artists{% endblock %}
+{% block title %}{{ key.title() }}{% endblock %}
 
 {% block header %}
-  <h1>Artists</h1>
+  <h1>{{ key.title() }}</h1>
 {% endblock %}
 
 {% block content %}
-  <table class="all_artists">
+  <table class="all_{{ key }}">
     {% for row in content|batch(5) %}
       <tr>
         {% for artist in row %}
-          <td class="artist">
-            <a href="/artists/{{ artist.id }}">
+          <td class="{{ key }}">
+            <a href="/{{ key }}/{{ artist.id }}">
               <img src="/static/img/{{ artist.photo }}"><br>
               {{ artist.name }}
             </a>

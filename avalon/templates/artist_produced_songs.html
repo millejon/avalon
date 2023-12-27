@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% import "tables.html" as tables %}
+
+{% block title %}Songs Produced By {{ content.name }}{% endblock %}
+
+{% block header %}
+  <h1>Songs Produced by {{ content.name }}</h1>
+{% endblock %}
+
+{% block content %}
+  {{ tables.produced_songs(songs=content.produced_songs, playlists=playlists) }}
+{% endblock %}
