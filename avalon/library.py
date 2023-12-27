@@ -33,7 +33,10 @@ def view_all_artists():
 
 @bp.route("/artists/<int:id>", methods=("GET",))
 def view_artist(id: int):
-    return render_page(template="artist.html", content=Artist(id), key="artists")
+    artist = Artist(id)
+    artist.get_discography()
+
+    return render_page(template="artist.html", content=artist, key="artists")
 
 
 @bp.route("/artists/<int:id>/songs/", methods=("GET",))
@@ -43,7 +46,7 @@ def view_artist_songs(id: int):
 
 @bp.route("/artists/<int:id>/songs/download/", methods=("GET",))
 def download_artist_songs(id: int):
-    Playlist.download_playlist(Artist(id).songs)
+    Playlist.download_playlist(Artist(id).get_songs())
     return send_file("static/playlist.m3u", as_attachment=True)
 
 
@@ -54,7 +57,7 @@ def view_artist_produced_songs(id: int):
 
 @bp.route("/artists/<int:id>/produced/download/", methods=("GET",))
 def download_artist_produced_songs(id: int):
-    Playlist.download_playlist(Artist(id).produced_songs)
+    Playlist.download_playlist(Artist(id).get_produced_songs())
     return send_file("static/playlist.m3u", as_attachment=True)
 
 
@@ -77,12 +80,14 @@ def view_all_albums():
 
 @bp.route("/albums/<int:id>", methods=("GET",))
 def view_album(id: int):
-    return render_page(template="album.html", content=Album(id))
+    album = Album(id)
+    album.populate_tracklist()
+    return render_page(template="album.html", content=album)
 
 
 @bp.route("/albums/<int:id>/download/", methods=("GET",))
 def download_album_songs(id: int):
-    Playlist.download_playlist(Album(id).songs)
+    Playlist.download_playlist(Album(id).get_songs())
     return send_file("static/playlist.m3u", as_attachment=True)
 
 
@@ -141,7 +146,9 @@ def view_all_hubs():
 
 @bp.route("/hubs/<int:id>", methods=("GET",))
 def view_hub(id: int):
-    return render_page(template="artist.html", content=Hub(id), key="hubs")
+    hub = Hub(id)
+    hub.get_discography()
+    return render_page(template="artist.html", content=hub, key="hubs")
 
 
 @bp.route("/hubs/<int:id>/songs/", methods=("GET",))
@@ -151,7 +158,7 @@ def view_hub_songs(id: int):
 
 @bp.route("/hubs/<int:id>/songs/download/", methods=("GET",))
 def download_hub_songs(id: int):
-    Playlist.download_playlist(Hub(id).songs)
+    Playlist.download_playlist(Hub(id).get_songs())
     return send_file("static/playlist.m3u", as_attachment=True)
 
 

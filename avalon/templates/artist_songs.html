@@ -9,5 +9,5 @@
 
 {% block content %}
   <a href="/{{ key }}/{{ content.id }}/songs/download">Export Playlist</a>
-  {{ tables.songs(songs=content.songs, playlists=playlists) }}
+  {{ tables.songs(songs=content.get_songs(), playlists=playlists) }}
 {% endblock %}

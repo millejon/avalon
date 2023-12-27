@@ -9,8 +9,8 @@
 
 {% block content %}
   {% if key == "albums" %}
-    {{ tables.albums(albums=content.albums) }}
+    {{ tables.albums(albums=content.get_albums()) }}
   {% elif key == "singles" %}
-    {{ tables.albums(albums=content.singles) }}
+    {{ tables.albums(albums=content.get_singles()) }}
   {% endif %}
 {% endblock %}

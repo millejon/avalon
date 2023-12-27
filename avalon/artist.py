@@ -11,11 +11,11 @@ class Artist:
     def __init__(self, id: int):
         self.id = id
         self.name = self.get_artist_name()
-        self.albums = self.get_albums()
-        self.songs = self.get_songs()
-        self.singles = self.get_singles()
-        self.produced_songs = self.get_produced_songs()
         self.photo = self.get_artist_photo()
+        self.albums = None
+        self.songs = None
+        self.singles = None
+        self.produced_songs = None
 
     def get_artist_name(self) -> str:
         """Return artist name."""
@@ -23,6 +23,13 @@ class Artist:
             query=database["artists"]["queries"]["read"]["all"],
             data=(self.id,),
         )[0]["name"]
+
+    def get_discography(self) -> None:
+        """Populate class properties related to artist discography."""
+        self.albums = self.get_albums()
+        self.songs = self.get_songs()
+        self.singles = self.get_singles()
+        self.produced_songs = self.get_produced_songs()
 
     def get_albums(self) -> list[Album] | None:
         """Return Album instance for all of the albums released by the
@@ -93,7 +100,12 @@ class Artist:
 
     def get_artist_photo(self) -> str:
         """Return file path to artist profile picture."""
-        if self.albums:
+        artist_albums = db.execute_read_query(
+            query=database["artists_albums"]["queries"]["read"]["albums"],
+            data=(self.id,),
+        )
+
+        if artist_albums:
             return f"{util.format_directory(self.name)}/profile.jpg"
         else:
             return "default.png"
