@@ -1,5 +1,5 @@
 import os
-from flask import Blueprint, current_app, redirect, request
+from flask import Blueprint, current_app, redirect, Response, request
 
 from avalon.song_metadata import SongMetadata
 from avalon.metadata_mapper import MetadataMapper
@@ -8,7 +8,7 @@ bp = Blueprint("update-database", __name__, url_prefix="/")
 
 
 @bp.route("/update-database", methods=("GET",))
-def update_database() -> None:
+def update_database() -> Response | str:
     """Update database with metadata extracted from music files in local
     music library.
     """
@@ -31,4 +31,4 @@ def update_database() -> None:
                     if "producers" in metadata.keys():
                         mapper.add_producers()
 
-    return redirect(request.referrer)
+    return redirect(request.referrer) if request else "Database update complete!"
