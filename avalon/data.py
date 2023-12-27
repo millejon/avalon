@@ -268,9 +268,13 @@ database = {
                     WHERE hub_id = ? AND album_id = ?
                 """,
                 "all": """
-                    SELECT album_id FROM hubs_albums
+                    SELECT hub_id, album_id FROM hubs_albums
+                    WHERE id = ?
+                """,
+                "albums": """
+                    SELECT hubs_albums.album_id FROM hubs_albums
                     INNER JOIN albums ON hubs_albums.album_id = albums.id
-                    WHERE hub_id = ?
+                    WHERE hubs_albums.hub_id = ?
                     ORDER BY albums.release_date DESC
                 """,
                 "songs": """

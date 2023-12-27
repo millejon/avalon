@@ -23,7 +23,7 @@ class Hub:
     def get_albums(self) -> list[Album] | None:
         """Return Album instance for all of the albums related to the hub."""
         albums = db.execute_read_query(
-            query=database["hubs_albums"]["queries"]["read"]["all"],
+            query=database["hubs_albums"]["queries"]["read"]["albums"],
             data=(self.id,),
         )
 
