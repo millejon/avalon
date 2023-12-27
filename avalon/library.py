@@ -4,6 +4,7 @@ import avalon.database as db
 from avalon.artist import Artist
 from avalon.album import Album
 from avalon.playlist import Playlist
+from avalon.hub import Hub
 from avalon.data import database
 
 bp = Blueprint("library", __name__, url_prefix="/")
@@ -83,3 +84,18 @@ def get_playlists() -> list[Playlist]:
     )
 
     return [Playlist(data["id"]) for data in playlists_data]
+
+
+@bp.route("/hubs/", methods=("GET",))
+def view_all_hubs():
+    hubs_data = db.execute_read_query(
+        query=database["hubs"]["queries"]["read"]["all_hubs"]
+    )
+    hubs = [Hub(data["id"]) for data in hubs_data]
+
+    return render_page(template="all_hubs.html", content=hubs)
+
+
+@bp.route("/hubs/<int:id>", methods=("GET",))
+def view_hub(id: int):
+    return render_page(template="hub.html", content=Hub(id))

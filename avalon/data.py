@@ -252,6 +252,7 @@ database = {
             "read": {
                 "id": """SELECT id FROM hubs WHERE name = ?""",
                 "all": """SELECT name FROM hubs WHERE id = ?""",
+                "all_hubs": """SELECT id FROM hubs ORDER BY name""",
             },
             "write": {
                 "add": """INSERT INTO hubs (name) VALUES (?)""",
@@ -267,8 +268,17 @@ database = {
                     WHERE hub_id = ? AND album_id = ?
                 """,
                 "all": """
-                    SELECT hub_id, album_id
-                    FROM hubs_albums WHERE id = ?
+                    SELECT album_id FROM hubs_albums
+                    INNER JOIN albums ON hubs_albums.album_id = albums.id
+                    WHERE hub_id = ?
+                    ORDER BY albums.release_date DESC
+                """,
+                "songs": """
+                    SELECT songs.id FROM songs
+                    INNER JOIN albums ON songs.album_id = albums.id
+                    INNER JOIN hubs_albums ON albums.id = hubs_albums.album_id
+                    WHERE hubs_albums.hub_id = ?
+                    ORDER BY songs.play_count DESC, albums.release_date DESC
                 """,
             },
             "write": {
