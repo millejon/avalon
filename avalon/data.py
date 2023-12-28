@@ -74,13 +74,15 @@ database = {
             "track_number",
             "length",
             "path",
+            "comment",
             "source",
         ],
         "queries": {
             "read": {
                 "id": """SELECT id FROM songs WHERE path = ?""",
                 "all": """
-                    SELECT album_id, disc_id, title, track_number, length, path, source
+                    SELECT album_id, disc_id, title, track_number, length,
+                        path, source, comment
                     FROM songs WHERE id = ?
                 """,
                 "album": """SELECT id FROM songs WHERE album_id = ?""",
@@ -88,8 +90,8 @@ database = {
             "write": {
                 "add": """
                     INSERT INTO songs (album_id, disc_id, title, track_number,
-                        length, path, source)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                        length, path, comment, source)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """,
             },
         },

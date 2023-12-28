@@ -12,12 +12,12 @@ class Album:
         self.title = None
         self.release_date = None
         self.multidisc = None
-        self.song_count = 0
         self.populate_album_info()
         self.album_artists = self.get_album_artists()
-        self.songs = self.get_songs()
-        self.length = self.get_album_length()
         self.cover = self.get_album_cover()
+        self.songs = None
+        self.song_count = 0
+        self.length = None
 
     def populate_album_info(self) -> None:
         """Populate class properties with album data retrieved from
@@ -32,6 +32,12 @@ class Album:
         self.release_date = info["release_date"]
         self.multidisc = True if info["multidisc"] else False
 
+    def populate_tracklist(self) -> None:
+        """Populate class properties related to album tracklist."""
+        self.songs = self.get_songs()
+        self.song_count = len(self.songs)
+        self.length = self.get_album_length()
+
     def get_album_artists(self) -> list[sqlite3.Row]:
         """Return database id and artist name for all of the artists
         the album was released under.
@@ -41,13 +47,12 @@ class Album:
             data=(self.id,),
         )
 
-    def get_songs(self) -> list[Song]:
+    def get_songs(self) -> None:
         """Return Song instance for all of the songs on the album."""
         songs = db.execute_read_query(
             query=database["songs"]["queries"]["read"]["album"],
             data=(self.id,),
         )
-        self.song_count = len(songs)
 
         return [Song(song["id"]) for song in songs]
 

@@ -12,21 +12,25 @@
 
   {% if content.songs %}
     <h2>Songs</h2>
-    {{ tables.songs(songs=content.songs, playlists=playlists) }}
+    <a href="/{{ key }}/{{ content.id }}/songs/">View All</a>
+    {{ tables.songs(songs=content.songs[:10], playlists=playlists) }}
   {% endif %}
 
   {% if content.albums %}
     <h2>Albums</h2>
+    <a href="/{{ key }}/{{ content.id }}/albums/">View All</a>
     {{ tables.albums(albums=content.albums[:4]) }}
   {% endif %}
 
   {% if content.singles %}
     <h2>Singles / Remixes</h2>
+    <a href="/{{ key }}/{{ content.id }}/singles/">View All</a>
     {{ tables.albums(albums=content.singles[:4]) }}
   {% endif %}
 
   {% if content.produced_songs %}
     <h2>Production Credits</h2>
-    {{ tables.produced_songs(songs=content.produced_songs, playlists=playlists) }}
+    <a href="/{{ key }}/{{ content.id }}/produced/">View All</a>
+    {{ tables.produced_songs(songs=content.produced_songs[:10], playlists=playlists) }}
   {% endif %}
 {% endblock %}

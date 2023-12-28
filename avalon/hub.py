@@ -9,9 +9,9 @@ class Hub:
     def __init__(self, id: int):
         self.id = id
         self.name = self.get_hub_name()
-        self.albums = self.get_albums()
-        self.songs = self.get_songs()
         self.photo = self.get_hub_photo()
+        self.albums = None
+        self.songs = None
 
     def get_hub_name(self) -> str:
         """Return hub name."""
@@ -19,6 +19,11 @@ class Hub:
             query=database["hubs"]["queries"]["read"]["all"],
             data=(self.id,),
         )[0]["name"]
+
+    def get_discography(self) -> None:
+        """Populate class properties related to hub discography."""
+        self.albums = self.get_albums()
+        self.songs = self.get_songs()
 
     def get_albums(self) -> list[Album] | None:
         """Return Album instance for all of the albums related to the hub."""

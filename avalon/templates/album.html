@@ -17,5 +17,6 @@
     {{ content.release_date[:4] }}
   </div>
 
+  <a href="/albums/{{ content.id }}/download">Export Playlist</a>
   {{ tables.album_songs(songs=content.songs, playlists=playlists) }}
 {% endblock %}
