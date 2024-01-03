@@ -8,11 +8,11 @@
       <li><a href="/hubs/">Hubs</a></li>
     </ul>
     <h3>Playlists</h3>
-    <ul>
+    <uL>
       {% for playlist in playlists %}
         <li><a href="/playlists/{{ playlist.id }}">{{ playlist.title }}</a></li>
       {% endfor %}
-    </ul>
+    </uL>
     <form action="/playlists/create/" method="post">
         <div>
             <label for="playlist_title">Create Playlist:</label><br>
