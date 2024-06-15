@@ -23,7 +23,7 @@ class Artist(models.Model):
 
 
 class Album(models.Model):
-    artist = models.ManyToManyField(Artist)
+    artists = models.ManyToManyField(Artist)
     title = models.CharField(max_length=600)
     release_date = models.DateField()
     single = models.BooleanField(default=False, blank=True)
