@@ -106,3 +106,9 @@ class Playlist(models.Model):
 
     class Meta:
         ordering = ["songs__album__release_date", "songs__disc__number", "songs__track_number"]
+
+
+class PlaylistSong(models.Model):
+    playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE)
+    song = models.ForeignKey(Song, on_delete=models.CASCADE)
+    date_added = models.DateTimeField(auto_now_add=True)
