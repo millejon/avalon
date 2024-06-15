@@ -72,3 +72,23 @@ class Song(models.Model):
 
     class Meta:
         ordering = ["-album__release_date", "disc__number", "track_number"]
+
+
+class Feature(models.Model):
+    artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
+    song = models.ForeignKey(Song, on_delete=models.CASCADE)
+    group = models.BooleanField(default=False, blank=True)
+    producer = models.BooleanField(default=False, blank=True)
+    role = models.CharField(max_length=100, null=True, blank=True)
+
+    def __str__(self):
+        if self.producer:
+            f"{self.artist.name} - {self.song.title} [{self.role}]"
+        else:
+            return f"{self.artist.name} - {self.song.title}"
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["artist", "song", "group"], name="unique_vocalist"),
+            models.UniqueConstraint(fields=["artist", "song", "producer"], name="unique_producer"),
+        ]
