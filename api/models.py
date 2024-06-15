@@ -19,3 +19,23 @@ class Artist(models.Model):
                 violation_error_message="Artist already exists (case insensitive match)",
             ),
         ]
+
+
+class Album(models.Model):
+    artist = models.ManyToManyField(Artist)
+    title = models.CharField(max_length=600)
+    release_date = models.DateField()
+    single = models.BooleanField(default=False, blank=True)
+    multidisc = models.BooleanField(default=False, blank=True)
+
+    def __str__(self):
+        return self.title
+
+    def get_absolute_url(self):
+        return reverse("view-album", args=[str(self.id)])
+
+    class Meta:
+        ordering = ["artist__name", "release_date"]
+        constraints = [
+            models.UniqueConstraint(fields=["title", "release_date"], name="unique_album")
+        ]
