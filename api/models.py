@@ -36,7 +36,7 @@ class Album(models.Model):
         return reverse("view-album", args=[str(self.id)])
 
     class Meta:
-        ordering = ["artist__name", "release_date"]
+        ordering = ["artists__name", "release_date"]
         constraints = [
             models.UniqueConstraint(fields=["title", "release_date"], name="unique_album")
         ]
@@ -51,7 +51,7 @@ class Disc(models.Model):
         return f"{self.album.name} ({self.title})"
 
     class Meta:
-        ordering = ["album__artist__name", "album__release_date", "number"]
+        ordering = ["album__artists__name", "album__release_date", "number"]
         constraints = [
             models.UniqueConstraint(fields=["album", "number"], name="unique_disc")
         ]
