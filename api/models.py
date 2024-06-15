@@ -92,3 +92,17 @@ class Feature(models.Model):
             models.UniqueConstraint(fields=["artist", "song", "group"], name="unique_vocalist"),
             models.UniqueConstraint(fields=["artist", "song", "producer"], name="unique_producer"),
         ]
+
+
+class Playlist(models.Model):
+    title = models.CharField(max_length=300, unique=True)
+    songs = models.ManyToManyField(Song, through="PlaylistSong", blank=True)
+
+    def __str__(self):
+        return self.title
+
+    def get_absolute_url(self):
+        return reverse("view-playlist", args=[str(self.id)])
+
+    class Meta:
+        ordering = ["songs__album__release_date", "songs__disc__number", "songs__track_number"]
