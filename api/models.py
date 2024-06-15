@@ -15,7 +15,7 @@ class Artist(models.Model):
         ordering = ["name"]
         constraints = [
             models.UniqueConstraint(
-                models.Lower("name"),
+                models.functions.Lower("name"),
                 name="artist_name_case_insensitive_unique",
                 violation_error_message="Artist already exists (case insensitive match)",
             ),
@@ -102,7 +102,7 @@ class Playlist(models.Model):
         ordering = ["songs__album__release_date", "songs__disc__number", "songs__track_number"]
         constraints = [
             models.UniqueConstraint(
-                models.Lower("name"),
+                models.functions.Lower("name"),
                 name="playlist_name_case_insensitive_unique",
                 violation_error_message="Playlist already exists (case insensitive match)",
             ),
@@ -130,7 +130,7 @@ class Hub(models.Model):
         ordering = ["name"]
         constraints = [
             models.UniqueConstraint(
-                models.Lower("name"),
+                models.functions.Lower("name"),
                 name="hub_name_case_insensitive_unique",
                 violation_error_message="Hub already exists (case insensitive match)",
             ),
