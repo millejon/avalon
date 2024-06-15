@@ -106,3 +106,25 @@ class PlaylistSong(models.Model):
     playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE)
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
     date_added = models.DateTimeField(auto_now_add=True)
+
+
+class Hub(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    artists = models.ManyToManyField(Artist, blank=True)
+    albums = models.ManyToManyField(Album, blank=True)
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse("view-hub", args=[str(self.id)])
+
+    class Meta:
+        ordering = ["name"]
+        constraints = [
+            models.UniqueConstraint(
+                models.Lower("name"),
+                name="hub_name_case_insensitive_unique",
+                violation_error_message="Hub already exists (case insensitive match)",
+            ),
+        ]
