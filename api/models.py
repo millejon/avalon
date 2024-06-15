@@ -43,7 +43,7 @@ class Album(models.Model):
 
 
 class Disc(models.Model):
-    album = models.ForeignKey(Album, on_delete=models.RESTRICT)
+    album = models.ForeignKey(Album, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     number = models.PositiveSmallIntegerField(validators=[validators.MinValueValidator(1)])
 
