@@ -51,7 +51,24 @@ class Disc(models.Model):
         return f"{self.album.name} ({self.title})"
 
     class Meta:
-        ordering = ["number"]
+        ordering = ["album__artist__name", "album__release_date", "number"]
         constraints = [
             models.UniqueConstraint(fields=["album", "number"], name="unique_disc")
         ]
+
+
+class Song(models.Model):
+    artists = models.ManyToManyField(Artist, through="Feature")
+    album = models.ForeignKey(Album, on_delete=models.CASCADE)
+    disc = models.ForeignKey(Disc, on_delete=models.RESTRICT, null=True, blank=True)
+    title = models.CharField(max_length=600)
+    track_number = models.PositiveSmallIntegerField(validators=[validators.MinValueValidator(1)])
+    length = models.PositiveIntegerField()
+    play_count = models.PositiveIntegerField(default=0)
+    path = models.CharField(max_length=300, unique=True)
+
+    def __str__(self):
+        return f"{self.track_number}. {self.title} [{self.album.name}]"
+
+    class Meta:
+        ordering = ["-album__release_date", "disc__number", "track_number"]
