@@ -1,4 +1,5 @@
 from django.db import models
+from django.core import validators
 from django.urls import reverse
 
 class Artist(models.Model):
@@ -38,4 +39,19 @@ class Album(models.Model):
         ordering = ["artist__name", "release_date"]
         constraints = [
             models.UniqueConstraint(fields=["title", "release_date"], name="unique_album")
+        ]
+
+
+class Disc(models.Model):
+    album = models.ForeignKey(Album, on_delete=models.RESTRICT)
+    title = models.CharField(max_length=100)
+    number = models.PositiveSmallIntegerField(validators=[validators.MinValueValidator(1)])
+
+    def __str__(self):
+        return f"{self.album.name} ({self.title})"
+
+    class Meta:
+        ordering = ["number"]
+        constraints = [
+            models.UniqueConstraint(fields=["album", "number"], name="unique_disc")
         ]
