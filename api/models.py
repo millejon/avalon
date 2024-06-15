@@ -100,6 +100,13 @@ class Playlist(models.Model):
 
     class Meta:
         ordering = ["songs__album__release_date", "songs__disc__number", "songs__track_number"]
+        constraints = [
+            models.UniqueConstraint(
+                models.Lower("name"),
+                name="playlist_name_case_insensitive_unique",
+                violation_error_message="Playlist already exists (case insensitive match)",
+            ),
+        ]
 
 
 class PlaylistSong(models.Model):
