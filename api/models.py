@@ -49,7 +49,7 @@ class Disc(models.Model):
     number = models.PositiveSmallIntegerField(validators=[validators.MinValueValidator(1)])
 
     def __str__(self):
-        return f"{self.album.name} ({self.title})"
+        return f"{self.album.title} ({self.title})"
 
     class Meta:
         ordering = ["album__artists__name", "album__release_date", "number"]
