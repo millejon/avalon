@@ -1,3 +1,5 @@
+import datetime
+
 from django.test import TestCase
 from django.db import IntegrityError
 
@@ -39,3 +41,66 @@ class ArtistModelTestCase(TestCase):
         artists = [artist.name for artist in models.Artist.objects.all()]
 
         self.assertEqual(artists, ["2pac", "Kurupt", "Xzibit"])
+
+
+class AlbumModelTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.album = models.Album.objects.create(
+            title="Me Against The World",
+            release_date=datetime.date(1995, 3, 14),
+        )
+
+    def test_album_creation(self):
+        self.assertEqual(self.album.title, "Me Against The World")
+        self.assertEqual(self.album.release_date, datetime.date(1995, 3, 14))
+
+    def test_album_creation_single_false_by_default(self):
+        self.assertFalse(self.album.single)
+
+    def test_album_creation_multidisc_false_by_default(self):
+        self.assertFalse(self.album.multidisc)
+
+    def test_title_max_length(self):
+        max_length = self.album._meta.get_field("title").max_length
+
+        self.assertEqual(max_length, 600)
+
+    def test_album_str_method(self):
+        self.assertEqual(str(self.album), "Me Against The World")
+
+    def test_album_get_absolute_url(self):
+        # TODO: Add test after coding front-end views
+        pass
+
+    def test_nonunique_album_creation(self):
+        with self.assertRaises(IntegrityError):
+            models.Album.objects.create(
+                title="Me Against The World",
+                release_date=datetime.date(1995, 3, 14),
+            )
+
+    def test_album_ordering(self):
+        artist1 = models.Artist.objects.create(name="2pac")
+        self.album.artists.add(artist1)
+        artist2 = models.Artist.objects.create(name="Kurupt")
+        album2 = models.Album.objects.create(
+            title="Tha Streetz Iz A Mutha",
+            release_date=datetime.date(1999, 11, 16),
+        )
+        album2.artists.add(artist2)
+        album3 = models.Album.objects.create(
+            title="All Eyez On Me",
+            release_date=datetime.date(1996, 2, 13),
+            multidisc=True,
+        )
+        album3.artists.add(artist1)
+
+        albums = [album.title for album in models.Album.objects.all()]
+        expected_album_order = [
+            "Me Against The World",
+            "All Eyez On Me",
+            "Tha Streetz Iz A Mutha",
+        ]
+
+        self.assertEqual(albums, expected_album_order)
