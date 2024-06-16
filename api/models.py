@@ -2,6 +2,7 @@ from django.db import models
 from django.core import validators
 from django.urls import reverse
 
+
 class Artist(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
@@ -102,8 +103,8 @@ class Playlist(models.Model):
         ordering = ["songs__album__release_date", "songs__disc__number", "songs__track_number"]
         constraints = [
             models.UniqueConstraint(
-                models.functions.Lower("name"),
-                name="playlist_name_case_insensitive_unique",
+                models.functions.Lower("title"),
+                name="playlist_title_case_insensitive_unique",
                 violation_error_message="Playlist already exists (case insensitive match)",
             ),
         ]
