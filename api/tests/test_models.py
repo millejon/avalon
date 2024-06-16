@@ -46,10 +46,12 @@ class ArtistModelTestCase(TestCase):
 class AlbumModelTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        cls.artist = models.Artist.objects.create(name="2pac")
         cls.album = models.Album.objects.create(
             title="Me Against The World",
             release_date=datetime.date(1995, 3, 14),
         )
+        cls.album.artists.add(cls.artist)
 
     def test_album_creation(self):
         self.assertEqual(self.album.title, "Me Against The World")
@@ -81,8 +83,6 @@ class AlbumModelTestCase(TestCase):
             )
 
     def test_album_ordering(self):
-        artist1 = models.Artist.objects.create(name="2pac")
-        self.album.artists.add(artist1)
         artist2 = models.Artist.objects.create(name="Kurupt")
         album2 = models.Album.objects.create(
             title="Tha Streetz Iz A Mutha",
@@ -94,7 +94,7 @@ class AlbumModelTestCase(TestCase):
             release_date=datetime.date(1996, 2, 13),
             multidisc=True,
         )
-        album3.artists.add(artist1)
+        album3.artists.add(self.artist)
 
         albums = [album.title for album in models.Album.objects.all()]
         expected_album_order = [
