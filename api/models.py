@@ -54,7 +54,10 @@ class Disc(models.Model):
     class Meta:
         ordering = ["album__artists__name", "album__release_date", "number"]
         constraints = [
-            models.UniqueConstraint(fields=["album", "number"], name="unique_disc")
+            models.UniqueConstraint(fields=["album", "number"], name="unique_disc"),
+            models.CheckConstraint(
+                check=models.Q(number__gte=1), name="disc_number_greater_than_0"
+            ),
         ]
 
 
