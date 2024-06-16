@@ -54,6 +54,7 @@ class AlbumModelTestCase(TestCase):
         cls.album.artists.add(cls.artist)
 
     def test_album_creation(self):
+        self.assertTrue(self.album.artists.contains(self.artist))
         self.assertEqual(self.album.title, "Me Against The World")
         self.assertEqual(self.album.release_date, datetime.date(1995, 3, 14))
 
