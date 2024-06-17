@@ -179,3 +179,67 @@ class DiscModelTestCase(TestCase):
         ]
 
         self.assertEqual(discs, expected_disc_order)
+
+
+class SongModelTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.artist = models.Artist.objects.create(name="Nas")
+        cls.album = models.Album.objects.create(
+            title="Illmatic",
+            release_date=datetime.date(1994, 4, 19),
+        )
+        cls.album.artists.add(cls.artist)
+        cls.song = models.Song.objects.create(
+            album=cls.album,
+            title="Life's A Bitch",
+            track_number=3,
+            length=210,
+            path="D:/Music/nas/illmatic/03_lifes_a_bitch.flac",
+        )
+
+    def test_song_creation(self):
+        self.assertEqual(self.song.album, self.album)
+        self.assertEqual(self.song.title, "Life's A Bitch")
+        self.assertEqual(self.song.track_number, 3)
+        self.assertEqual(self.song.length, 210)
+        self.assertEqual(self.song.path, "D:/Music/nas/illmatic/03_lifes_a_bitch.flac")
+
+    def test_song_creation_disc_null_by_default(self):
+        self.assertIsNone(self.song.disc)
+
+    def test_song_creation_play_count_zero_by_default(self):
+        self.assertEqual(self.song.play_count, 0)
+
+    def test_title_max_length(self):
+        max_length = self.song._meta.get_field("title").max_length
+
+        self.assertEqual(max_length, 600)
+
+    def test_path_max_length(self):
+        max_length = self.song._meta.get_field("path").max_length
+
+        self.assertEqual(max_length, 1000)
+
+    # def test_artist_str_method(self):
+    #     self.assertEqual(str(self.artist), "2pac")
+
+    # def test_artist_get_absolute_url(self):
+    #     # TODO: Add test after coding front-end views
+    #     pass
+
+    # def test_nonunique_artist_creation(self):
+    #     with self.assertRaises(IntegrityError):
+    #         models.Artist.objects.create(name="2pac")
+
+    # def test_nonunique_artist_creation_case_insensitive(self):
+    #     with self.assertRaises(IntegrityError):
+    #         models.Artist.objects.create(name="2Pac")
+
+    # def test_artist_ordering(self):
+    #     models.Artist.objects.create(name="Xzibit")
+    #     models.Artist.objects.create(name="Kurupt")
+
+    #     artists = [artist.name for artist in models.Artist.objects.all()]
+
+    #     self.assertEqual(artists, ["2pac", "Kurupt", "Xzibit"])

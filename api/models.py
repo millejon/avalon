@@ -69,7 +69,7 @@ class Song(models.Model):
     track_number = models.PositiveSmallIntegerField(validators=[validators.MinValueValidator(1)])
     length = models.PositiveIntegerField()
     play_count = models.PositiveIntegerField(default=0)
-    path = models.CharField(max_length=300, unique=True)
+    path = models.CharField(max_length=1000, unique=True)
 
     def __str__(self):
         return f"{self.track_number}. {self.title} [{self.album.name}]"
