@@ -197,8 +197,10 @@ class SongModelTestCase(TestCase):
             length=210,
             path="D:/Music/nas/illmatic/03_lifes_a_bitch.flac",
         )
+        cls.song.artists.add(cls.artist)
 
     def test_song_creation(self):
+        self.assertTrue(self.song.artists.contains(self.artist))
         self.assertEqual(self.song.album, self.album)
         self.assertEqual(self.song.title, "Life's A Bitch")
         self.assertEqual(self.song.track_number, 3)
@@ -221,25 +223,58 @@ class SongModelTestCase(TestCase):
 
         self.assertEqual(max_length, 1000)
 
-    # def test_artist_str_method(self):
-    #     self.assertEqual(str(self.artist), "2pac")
+    def test_song_str_method(self):
+        self.assertEqual(str(self.song), "3. Life's A Bitch [Illmatic]")
 
-    # def test_artist_get_absolute_url(self):
-    #     # TODO: Add test after coding front-end views
-    #     pass
+    def test_nonunique_song_creation(self):
+        with self.assertRaises(IntegrityError):
+            models.Song.objects.create(
+                album=self.album,
+                title="Life's a Bitch",
+                track_number=3,
+                length=212,
+                path="D:/Music/nas/illmatic/03_lifes_a_bitch.flac",
+            )
 
-    # def test_nonunique_artist_creation(self):
-    #     with self.assertRaises(IntegrityError):
-    #         models.Artist.objects.create(name="2pac")
+    def test_invalid_song_track_number_song_creation(self):
+        with self.assertRaises(IntegrityError):
+            models.Song.objects.create(
+                album=self.album,
+                title="N.Y. State Of Mind",
+                track_number=0,
+                length=293,
+                path="D:/Music/nas/illmatic/00_ny_state_of_mind.flac",
+            )
 
-    # def test_nonunique_artist_creation_case_insensitive(self):
-    #     with self.assertRaises(IntegrityError):
-    #         models.Artist.objects.create(name="2Pac")
+    def test_song_ordering(self):
+        album2 = models.Album.objects.create(
+            title="Street's Disciple",
+            release_date=datetime.date(2004, 11, 30),
+        )
+        disc1 = models.Disc.objects.create(album=album2, title="Disc 1", number=1)
+        disc2 = models.Disc.objects.create(album=album2, title="Disc 2", number=2)
+        models.Song.objects.create(
+            album=album2,
+            disc=disc2,
+            title="Suicide Bounce",
+            track_number=1,
+            length=237,
+            path="D:/Music/nas/streets-disciple/disc-2/01_suicide_bounce.flac",
+        )
+        models.Song.objects.create(
+            album=album2,
+            disc=disc1,
+            title="Just A Moment",
+            track_number=10,
+            length=263,
+            path="D:/Music/nas/streets-disciple/disc-1/10_just_a_moment.flac",
+        )
 
-    # def test_artist_ordering(self):
-    #     models.Artist.objects.create(name="Xzibit")
-    #     models.Artist.objects.create(name="Kurupt")
+        songs = [str(song) for song in models.Song.objects.all()]
+        expected_song_order = [
+            "10. Just A Moment [Street's Disciple]",
+            "1. Suicide Bounce [Street's Disciple]",
+            "3. Life's A Bitch [Illmatic]",
+        ]
 
-    #     artists = [artist.name for artist in models.Artist.objects.all()]
-
-    #     self.assertEqual(artists, ["2pac", "Kurupt", "Xzibit"])
+        self.assertEqual(songs, expected_song_order)
