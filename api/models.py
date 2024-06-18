@@ -76,6 +76,11 @@ class Song(models.Model):
 
     class Meta:
         ordering = ["-album__release_date", "disc__number", "track_number"]
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(track_number__gte=1), name="track_number_greater_than_0"
+            )
+        ]
 
 
 class Feature(models.Model):
