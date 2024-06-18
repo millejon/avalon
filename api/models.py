@@ -88,7 +88,7 @@ class Feature(models.Model):
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
     group = models.BooleanField(default=False, blank=True)
     producer = models.BooleanField(default=False, blank=True)
-    role = models.CharField(max_length=100, null=True, blank=True)
+    role = models.CharField(max_length=100, blank=True)
 
     class Meta:
         constraints = [
