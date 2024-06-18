@@ -72,7 +72,7 @@ class Song(models.Model):
     path = models.CharField(max_length=1000, unique=True)
 
     def __str__(self):
-        return f"{self.track_number}. {self.title} [{self.album.name}]"
+        return f"{self.track_number}. {self.title} [{self.album.title}]"
 
     class Meta:
         ordering = ["-album__release_date", "disc__number", "track_number"]
