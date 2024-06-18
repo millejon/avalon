@@ -278,3 +278,81 @@ class SongModelTestCase(TestCase):
         ]
 
         self.assertEqual(songs, expected_song_order)
+
+
+class FeatureModelTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.artist = models.Artist.objects.create(name="Kurupt")
+        cls.album = models.Album.objects.create(
+            title="Tha Streetz Iz A Mutha", release_date=datetime.date(1999, 11, 16)
+        )
+        cls.song = models.Song.objects.create(
+            album=cls.album,
+            title="Who Ride Wit Us",
+            track_number=3,
+            length=261,
+            path="D:/Music/kurupt/tha-streetz-iz-a-mutha/03_who_ride_wit_us.flac",
+        )
+        cls.feature = models.Feature.objects.create(artist=cls.artist, song=cls.song)
+
+    def test_feature_creation(self):
+        self.assertEqual(self.feature.artist.name, "Kurupt")
+        self.assertEqual(self.feature.song.title, "Who Ride Wit Us")
+
+    def test_feature_creation_group_false_by_default(self):
+        self.assertFalse(self.feature.group)
+
+    def test_feature_creation_producer_false_by_default(self):
+        self.assertFalse(self.feature.producer)
+
+    def test_feature_creation_producer_role_empty_string_by_default(self):
+        self.assertEqual(self.feature.role, "")
+
+    def test_role_max_length(self):
+        max_length = self.feature._meta.get_field("role").max_length
+
+        self.assertEqual(max_length, 100)
+
+    def test_nonunique_feature_creation(self):
+        with self.assertRaises(IntegrityError):
+            models.Feature.objects.create(artist=self.artist, song=self.song)
+
+    def test_group_member_creation(self):
+        group = models.Artist.objects.create(name="Tha Dogg Pound")
+        group_feature = models.Feature.objects.create(
+            artist=group, song=self.song, group=True
+        )
+
+        self.assertEqual(group_feature.artist.name, "Tha Dogg Pound")
+        self.assertEqual(group_feature.song.title, "Who Ride Wit Us")
+        self.assertTrue(group_feature.group)
+
+    def test_nonunique_group_member_creation(self):
+        group = models.Artist.objects.create(name="Tha Dogg Pound")
+        models.Feature.objects.create(artist=group, song=self.song, group=True)
+
+        with self.assertRaises(IntegrityError):
+            models.Feature.objects.create(artist=group, song=self.song, group=True)
+
+    def test_producer_creation(self):
+        producer = models.Artist.objects.create(name="Fredwreck")
+        producer_feature = models.Feature.objects.create(
+            artist=producer, song=self.song, producer=True, role="Producer"
+        )
+
+        self.assertEqual(producer_feature.artist.name, "Fredwreck")
+        self.assertEqual(producer_feature.song.title, "Who Ride Wit Us")
+        self.assertTrue(producer_feature.producer)
+        self.assertEqual(producer_feature.role, "Producer")
+
+    def test_nonunique_producer_creation(self):
+        producer = models.Artist.objects.create(name="Fredwreck")
+        models.Feature.objects.create(
+            artist=producer, song=self.song, producer=True, role="Producer"
+        )
+
+        with self.assertRaises(IntegrityError):
+            models.Feature.objects.create(
+                artist=producer, song=self.song, producer=True, role="Producer"
+            )
