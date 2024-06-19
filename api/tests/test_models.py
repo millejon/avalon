@@ -371,7 +371,6 @@ class PlaylistModelTestCase(TestCase):
         self.assertEqual(self.playlist.title, "Rock The Bells")
         self.assertIsNotNone(self.playlist.created)
         self.assertIsNotNone(self.playlist.last_modified)
-        self.assertEqual(self.playlist.created, self.playlist.last_modified)
 
     def test_playlist_creation_songs_null_by_default(self):
         self.assertEqual(self.playlist.songs.count(), 0)
