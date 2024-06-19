@@ -1,4 +1,5 @@
 import datetime
+import time
 
 from django.test import TestCase
 from django.db import IntegrityError
@@ -398,6 +399,7 @@ class PlaylistModelTestCase(TestCase):
     def test_playlist_ordering(self):
         playlist2 = models.Playlist.objects.create(title="Kaleidoscope Dreams")
         models.Playlist.objects.create(title="Computer Love")
+        time.sleep(0.01)
         album = models.Album.objects.create(
             title="Ready To Die", release_date=datetime.date(1994, 9, 13)
         )
