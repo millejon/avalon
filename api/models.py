@@ -128,6 +128,9 @@ class PlaylistSong(models.Model):
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
     date_added = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"{self.song.title} [{self.playlist.title}]"
+
 
 class Hub(models.Model):
     name = models.CharField(max_length=100, unique=True)
