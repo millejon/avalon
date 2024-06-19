@@ -443,3 +443,46 @@ class PlaylistSongModelTestCase(TestCase):
 
     def test_playlist_song_str_method(self):
         self.assertEqual(str(self.playlist_song), "Protect Ya Neck [Murda Muzik]")
+
+
+class HubModelTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.hub = models.Hub.objects.create(name="Death Row Records")
+
+    def test_hub_creation(self):
+        self.assertEqual(self.hub.name, "Death Row Records")
+
+    def test_hub_creation_artists_null_by_default(self):
+        self.assertEqual(self.hub.artists.count(), 0)
+
+    def test_hub_creation_albums_null_by_default(self):
+        self.assertEqual(self.hub.albums.count(), 0)
+
+    def test_name_max_length(self):
+        max_length = self.hub._meta.get_field("name").max_length
+
+        self.assertEqual(max_length, 100)
+
+    def test_hub_str_method(self):
+        self.assertEqual(str(self.hub), "Death Row Records")
+
+    def test_hub_get_absolute_url(self):
+        # TODO: Add test after coding front-end views
+        pass
+
+    def test_nonunique_hub_creation(self):
+        with self.assertRaises(IntegrityError):
+            models.Hub.objects.create(name="Death Row Records")
+
+    def test_nonunique_hub_creation_case_insensitive(self):
+        with self.assertRaises(IntegrityError):
+            models.Hub.objects.create(name="DEATH ROW Records")
+
+    def test_hub_ordering(self):
+        models.Hub.objects.create(name="Roc-A-Fella Records")
+        models.Hub.objects.create(name="Griselda")
+
+        hubs = [str(hub) for hub in models.Hub.objects.all()]
+
+        self.assertEqual(hubs, ["Death Row Records", "Griselda", "Roc-A-Fella Records"])
