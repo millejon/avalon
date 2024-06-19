@@ -100,6 +100,8 @@ class Feature(models.Model):
 class Playlist(models.Model):
     title = models.CharField(max_length=300, unique=True)
     songs = models.ManyToManyField(Song, through="PlaylistSong", blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    last_modified = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.title
@@ -108,7 +110,7 @@ class Playlist(models.Model):
         return reverse("view-playlist", args=[str(self.id)])
 
     class Meta:
-        ordering = ["songs__album__release_date", "songs__disc__number", "songs__track_number"]
+        ordering = ["-last_modified"]
         constraints = [
             models.UniqueConstraint(
                 models.functions.Lower("title"),
