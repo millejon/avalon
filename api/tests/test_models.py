@@ -399,10 +399,10 @@ class PlaylistModelTestCase(TestCase):
     def test_playlist_ordering(self):
         playlist2 = models.Playlist.objects.create(title="Kaleidoscope Dreams")
         models.Playlist.objects.create(title="Computer Love")
-        time.sleep(0.01)
         album = models.Album.objects.create(
             title="Ready To Die", release_date=datetime.date(1994, 9, 13)
         )
+        time.sleep(0.1)
         song = models.Song.objects.create(
             album=album,
             title="Machine Gun Funk",
@@ -411,6 +411,7 @@ class PlaylistModelTestCase(TestCase):
             path="D:/Music/the-notorious-big/ready-to-die/04_machine_gun_funk.flac",
         )
         playlist2.songs.add(song)
+        playlist2.save()
 
         playlists = [str(playlist) for playlist in models.Playlist.objects.all()]
 
