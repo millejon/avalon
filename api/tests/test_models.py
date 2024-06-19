@@ -415,3 +415,31 @@ class PlaylistModelTestCase(TestCase):
         self.assertEqual(
             playlists, ["Kaleidoscope Dreams", "Computer Love", "Rock The Bells"]
         )
+
+
+class PlaylistSongModelTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.playlist = models.Playlist.objects.create(title="Murda Muzik")
+        cls.album = models.Album.objects.create(
+            title="Enter The Wu-Tang (36 Chambers)",
+            release_date=datetime.date(1993, 11, 9),
+        )
+        cls.song = models.Song.objects.create(
+            album=cls.album,
+            title="Protect Ya Neck",
+            track_number=10,
+            length=292,
+            path="D:/Music/wutang-clan/enter-the-wutang-36-chambers/10_protect_ya_neck.flac",
+        )
+        cls.playlist_song = models.PlaylistSong.objects.create(
+            playlist=cls.playlist, song=cls.song
+        )
+
+    def test_playlist_song_creation(self):
+        self.assertEqual(self.playlist.title, "Murda Muzik")
+        self.assertEqual(self.song.title, "Protect Ya Neck")
+        self.assertIsNotNone(self.playlist_song.date_added)
+
+    def test_playlist_song_str_method(self):
+        self.assertEqual(str(self.playlist_song), "Protect Ya Neck [Murda Muzik]")
