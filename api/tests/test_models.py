@@ -2,6 +2,7 @@ import datetime
 
 from django.test import TestCase
 from django.db import IntegrityError
+from django.utils import timezone
 
 from api import models
 
@@ -38,7 +39,7 @@ class ArtistModelTestCase(TestCase):
         models.Artist.objects.create(name="Xzibit")
         models.Artist.objects.create(name="Kurupt")
 
-        artists = [artist.name for artist in models.Artist.objects.all()]
+        artists = [str(artist) for artist in models.Artist.objects.all()]
 
         self.assertEqual(artists, ["2pac", "Kurupt", "Xzibit"])
 
@@ -97,7 +98,7 @@ class AlbumModelTestCase(TestCase):
         )
         album3.artists.add(self.artist)
 
-        albums = [album.title for album in models.Album.objects.all()]
+        albums = [str(album) for album in models.Album.objects.all()]
         expected_album_order = [
             "Me Against The World",
             "All Eyez On Me",
@@ -356,3 +357,59 @@ class FeatureModelTestCase(TestCase):
             models.Feature.objects.create(
                 artist=producer, song=self.song, producer=True, role="Producer"
             )
+
+
+class PlaylistModelTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.playlist = models.Playlist.objects.create(title="Rock The Bells")
+
+    def test_playlist_creation(self):
+        self.assertEqual(self.playlist.title, "Rock The Bells")
+        self.assertIsNotNone(self.playlist.created)
+        self.assertIsNotNone(self.playlist.last_modified)
+        self.assertEqual(self.playlist.created, self.playlist.last_modified)
+
+    def test_playlist_creation_songs_null_by_default(self):
+        self.assertEqual(self.playlist.songs.count(), 0)
+
+    def test_title_max_length(self):
+        max_length = self.playlist._meta.get_field("title").max_length
+
+        self.assertEqual(max_length, 300)
+
+    def test_playlist_str_method(self):
+        self.assertEqual(str(self.playlist), "Rock The Bells")
+
+    def test_playlist_get_absolute_url(self):
+        # TODO: Add test after coding front-end views
+        pass
+
+    def test_nonunique_playlist_creation(self):
+        with self.assertRaises(IntegrityError):
+            models.Playlist.objects.create(title="Rock The Bells")
+
+    def test_nonunique_playlist_creation_case_insensitive(self):
+        with self.assertRaises(IntegrityError):
+            models.Playlist.objects.create(title="rock the bells")
+
+    def test_playlist_ordering(self):
+        playlist2 = models.Playlist.objects.create(title="Kaleidoscope Dreams")
+        models.Playlist.objects.create(title="Computer Love")
+        album = models.Album.objects.create(
+            title="Ready To Die", release_date=datetime.date(1994, 9, 13)
+        )
+        song = models.Song.objects.create(
+            album=album,
+            title="Machine Gun Funk",
+            track_number=4,
+            length=257,
+            path="D:/Music/the-notorious-big/ready-to-die/04_machine_gun_funk.flac",
+        )
+        playlist2.songs.add(song)
+
+        playlists = [str(playlist) for playlist in models.Playlist.objects.all()]
+
+        self.assertEqual(
+            playlists, ["Kaleidoscope Dreams", "Computer Love", "Rock The Bells"]
+        )
