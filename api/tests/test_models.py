@@ -314,6 +314,9 @@ class FeatureModelTestCase(TestCase):
 
         self.assertEqual(max_length, 100)
 
+    def test_feature_str_method(self):
+        self.assertEqual(str(self.feature), "Kurupt - Who Ride Wit Us")
+
     def test_nonunique_feature_creation(self):
         with self.assertRaises(IntegrityError):
             models.Feature.objects.create(artist=self.artist, song=self.song)

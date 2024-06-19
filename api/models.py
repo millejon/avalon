@@ -90,6 +90,9 @@ class Feature(models.Model):
     producer = models.BooleanField(default=False, blank=True)
     role = models.CharField(max_length=100, blank=True)
 
+    def __str__(self):
+        return f"{self.artist.name} - {self.song.title}"
+
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=["artist", "song", "group"], name="unique_vocalist"),
