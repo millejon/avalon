@@ -397,11 +397,12 @@ class PlaylistModelTestCase(TestCase):
 
     def test_playlist_ordering(self):
         playlist2 = models.Playlist.objects.create(title="Kaleidoscope Dreams")
+        time.sleep(0.1)
         models.Playlist.objects.create(title="Computer Love")
+        time.sleep(0.1)
         album = models.Album.objects.create(
             title="Ready To Die", release_date=datetime.date(1994, 9, 13)
         )
-        time.sleep(0.1)
         song = models.Song.objects.create(
             album=album,
             title="Machine Gun Funk",
