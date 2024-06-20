@@ -64,7 +64,7 @@ class Disc(models.Model):
 class Song(models.Model):
     artists = models.ManyToManyField(Artist, through="Feature")
     album = models.ForeignKey(Album, on_delete=models.CASCADE)
-    disc = models.ForeignKey(Disc, on_delete=models.RESTRICT, null=True, blank=True)
+    disc = models.ForeignKey(Disc, on_delete=models.SET_NULL, null=True, blank=True)
     title = models.CharField(max_length=600)
     track_number = models.PositiveSmallIntegerField(validators=[validators.MinValueValidator(1)])
     length = models.PositiveIntegerField()
