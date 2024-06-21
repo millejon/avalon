@@ -4,7 +4,7 @@ import time
 from django.test import TestCase
 from django.db import IntegrityError
 
-from api import models
+from catalog import models
 
 
 class ArtistModelTestCase(TestCase):
