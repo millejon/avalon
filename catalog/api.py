@@ -28,6 +28,24 @@ def retrieve_artist(request, id: int):
         return 404, {"error": f"Artist with id = {id} does not exist."}
 
 
+@api.put(
+    "artists/{int:id}",
+    response={200: schema.DetailedArtistOut, 404: schema.Error},
+    tags=["artists"],
+)
+def update_artist(request, id: int, data: schema.ArtistIn):
+    try:
+        artist = models.Artist.objects.get(pk=id)
+        data = util.strip_whitespace(data.dict())
+        for attr, value in data.items():
+            setattr(artist, attr, value)
+        artist.save()
+        artist.request = request
+        return 200, artist
+    except models.Artist.DoesNotExist:
+        return 404, {"error": f"Artist with id = {id} does not exist."}
+
+
 @api.get("artists/{int:id}/albums/")
 def retrieve_artist_albums(request, id: int):
     pass

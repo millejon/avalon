@@ -41,7 +41,7 @@ class CreateArtistTestCase(TestCase):
             )
         )
 
-    def test_create_artist_with_whitespace(self):
+    def test_create_artist_with_extraneous_whitespace(self):
         response = self.client.post(
             reverse("api-1.0:create_artist"),
             {"name": "   Future   "},
@@ -140,6 +140,103 @@ class RetrieveArtistTestCase(TestCase):
         artist_id = self.artist["id"] + 1
         response = self.client.get(
             reverse("api-1.0:retrieve_artist", kwargs={"id": artist_id})
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            response.json()["error"], f"Artist with id = {artist_id} does not exist."
+        )
+
+
+class UpdateArtistTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = Client()
+        cls.artist = cls.client.post(
+            reverse("api-1.0:create_artist"),
+            {"name": "Chinx"},
+            content_type="application/json",
+        ).json()
+
+    def test_update_artist(self):
+        response = self.client.put(
+            reverse("api-1.0:update_artist", kwargs={"id": self.artist["id"]}),
+            {"name": "Chinx Drugz"},
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        response = response.json()
+        artist_id = response["id"]
+
+        self.assertEqual(self.artist["id"], artist_id)
+        self.assertEqual(response["name"], "Chinx Drugz")
+        self.assertTrue(response["url"].endswith(f"/api/v1/artists/{artist_id}"))
+        self.assertEqual(response["albums"]["count"], 0)
+        self.assertTrue(
+            response["albums"]["url"].endswith(f"/api/v1/artists/{artist_id}/albums/")
+        )
+        self.assertEqual(response["singles"]["count"], 0)
+        self.assertTrue(
+            response["singles"]["url"].endswith(f"/api/v1/artists/{artist_id}/singles/")
+        )
+        self.assertEqual(response["songs"]["count"], 0)
+        self.assertTrue(
+            response["songs"]["url"].endswith(f"/api/v1/artists/{artist_id}/songs/")
+        )
+        self.assertEqual(response["songs_produced"]["count"], 0)
+        self.assertTrue(
+            response["songs_produced"]["url"].endswith(
+                f"/api/v1/artists/{artist_id}/produced/"
+            )
+        )
+
+    def test_update_artist_with_extraneous_whitespace(self):
+        response = self.client.put(
+            reverse("api-1.0:update_artist", kwargs={"id": self.artist["id"]}),
+            {"name": "   Chinx Drugz   "},
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["name"], "Chinx Drugz")
+
+    def test_update_artist_with_extraneous_fields(self):
+        response = self.client.put(
+            reverse("api-1.0:update_artist", kwargs={"id": self.artist["id"]}),
+            {"name": "Chinx Drugz", "alias": "Chinx"},
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["name"], "Chinx Drugz")
+        self.assertFalse("alias" in response.json().keys())
+
+    def test_update_artist_with_missing_required_fields(self):
+        response = self.client.put(
+            reverse("api-1.0:update_artist", kwargs={"id": self.artist["id"]}),
+            {"label": "Def Jam Recordings"},
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 422)
+
+    def test_update_artist_with_invalid_values(self):
+        response = self.client.put(
+            reverse("api-1.0:update_artist", kwargs={"id": self.artist["id"]}),
+            {"name": 42},
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 422)
+
+    def test_update_unknown_artist(self):
+        artist_id = self.artist["id"] + 1
+        response = self.client.put(
+            reverse("api-1.0:update_artist", kwargs={"id": artist_id}),
+            {"name": "Chinx Drugz"},
+            content_type="application/json",
         )
 
         self.assertEqual(response.status_code, 404)
