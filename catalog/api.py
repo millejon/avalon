@@ -1,3 +1,5 @@
+from typing import List
+
 from ninja import NinjaAPI
 
 from catalog import models, schema
@@ -42,6 +44,18 @@ def update_artist(request, id: int, data: schema.ArtistIn):
         artist.save()
         artist.request = request
         return 200, artist
+    except models.Artist.DoesNotExist:
+        return 404, {"error": f"Artist with id = {id} does not exist."}
+
+
+@api.delete(
+    "artists/{int:id}", response={204: None, 404: schema.Error}, tags=["artists"]
+)
+def delete_artist(request, id: int):
+    try:
+        artist = models.Artist.objects.get(pk=id)
+        artist.delete()
+        return 204, None
     except models.Artist.DoesNotExist:
         return 404, {"error": f"Artist with id = {id} does not exist."}
 

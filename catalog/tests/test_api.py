@@ -243,3 +243,43 @@ class UpdateArtistTestCase(TestCase):
         self.assertEqual(
             response.json()["error"], f"Artist with id = {artist_id} does not exist."
         )
+
+
+class DeleteArtistTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = Client()
+        cls.artist = cls.client.post(
+            reverse("api-1.0:create_artist"),
+            {"name": "French Montana"},
+            content_type="application/json",
+        ).json()
+
+    def test_delete_artist(self):
+        artist_id = self.artist["id"]
+        response = self.client.delete(
+            reverse("api-1.0:delete_artist", kwargs={"id": artist_id})
+        )
+
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.content, b"")
+
+        response = self.client.get(
+            reverse("api-1.0:retrieve_artist", kwargs={"id": artist_id})
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            response.json()["error"], f"Artist with id = {artist_id} does not exist."
+        )
+
+    def test_delete_unknown_artist(self):
+        artist_id = self.artist["id"] + 1
+        response = self.client.delete(
+            reverse("api-1.0:delete_artist", kwargs={"id": artist_id})
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            response.json()["error"], f"Artist with id = {artist_id} does not exist."
+        )
