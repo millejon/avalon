@@ -44,35 +44,35 @@ class CreateArtistTestCase(TestCase):
     def test_create_artist_with_whitespace(self):
         response = self.client.post(
             reverse("api-1.0:create_artist"),
-            {"name": "   French Montana   "},
+            {"name": "   Future   "},
             content_type="application/json",
         )
 
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.json()["name"], "French Montana")
+        self.assertEqual(response.json()["name"], "Future")
 
     def test_create_artist_with_extraneous_fields(self):
         response = self.client.post(
             reverse("api-1.0:create_artist"),
-            {"name": "Chinx", "alias": "Chinx Drugz"},
+            {"name": "Future", "alias": "Future Hendrix"},
             content_type="application/json",
         )
 
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.json()["name"], "Chinx")
+        self.assertEqual(response.json()["name"], "Future")
         self.assertFalse("alias" in response.json().keys())
 
     def test_create_duplicate_artist(self):
         self.client.post(
             reverse("api-1.0:create_artist"),
-            {"name": "Don Toliver"},
+            {"name": "Future"},
             content_type="application/json",
         )
 
         with self.assertRaises(IntegrityError):
             self.client.post(
                 reverse("api-1.0:create_artist"),
-                {"name": "Don Toliver"},
+                {"name": "Future"},
                 content_type="application/json",
             )
 
