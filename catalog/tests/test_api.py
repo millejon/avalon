@@ -82,3 +82,56 @@ class CreateArtistTestCase(TestCase):
         )
 
         self.assertEqual(response.status_code, 422)
+
+
+class RetrieveArtistTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = Client()
+        cls.artist = cls.client.post(
+            reverse("api-1.0:create_artist"),
+            {"name": "Tinashe"},
+            content_type="application/json",
+        ).json()
+
+    def test_retrieve_artist(self):
+        artist_id = self.artist["id"]
+        response = self.client.get(
+            reverse("api-1.0:retrieve_artist", kwargs={"id": artist_id})
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        response = response.json()
+
+        self.assertEqual(response["name"], "Tinashe")
+        self.assertTrue(response["url"].endswith(f"/api/v1/artists/{artist_id}"))
+        self.assertEqual(response["albums"]["count"], 0)
+        self.assertTrue(
+            response["albums"]["url"].endswith(f"/api/v1/artists/{artist_id}/albums/")
+        )
+        self.assertEqual(response["singles"]["count"], 0)
+        self.assertTrue(
+            response["singles"]["url"].endswith(f"/api/v1/artists/{artist_id}/singles/")
+        )
+        self.assertEqual(response["songs"]["count"], 0)
+        self.assertTrue(
+            response["songs"]["url"].endswith(f"/api/v1/artists/{artist_id}/songs/")
+        )
+        self.assertEqual(response["songs_produced"]["count"], 0)
+        self.assertTrue(
+            response["songs_produced"]["url"].endswith(
+                f"/api/v1/artists/{artist_id}/produced/"
+            )
+        )
+
+    def test_retrieve_unknown_artist(self):
+        artist_id = self.artist["id"] + 1
+        response = self.client.get(
+            reverse("api-1.0:retrieve_artist", kwargs={"id": artist_id})
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            response.json()["error"], f"Artist with id = {artist_id} does not exist."
+        )
