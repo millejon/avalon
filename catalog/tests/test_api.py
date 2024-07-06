@@ -51,6 +51,17 @@ class CreateArtistTestCase(TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()["name"], "French Montana")
 
+    def test_create_artist_with_extraneous_fields(self):
+        response = self.client.post(
+            reverse("api-1.0:create_artist"),
+            {"name": "Chinx", "alias": "Chinx Drugz"},
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()["name"], "Chinx")
+        self.assertFalse("alias" in response.json().keys())
+
     def test_create_duplicate_artist(self):
         self.client.post(
             reverse("api-1.0:create_artist"),
