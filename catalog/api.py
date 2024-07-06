@@ -60,6 +60,15 @@ def delete_artist(request, id: int):
         return 404, {"error": f"Artist with id = {id} does not exist."}
 
 
+# TODO: Write tests for this endpoint after finishing album endpoints
+@api.get("artists/", response={200: List[schema.ArtistOut]}, tags=["artists"])
+def retrieve_all_artists(request):
+    artists = models.Artist.objects.filter(album__isnull=False).distinct("name")
+    for artist in artists:
+        artist.request = request
+    return artists
+
+
 @api.get("artists/{int:id}/albums/")
 def retrieve_artist_albums(request, id: int):
     pass
