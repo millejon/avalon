@@ -376,3 +376,53 @@ class CreateAlbumTestCase(TestCase):
         )
 
         self.assertEqual(response.status_code, 422)
+
+
+class RetrieveAlbumTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = Client()
+        cls.artist = cls.client.post(
+            reverse("api-1.0:create_artist"),
+            {"name": "Schoolboy Q"},
+            content_type="application/json",
+        ).json()
+        cls.album = cls.client.post(
+            reverse("api-1.0:create_album"),
+            {
+                "artists": [cls.artist["id"]],
+                "title": "Oxymoron",
+                "release_date": "2014-02-25",
+            },
+            content_type="application/json",
+        ).json()
+
+    def test_retrieve_album(self):
+        album_id = self.album["id"]
+        response = self.client.get(
+            reverse("api-1.0:retrieve_album", kwargs={"id": album_id})
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        response = response.json()
+
+        self.assertEqual(response["album_artists"][0]["name"], "Schoolboy Q")
+        self.assertEqual(response["title"], "Oxymoron")
+        self.assertEqual(response["release_date"], "2014-02-25")
+        self.assertIsNone(response["tracklist"])
+        self.assertFalse(response["single"])
+        self.assertFalse(response["multidisc"])
+        self.assertIsNone(response["discs"])
+        self.assertTrue(response["url"].endswith(f"/api/v1/albums/{album_id}"))
+
+    def test_retrieve_unknown_album(self):
+        album_id = self.album["id"] + 1
+        response = self.client.get(
+            reverse("api-1.0:retrieve_album", kwargs={"id": album_id})
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            response.json()["error"], f"Album with id = {album_id} does not exist."
+        )

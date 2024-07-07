@@ -103,9 +103,18 @@ def create_album(request, data: schema.AlbumIn):
     return album
 
 
-@api.get("albums/{int:id}")
+@api.get(
+    "albums/{int:id}",
+    response={200: schema.DetailedAlbumOut, 404: schema.Error},
+    tags=["albums"],
+)
 def retrieve_album(request, id: int):
-    pass
+    try:
+        album = models.Album.objects.get(pk=id)
+        album.request = request
+        return 200, album
+    except models.Album.DoesNotExist:
+        return 404, {"error": f"Album with id = {id} does not exist."}
 
 
 @api.get("albums/{int:id}/discs/")
