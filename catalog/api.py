@@ -140,6 +140,16 @@ def update_album(request, id: int, data: schema.AlbumIn):
         return 404, {"error": f"Album with id = {id} does not exist."}
 
 
+@api.delete("albums/{int:id}", response={204: None, 404: schema.Error}, tags=["albums"])
+def delete_album(request, id: int):
+    try:
+        album = models.Album.objects.get(pk=id)
+        album.delete()
+        return 204, None
+    except models.Album.DoesNotExist:
+        return 404, {"error": f"Album with id = {id} does not exist."}
+
+
 @api.get("albums/{int:id}/discs/")
 def retrieve_album_discs(request, id: int):
     pass

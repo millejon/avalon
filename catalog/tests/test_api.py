@@ -550,3 +550,52 @@ class UpdateAlbumTestCase(TestCase):
         self.assertEqual(
             response.json()["error"], f"Album with id = {album_id} does not exist."
         )
+
+
+class DeleteAlbumTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = Client()
+        cls.artist = cls.client.post(
+            reverse("api-1.0:create_artist"),
+            {"name": "Prodigy"},
+            content_type="application/json",
+        ).json()
+        cls.album = cls.client.post(
+            reverse("api-1.0:create_album"),
+            {
+                "artists": [cls.artist["id"]],
+                "title": "Albert Einstein",
+                "release_date": "2013-06-11",
+            },
+            content_type="application/json",
+        ).json()
+
+    def test_delete_album(self):
+        album_id = self.album["id"]
+        response = self.client.delete(
+            reverse("api-1.0:delete_album", kwargs={"id": album_id})
+        )
+
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.content, b"")
+
+        response = self.client.get(
+            reverse("api-1.0:retrieve_album", kwargs={"id": album_id})
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            response.json()["error"], f"Album with id = {album_id} does not exist."
+        )
+
+    def test_delete_unknown_album(self):
+        album_id = self.album["id"] + 1
+        response = self.client.delete(
+            reverse("api-1.0:delete_album", kwargs={"id": album_id})
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            response.json()["error"], f"Album with id = {album_id} does not exist."
+        )
