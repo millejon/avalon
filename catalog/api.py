@@ -13,7 +13,7 @@ def create_artist(request, data: schema.ArtistIn):
     data = util.strip_whitespace(data.dict())
     artist = models.Artist.objects.create(**data)
     artist.request = request
-    return artist
+    return 201, artist
 
 
 @api.get(
@@ -66,7 +66,7 @@ def retrieve_all_artists(request):
     artists = models.Artist.objects.filter(album__isnull=False).distinct("name")
     for artist in artists:
         artist.request = request
-    return artists
+    return 200, artists
 
 
 @api.get("artists/{int:id}/albums/")
@@ -100,7 +100,7 @@ def create_album(request, data: schema.AlbumIn):
     album.save()
 
     album.request = request
-    return album
+    return 201, album
 
 
 @api.get(
@@ -111,6 +111,29 @@ def create_album(request, data: schema.AlbumIn):
 def retrieve_album(request, id: int):
     try:
         album = models.Album.objects.get(pk=id)
+        album.request = request
+        return 200, album
+    except models.Album.DoesNotExist:
+        return 404, {"error": f"Album with id = {id} does not exist."}
+
+
+@api.put(
+    "albums/{int:id}",
+    response={200: schema.DetailedAlbumOut, 404: schema.Error},
+    tags=["albums"],
+)
+def update_album(request, id: int, data: schema.AlbumIn):
+    try:
+        album = models.Album.objects.get(pk=id)
+        data = util.strip_whitespace(data.dict())
+        artists = data.pop("artists")
+
+        for attr, value in data.items():
+            setattr(album, attr, value)
+        for artist in artists:
+            album.artists.add(artist)
+        album.save()
+
         album.request = request
         return 200, album
     except models.Album.DoesNotExist:

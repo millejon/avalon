@@ -426,3 +426,127 @@ class RetrieveAlbumTestCase(TestCase):
         self.assertEqual(
             response.json()["error"], f"Album with id = {album_id} does not exist."
         )
+
+
+class UpdateAlbumTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = Client()
+        cls.artist = cls.client.post(
+            reverse("api-1.0:create_artist"),
+            {"name": "Freddie Gibbs"},
+            content_type="application/json",
+        ).json()
+        cls.album = cls.client.post(
+            reverse("api-1.0:create_album"),
+            {
+                "artists": [cls.artist["id"]],
+                "title": "Alfredo",
+                "release_date": "2020-05-29",
+            },
+            content_type="application/json",
+        ).json()
+
+    def test_update_album(self):
+        the_alchemist = self.client.post(
+            reverse("api-1.0:create_artist"),
+            {"name": "The Alchemist"},
+            content_type="application/json",
+        ).json()
+        response = self.client.put(
+            reverse("api-1.0:update_album", kwargs={"id": self.album["id"]}),
+            {
+                "artists": [self.artist["id"], the_alchemist["id"]],
+                "title": "Alfredo",
+                "release_date": "2020-05-29",
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        response = response.json()
+        album_id = response["id"]
+
+        self.assertEqual(response["album_artists"][0]["name"], "Freddie Gibbs")
+        self.assertEqual(response["album_artists"][1]["name"], "The Alchemist")
+        self.assertEqual(response["title"], "Alfredo")
+        self.assertEqual(response["release_date"], "2020-05-29")
+        self.assertIsNone(response["tracklist"])
+        self.assertFalse(response["single"])
+        self.assertFalse(response["multidisc"])
+        self.assertIsNone(response["discs"])
+        self.assertTrue(response["url"].endswith(f"/api/v1/albums/{album_id}"))
+
+    def test_update_album_with_extraneous_whitespace(self):
+        response = self.client.put(
+            reverse("api-1.0:update_album", kwargs={"id": self.album["id"]}),
+            {
+                "artists": [self.artist["id"]],
+                "title": "    Alfredo    ",
+                "release_date": "2020-05-29",
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["title"], "Alfredo")
+
+    def test_update_album_with_extraneous_fields(self):
+        response = self.client.put(
+            reverse("api-1.0:update_album", kwargs={"id": self.album["id"]}),
+            {
+                "artists": [self.artist["id"]],
+                "title": "AlFredo",
+                "release_date": "2020-05-29",
+                "label": "ALC Records",
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["title"], "AlFredo")
+        self.assertFalse("label" in response.json().keys())
+
+    def test_update_album_with_missing_required_fields(self):
+        response = self.client.put(
+            reverse("api-1.0:update_album", kwargs={"id": self.album["id"]}),
+            {
+                "title": "Alfredo",
+                "label": "ALC Records",
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 422)
+
+    def test_update_album_with_invalid_values(self):
+        response = self.client.put(
+            reverse("api-1.0:update_album", kwargs={"id": self.album["id"]}),
+            {
+                "artists": "The Alchemist",
+                "title": "Alfredo",
+                "release_date": "ALC Records",
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 422)
+
+    def test_update_unknown_album(self):
+        album_id = self.artist["id"] + 1
+        response = self.client.put(
+            reverse("api-1.0:update_album", kwargs={"id": album_id}),
+            {
+                "artists": [self.artist["id"]],
+                "title": "You Only Live 2wice",
+                "release_date": "2017-03-31",
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            response.json()["error"], f"Album with id = {album_id} does not exist."
+        )
