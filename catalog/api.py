@@ -87,3 +87,32 @@ def retrieve_artist_songs(request, id: int):
 @api.get("artists/{int:id}/produced/")
 def retrieve_artist_production_credits(request, id: int):
     pass
+
+
+@api.post("albums/", response={201: schema.DetailedAlbumOut}, tags=["albums"])
+def create_album(request, data: schema.AlbumIn):
+    data = util.strip_whitespace(data.dict())
+    artists = data.pop("artists")
+
+    album = models.Album.objects.create(**data)
+    for artist in artists:
+        album.artists.add(artist)
+    album.save()
+
+    album.request = request
+    return album
+
+
+@api.get("albums/{int:id}")
+def retrieve_album(request, id: int):
+    pass
+
+
+@api.get("albums/{int:id}/discs/")
+def retrieve_album_discs(request, id: int):
+    pass
+
+
+@api.get("albums/{int:id}/songs/")
+def retrieve_album_songs(request, id: int):
+    pass
