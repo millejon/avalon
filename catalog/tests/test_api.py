@@ -22,24 +22,10 @@ class CreateArtistTestCase(TestCase):
 
         self.assertEqual(response["name"], "Future")
         self.assertTrue(response["url"].endswith(f"/api/v1/artists/{artist_id}"))
-        self.assertEqual(response["albums"]["count"], 0)
-        self.assertTrue(
-            response["albums"]["url"].endswith(f"/api/v1/artists/{artist_id}/albums/")
-        )
-        self.assertEqual(response["singles"]["count"], 0)
-        self.assertTrue(
-            response["singles"]["url"].endswith(f"/api/v1/artists/{artist_id}/singles/")
-        )
-        self.assertEqual(response["songs"]["count"], 0)
-        self.assertTrue(
-            response["songs"]["url"].endswith(f"/api/v1/artists/{artist_id}/songs/")
-        )
-        self.assertEqual(response["songs_produced"]["count"], 0)
-        self.assertTrue(
-            response["songs_produced"]["url"].endswith(
-                f"/api/v1/artists/{artist_id}/produced/"
-            )
-        )
+        self.assertIsNone(response["albums"])
+        self.assertIsNone(response["singles"])
+        self.assertIsNone(response["songs"])
+        self.assertIsNone(response["songs_produced"])
 
     def test_create_artist_with_extraneous_whitespace(self):
         response = self.client.post(
@@ -117,24 +103,10 @@ class RetrieveArtistTestCase(TestCase):
 
         self.assertEqual(response["name"], "Tinashe")
         self.assertTrue(response["url"].endswith(f"/api/v1/artists/{artist_id}"))
-        self.assertEqual(response["albums"]["count"], 0)
-        self.assertTrue(
-            response["albums"]["url"].endswith(f"/api/v1/artists/{artist_id}/albums/")
-        )
-        self.assertEqual(response["singles"]["count"], 0)
-        self.assertTrue(
-            response["singles"]["url"].endswith(f"/api/v1/artists/{artist_id}/singles/")
-        )
-        self.assertEqual(response["songs"]["count"], 0)
-        self.assertTrue(
-            response["songs"]["url"].endswith(f"/api/v1/artists/{artist_id}/songs/")
-        )
-        self.assertEqual(response["songs_produced"]["count"], 0)
-        self.assertTrue(
-            response["songs_produced"]["url"].endswith(
-                f"/api/v1/artists/{artist_id}/produced/"
-            )
-        )
+        self.assertIsNone(response["albums"])
+        self.assertIsNone(response["singles"])
+        self.assertIsNone(response["songs"])
+        self.assertIsNone(response["songs_produced"])
 
     def test_retrieve_unknown_artist(self):
         artist_id = self.artist["id"] + 1
@@ -173,24 +145,10 @@ class UpdateArtistTestCase(TestCase):
         self.assertEqual(self.artist["id"], artist_id)
         self.assertEqual(response["name"], "Chinx Drugz")
         self.assertTrue(response["url"].endswith(f"/api/v1/artists/{artist_id}"))
-        self.assertEqual(response["albums"]["count"], 0)
-        self.assertTrue(
-            response["albums"]["url"].endswith(f"/api/v1/artists/{artist_id}/albums/")
-        )
-        self.assertEqual(response["singles"]["count"], 0)
-        self.assertTrue(
-            response["singles"]["url"].endswith(f"/api/v1/artists/{artist_id}/singles/")
-        )
-        self.assertEqual(response["songs"]["count"], 0)
-        self.assertTrue(
-            response["songs"]["url"].endswith(f"/api/v1/artists/{artist_id}/songs/")
-        )
-        self.assertEqual(response["songs_produced"]["count"], 0)
-        self.assertTrue(
-            response["songs_produced"]["url"].endswith(
-                f"/api/v1/artists/{artist_id}/produced/"
-            )
-        )
+        self.assertIsNone(response["albums"])
+        self.assertIsNone(response["singles"])
+        self.assertIsNone(response["songs"])
+        self.assertIsNone(response["songs_produced"])
 
     def test_update_artist_with_extraneous_whitespace(self):
         response = self.client.put(

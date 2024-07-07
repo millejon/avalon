@@ -1,4 +1,4 @@
-from typing import TypedDict
+from typing import TypedDict, Optional
 
 from django.urls import reverse
 from ninja import Schema
@@ -32,10 +32,10 @@ class DetailedArtistOut(Schema):
     id: int
     name: str
     url: str
-    albums: DiscogPreview
-    singles: DiscogPreview
-    songs: DiscogPreview
-    songs_produced: DiscogPreview
+    albums: Optional[DiscogPreview]
+    singles: Optional[DiscogPreview]
+    songs: Optional[DiscogPreview]
+    songs_produced: Optional[DiscogPreview]
 
     @staticmethod
     def resolve_url(obj):
@@ -44,34 +44,52 @@ class DetailedArtistOut(Schema):
 
     @staticmethod
     def resolve_albums(obj):
-        albums_url = reverse("api-1.0:retrieve_artist_albums", kwargs={"id": obj.id})
-        return {
-            "count": obj.album_set.filter(single=False).count(),
-            "url": obj.request.build_absolute_uri(albums_url),
-        }
+        albums = obj.album_set.filter(single=False)
+        if albums:
+            albums_url = reverse(
+                "api-1.0:retrieve_artist_albums", kwargs={"id": obj.id}
+            )
+            return {
+                "count": albums.count(),
+                "url": obj.request.build_absolute_uri(albums_url),
+            }
+        else:
+            return None
 
     @staticmethod
     def resolve_singles(obj):
-        singles_url = reverse("api-1.0:retrieve_artist_singles", kwargs={"id": obj.id})
-        return {
-            "count": obj.album_set.filter(single=True).count(),
-            "url": obj.request.build_absolute_uri(singles_url),
-        }
+        singles = obj.album_set.filter(single=True)
+        if singles:
+            singles_url = reverse(
+                "api-1.0:retrieve_artist_singles", kwargs={"id": obj.id}
+            )
+            return {
+                "count": singles.count(),
+                "url": obj.request.build_absolute_uri(singles_url),
+            }
 
     @staticmethod
     def resolve_songs(obj):
-        songs_url = reverse("api-1.0:retrieve_artist_songs", kwargs={"id": obj.id})
-        return {
-            "count": obj.feature_set.filter(producer=False).count(),
-            "url": obj.request.build_absolute_uri(songs_url),
-        }
+        songs = obj.feature_set.filter(producer=False)
+        if songs:
+            songs_url = reverse("api-1.0:retrieve_artist_songs", kwargs={"id": obj.id})
+            return {
+                "count": songs.count(),
+                "url": obj.request.build_absolute_uri(songs_url),
+            }
+        else:
+            return None
 
     @staticmethod
     def resolve_songs_produced(obj):
-        produced_url = reverse(
-            "api-1.0:retrieve_artist_production_credits", kwargs={"id": obj.id}
-        )
-        return {
-            "count": obj.feature_set.filter(producer=True).count(),
-            "url": obj.request.build_absolute_uri(produced_url),
-        }
+        produced = obj.feature_set.filter(producer=True)
+        if produced:
+            produced_url = reverse(
+                "api-1.0:retrieve_artist_production_credits", kwargs={"id": obj.id}
+            )
+            return {
+                "count": produced.count(),
+                "url": obj.request.build_absolute_uri(produced_url),
+            }
+        else:
+            return None
