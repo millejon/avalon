@@ -294,12 +294,14 @@ class CreateAlbumTestCase(TestCase):
         self.assertEqual(response.status_code, 201)
 
         response = response.json()
+        album_id = response["id"]
 
         self.assertEqual(response["album_artists"][0]["name"], "Travis Scott")
         self.assertEqual(response["title"], "Birds In The Trap Sing McKnight")
         self.assertEqual(response["release_date"], "2016-09-02")
         self.assertFalse(response["single"])
         self.assertFalse(response["multidisc"])
+        self.assertTrue(response["url"].endswith(f"/api/v1/albums/{album_id}"))
 
     def test_create_album_with_extraneous_whitespace(self):
         response = self.client.post(
