@@ -118,15 +118,22 @@ class AlbumOut(Schema):
 
     @staticmethod
     def resolve_album_artists(obj):
+        artists = (
+            obj.artists.through.objects.filter(album_id=obj.id)
+            .select_related("artist")
+            .order_by("id")
+        )
         return [
             {
-                "id": artist.id,
-                "name": artist.name,
+                "id": artist_album.artist.id,
+                "name": artist_album.artist.name,
                 "url": obj.request.build_absolute_uri(
-                    reverse("api-1.0:retrieve_artist", kwargs={"id": artist.id})
+                    reverse(
+                        "api-1.0:retrieve_artist", kwargs={"id": artist_album.artist.id}
+                    )
                 ),
             }
-            for artist in obj.artists.all()
+            for artist_album in artists
         ]
 
     @staticmethod
@@ -153,15 +160,22 @@ class DetailedAlbumOut(Schema):
 
     @staticmethod
     def resolve_album_artists(obj):
+        artists = (
+            obj.artists.through.objects.filter(album_id=obj.id)
+            .select_related("artist")
+            .order_by("id")
+        )
         return [
             {
-                "id": artist.id,
-                "name": artist.name,
+                "id": artist_album.artist.id,
+                "name": artist_album.artist.name,
                 "url": obj.request.build_absolute_uri(
-                    reverse("api-1.0:retrieve_artist", kwargs={"id": artist.id})
+                    reverse(
+                        "api-1.0:retrieve_artist", kwargs={"id": artist_album.artist.id}
+                    )
                 ),
             }
-            for artist in obj.artists.all()
+            for artist_album in artists
         ]
 
     @staticmethod
