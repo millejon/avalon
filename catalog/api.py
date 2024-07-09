@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from typing import List
 
 from ninja import NinjaAPI
@@ -148,6 +149,26 @@ def delete_album(request, id: int):
         return 204, None
     except models.Album.DoesNotExist:
         return 404, {"error": f"Album with id = {id} does not exist."}
+
+
+# TODO: Need to figure out how to order albums by first artist added to
+# TODO: album, not just first alphabetical album artist, then write
+# TODO: tests for this endpoint.
+@api.get("albums/", response={200: List[schema.AlbumOut]}, tags=["albums"])
+def retrieve_all_albums(request):
+    albums = models.Album.objects.filter(single=False)
+
+    # Since albums are ordered by a field from a related model (artist
+    # name), filter() returns duplicate model instances when an album
+    # has multiple album artists, so we need to remove those from the
+    # query set. Using distinct() in this case will not remove the
+    # duplicate model instances. See note at:
+    # https://docs.djangoproject.com/en/5.0/ref/models/querysets/#django.db.models.query.QuerySet.distinct
+    unique_albums = list(OrderedDict.fromkeys(albums))
+
+    for album in unique_albums:
+        album.request = request
+    return 200, unique_albums
 
 
 @api.get("albums/{int:id}/discs/")
