@@ -13,7 +13,6 @@ api = NinjaAPI(version="1.0")
 def create_artist(request, data: schema.ArtistIn):
     data = util.strip_whitespace(data.dict())
     artist = models.Artist.objects.create(**data)
-    artist.request = request
     return 201, artist
 
 
@@ -25,7 +24,6 @@ def create_artist(request, data: schema.ArtistIn):
 def retrieve_artist(request, id: int):
     try:
         artist = models.Artist.objects.get(pk=id)
-        artist.request = request
         return 200, artist
     except models.Artist.DoesNotExist:
         return 404, {"error": f"Artist with id = {id} does not exist."}
@@ -43,7 +41,6 @@ def update_artist(request, id: int, data: schema.ArtistIn):
         for attr, value in data.items():
             setattr(artist, attr, value)
         artist.save()
-        artist.request = request
         return 200, artist
     except models.Artist.DoesNotExist:
         return 404, {"error": f"Artist with id = {id} does not exist."}
@@ -65,8 +62,6 @@ def delete_artist(request, id: int):
 @api.get("artists/", response={200: List[schema.ArtistOut]}, tags=["artists"])
 def retrieve_all_artists(request):
     artists = models.Artist.objects.filter(album__isnull=False).distinct("name")
-    for artist in artists:
-        artist.request = request
     return 200, artists
 
 
@@ -100,7 +95,6 @@ def create_album(request, data: schema.AlbumIn):
         album.artists.add(artist)
     album.save()
 
-    album.request = request
     return 201, album
 
 
@@ -112,7 +106,6 @@ def create_album(request, data: schema.AlbumIn):
 def retrieve_album(request, id: int):
     try:
         album = models.Album.objects.get(pk=id)
-        album.request = request
         return 200, album
     except models.Album.DoesNotExist:
         return 404, {"error": f"Album with id = {id} does not exist."}
@@ -135,7 +128,6 @@ def update_album(request, id: int, data: schema.AlbumIn):
             album.artists.add(artist)
         album.save()
 
-        album.request = request
         return 200, album
     except models.Album.DoesNotExist:
         return 404, {"error": f"Album with id = {id} does not exist."}
@@ -166,8 +158,6 @@ def retrieve_all_albums(request):
     # https://docs.djangoproject.com/en/5.0/ref/models/querysets/#django.db.models.query.QuerySet.distinct
     unique_albums = list(OrderedDict.fromkeys(albums))
 
-    for album in unique_albums:
-        album.request = request
     return 200, unique_albums
 
 

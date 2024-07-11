@@ -14,12 +14,6 @@ class DiscogPreview(TypedDict):
     url: str
 
 
-class ArtistInfo(TypedDict):
-    id: int
-    name: str
-    url: str
-
-
 class ArtistIn(Schema):
     name: str
 
@@ -30,9 +24,9 @@ class ArtistOut(Schema):
     url: str
 
     @staticmethod
-    def resolve_url(obj):
+    def resolve_url(obj, context):
         artist_url = reverse("api-1.0:retrieve_artist", kwargs={"id": obj.id})
-        return obj.request.build_absolute_uri(artist_url)
+        return context["request"].build_absolute_uri(artist_url)
 
 
 class DetailedArtistOut(Schema):
@@ -45,12 +39,12 @@ class DetailedArtistOut(Schema):
     songs_produced: Optional[DiscogPreview]
 
     @staticmethod
-    def resolve_url(obj):
+    def resolve_url(obj, context):
         artist_url = reverse("api-1.0:retrieve_artist", kwargs={"id": obj.id})
-        return obj.request.build_absolute_uri(artist_url)
+        return context["request"].build_absolute_uri(artist_url)
 
     @staticmethod
-    def resolve_albums(obj):
+    def resolve_albums(obj, context):
         albums = obj.album_set.filter(single=False)
         if albums:
             albums_url = reverse(
@@ -58,13 +52,13 @@ class DetailedArtistOut(Schema):
             )
             return {
                 "count": albums.count(),
-                "url": obj.request.build_absolute_uri(albums_url),
+                "url": context["request"].build_absolute_uri(albums_url),
             }
         else:
             return None
 
     @staticmethod
-    def resolve_singles(obj):
+    def resolve_singles(obj, context):
         singles = obj.album_set.filter(single=True)
         if singles:
             singles_url = reverse(
@@ -72,23 +66,23 @@ class DetailedArtistOut(Schema):
             )
             return {
                 "count": singles.count(),
-                "url": obj.request.build_absolute_uri(singles_url),
+                "url": context["request"].build_absolute_uri(singles_url),
             }
 
     @staticmethod
-    def resolve_songs(obj):
+    def resolve_songs(obj, context):
         songs = obj.feature_set.filter(producer=False)
         if songs:
             songs_url = reverse("api-1.0:retrieve_artist_songs", kwargs={"id": obj.id})
             return {
                 "count": songs.count(),
-                "url": obj.request.build_absolute_uri(songs_url),
+                "url": context["request"].build_absolute_uri(songs_url),
             }
         else:
             return None
 
     @staticmethod
-    def resolve_songs_produced(obj):
+    def resolve_songs_produced(obj, context):
         produced = obj.feature_set.filter(producer=True)
         if produced:
             produced_url = reverse(
@@ -96,7 +90,7 @@ class DetailedArtistOut(Schema):
             )
             return {
                 "count": produced.count(),
-                "url": obj.request.build_absolute_uri(produced_url),
+                "url": context["request"].build_absolute_uri(produced_url),
             }
         else:
             return None
@@ -112,85 +106,42 @@ class AlbumIn(Schema):
 
 class AlbumOut(Schema):
     id: int
-    album_artists: List[ArtistInfo]
+    album_artists: List[ArtistOut]
     title: str
     url: str
 
     @staticmethod
     def resolve_album_artists(obj):
-        artists = (
-            obj.artists.through.objects.filter(album_id=obj.id)
-            .select_related("artist")
-            .order_by("id")
-        )
-        return [
-            {
-                "id": artist_album.artist.id,
-                "name": artist_album.artist.name,
-                "url": obj.request.build_absolute_uri(
-                    reverse(
-                        "api-1.0:retrieve_artist", kwargs={"id": artist_album.artist.id}
-                    )
-                ),
-            }
-            for artist_album in artists
-        ]
+        return obj.artists
 
     @staticmethod
-    def resolve_url(obj):
+    def resolve_url(obj, context):
         album_url = reverse("api-1.0:retrieve_album", kwargs={"id": obj.id})
-        return obj.request.build_absolute_uri(album_url)
+        return context["request"].build_absolute_uri(album_url)
 
 
 class DetailedAlbumOut(Schema):
     id: int
-    album_artists: List[ArtistInfo]
+    album_artists: List[ArtistOut]
     title: str
     release_date: date
-    tracklist: Optional[DiscogPreview]
     single: bool = False
     multidisc: bool = False
-    discs: Optional[DiscogPreview]
     url: str
-
-    @staticmethod
-    def resolve_url(obj):
-        album_url = reverse("api-1.0:retrieve_album", kwargs={"id": obj.id})
-        return obj.request.build_absolute_uri(album_url)
+    tracklist: Optional[DiscogPreview]
+    discs: Optional[DiscogPreview]
 
     @staticmethod
     def resolve_album_artists(obj):
-        artists = (
-            obj.artists.through.objects.filter(album_id=obj.id)
-            .select_related("artist")
-            .order_by("id")
-        )
-        return [
-            {
-                "id": artist_album.artist.id,
-                "name": artist_album.artist.name,
-                "url": obj.request.build_absolute_uri(
-                    reverse(
-                        "api-1.0:retrieve_artist", kwargs={"id": artist_album.artist.id}
-                    )
-                ),
-            }
-            for artist_album in artists
-        ]
+        return obj.artists
 
     @staticmethod
-    def resolve_discs(obj):
-        if obj.multidisc is False:
-            return None
-        else:
-            discs_url = reverse("api-1.0:retrieve_album_discs", kwargs={"id": obj.id})
-            return {
-                "count": obj.disc_set.count(),
-                "url": obj.request.build_absolute_uri(discs_url),
-            }
+    def resolve_url(obj, context):
+        album_url = reverse("api-1.0:retrieve_album", kwargs={"id": obj.id})
+        return context["request"].build_absolute_uri(album_url)
 
     @staticmethod
-    def resolve_tracklist(obj):
+    def resolve_tracklist(obj, context):
         tracklist = obj.song_set.all()
         if tracklist:
             tracklist_url = reverse(
@@ -198,7 +149,18 @@ class DetailedAlbumOut(Schema):
             )
             return {
                 "count": tracklist.count(),
-                "url": obj.request.build_absolute_uri(tracklist_url),
+                "url": context["request"].build_absolute_uri(tracklist_url),
             }
         else:
             return None
+
+    @staticmethod
+    def resolve_discs(obj, context):
+        if obj.multidisc is False:
+            return None
+        else:
+            discs_url = reverse("api-1.0:retrieve_album_discs", kwargs={"id": obj.id})
+            return {
+                "count": obj.disc_set.count(),
+                "url": context["request"].build_absolute_uri(discs_url),
+            }
