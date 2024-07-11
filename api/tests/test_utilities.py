@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from catalog import utilities as util
+from api import utilities as util
 
 
 class StripWhitespaceTestCase(TestCase):

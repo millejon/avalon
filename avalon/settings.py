@@ -15,6 +15,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "catalog.apps.CatalogConfig",
+    "api.apps.ApiConfig",
     "ninja",
     "django.contrib.admin",
     "django.contrib.auth",
