@@ -23,10 +23,9 @@ class CreateArtist(TestCase):
             {"name": "Future"},
             content_type="application/json",
         ).json()
-        artist_id = response["id"]
 
         self.assertEqual(response["name"], "Future")
-        self.assertTrue(response["url"].endswith(f"/api/v1/artists/{artist_id}"))
+        self.assertTrue(response["url"].endswith(f"/api/v1/artists/{response["id"]}"))
         self.assertIsNone(response["albums"])
         self.assertIsNone(response["singles"])
         self.assertIsNone(response["songs"])
