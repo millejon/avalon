@@ -314,3 +314,64 @@ class UpdateDisc(TestCase):
         self.assertEqual(
             response.json()["error"], f"Disc with id = {disc_id} does not exist."
         )
+
+
+class DeleteDisc(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = Client()
+        cls.the_diplomats = cls.client.post(
+            reverse("api-1.0:create_artist"),
+            {"name": "The Diplomats"},
+            content_type="application/json",
+        ).json()
+        cls.diplomatic_immunity = cls.client.post(
+            reverse("api-1.0:create_album"),
+            {
+                "artists": [cls.the_diplomats["id"]],
+                "title": "Diplomatic Immunity",
+                "release_date": "2003-03-25",
+            },
+            content_type="application/json",
+        ).json()
+        cls.disc1 = cls.client.post(
+            reverse("api-1.0:create_disc"),
+            {
+                "album": cls.diplomatic_immunity["id"],
+                "title": "Disc 1",
+                "number": 1,
+            },
+            content_type="application/json",
+        ).json()
+
+    def test_delete_disc_successful(self):
+        self.client.delete(reverse("api-1.0:delete_disc", kwargs={"id": self.disc1["id"]}))
+        response = self.client.get(reverse("api-1.0:retrieve_disc", kwargs={"id": self.disc1["id"]}))
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.json()["error"], f"Disc with id = {self.disc1["id"]} does not exist.")
+
+    def test_delete_disc_status_code(self):
+        response = self.client.delete(
+            reverse("api-1.0:delete_disc", kwargs={"id": self.disc1["id"]})
+        )
+
+        self.assertEqual(response.status_code, 204)
+
+    def test_delete_disc_json_response(self):
+        response = self.client.delete(
+            reverse("api-1.0:delete_disc", kwargs={"id": self.disc1["id"]})
+        )
+
+        self.assertEqual(response.content, b"")
+
+    def test_delete_unknown_disc(self):
+        disc_id = self.disc1["id"] + 1
+        response = self.client.delete(
+            reverse("api-1.0:delete_disc", kwargs={"id": disc_id})
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            response.json()["error"], f"Disc with id = {disc_id} does not exist."
+        )

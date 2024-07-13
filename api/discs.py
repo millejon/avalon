@@ -41,6 +41,16 @@ def update_disc(request, id: int, data: schema.DiscIn):
         return 404, {"error": f"Disc with id = {id} does not exist."}
 
 
+@router.delete("{int:id}", response={204: None, 404: schema.Error}, tags=["discs"])
+def delete_disc(request, id: int):
+    try:
+        disc = models.Disc.objects.get(pk=id)
+        disc.delete()
+        return 204, None
+    except models.Disc.DoesNotExist:
+        return 404, {"error": f"Disc with id = {id} does not exist."}
+
+
 @router.get("{int:id}/songs/")
 def retrieve_disc_songs(request, id: int):
     pass
