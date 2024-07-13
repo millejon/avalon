@@ -129,3 +129,57 @@ class CreateDisc(TestCase):
         )
 
         self.assertEqual(response.status_code, 422)
+
+
+class RetrieveDisc(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = Client()
+        cls.bone_thugs = cls.client.post(
+            reverse("api-1.0:create_artist"),
+            {"name": "Bone Thugs-N-Harmony"},
+            content_type="application/json",
+        ).json()
+        cls.the_art_of_war = cls.client.post(
+            reverse("api-1.0:create_album"),
+            {
+                "artists": [cls.bone_thugs["id"]],
+                "title": "The Art Of War",
+                "release_date": "1997-07-29",
+            },
+            content_type="application/json",
+        ).json()
+        cls.world_war_1 = cls.client.post(
+            reverse("api-1.0:create_disc"),
+            {
+                "album": cls.the_art_of_war["id"],
+                "title": "World War 1",
+                "number": 1,
+            },
+            content_type="application/json",
+        ).json()
+
+    def test_retrieve_disc_status_code(self):
+        response = self.client.get(reverse("api-1.0:retrieve_disc", kwargs={"id": self.world_war_1["id"]}))
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_retrieve_disc_json_response(self):
+        response = self.client.get(reverse("api-1.0:retrieve_disc", kwargs={"id": self.world_war_1["id"]})).json()
+
+        self.assertEqual(response["album"]["title"], "The Art Of War")
+        self.assertEqual(response["title"], "World War 1")
+        self.assertEqual(response["number"], 1)
+        self.assertTrue(response["url"].endswith(f"/api/v1/discs/{response["id"]}"))
+        self.assertIsNone(response["tracklist"])
+
+    def test_retrieve_unknown_disc(self):
+        disc_id = self.world_war_1["id"] + 1
+        response = self.client.get(
+            reverse("api-1.0:retrieve_disc", kwargs={"id": disc_id})
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            response.json()["error"], f"Disc with id = {disc_id} does not exist."
+        )

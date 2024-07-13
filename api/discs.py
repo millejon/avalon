@@ -14,6 +14,17 @@ def create_disc(request, data: schema.DiscIn):
     return 201, disc
 
 
-@router.get("{int:id}")
+@router.get(
+    "{int:id}", response={200: schema.DiscOut, 404: schema.Error}, tags=["discs"]
+)
 def retrieve_disc(request, id: int):
+    try:
+        disc = models.Disc.objects.get(pk=id)
+        return 200, disc
+    except models.Disc.DoesNotExist:
+        return 404, {"error": f"Disc with id = {id} does not exist."}
+
+
+@router.get("{int:id}/songs/")
+def retrieve_disc_songs(request, id: int):
     pass
