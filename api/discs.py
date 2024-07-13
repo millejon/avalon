@@ -25,6 +25,22 @@ def retrieve_disc(request, id: int):
         return 404, {"error": f"Disc with id = {id} does not exist."}
 
 
+@router.put(
+    "{int:id}", response={200: schema.DiscOut, 404: schema.Error}, tags=["discs"]
+)
+def update_disc(request, id: int, data: schema.DiscIn):
+    try:
+        disc = models.Disc.objects.get(pk=id)
+        data = util.strip_whitespace(data.dict())
+        data["album"] = models.Album.objects.get(pk=data["album"])
+        for attr, value in data.items():
+            setattr(disc, attr, value)
+        disc.save()
+        return 200, disc
+    except models.Disc.DoesNotExist:
+        return 404, {"error": f"Disc with id = {id} does not exist."}
+
+
 @router.get("{int:id}/songs/")
 def retrieve_disc_songs(request, id: int):
     pass

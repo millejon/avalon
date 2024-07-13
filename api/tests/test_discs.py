@@ -183,3 +183,134 @@ class RetrieveDisc(TestCase):
         self.assertEqual(
             response.json()["error"], f"Disc with id = {disc_id} does not exist."
         )
+
+
+class UpdateDisc(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = Client()
+        cls.wutang_clan = cls.client.post(
+            reverse("api-1.0:create_artist"),
+            {"name": "Wu-Tang Clan"},
+            content_type="application/json",
+        ).json()
+        cls.wutang_forever = cls.client.post(
+            reverse("api-1.0:create_album"),
+            {
+                "artists": [cls.wutang_clan["id"]],
+                "title": "Wu-Tang Forever",
+                "release_date": "1997-06-03",
+            },
+            content_type="application/json",
+        ).json()
+        cls.world_war_1 = cls.client.post(
+            reverse("api-1.0:create_disc"),
+            {
+                "album": cls.wutang_forever["id"],
+                "title": "Disc Two",
+                "number": 2,
+            },
+            content_type="application/json",
+        ).json()
+
+    def test_update_disc_status_code(self):
+        response = self.client.put(
+            reverse("api-1.0:update_disc", kwargs={"id": self.world_war_1["id"]}),
+            {
+                "album": self.wutang_forever["id"],
+                "title": "Disc 2",
+                "number": 2,
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_update_disc_json_response(self):
+        response = self.client.put(
+            reverse("api-1.0:update_disc", kwargs={"id": self.world_war_1["id"]}),
+            {
+                "album": self.wutang_forever["id"],
+                "title": "Disc 2",
+                "number": 2,
+            },
+            content_type="application/json",
+        ).json()
+
+        self.assertEqual(response["album"]["title"], "Wu-Tang Forever")
+        self.assertEqual(response["title"], "Disc 2")
+        self.assertEqual(response["number"], 2)
+        self.assertTrue(response["url"].endswith(f"/api/v1/discs/{response["id"]}"))
+        self.assertIsNone(response["tracklist"])
+
+    def test_update_disc_with_extraneous_whitespace(self):
+        response = self.client.put(
+            reverse("api-1.0:update_disc", kwargs={"id": self.world_war_1["id"]}),
+            {
+                "album": self.wutang_forever["id"],
+                "title": "       Disc 2",
+                "number": 2,
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["title"], "Disc 2")
+
+    def test_update_disc_with_extraneous_fields(self):
+        response = self.client.put(
+            reverse("api-1.0:update_disc", kwargs={"id": self.world_war_1["id"]}),
+            {
+                "album": self.wutang_forever["id"],
+                "title": "Disc 2",
+                "number": 2,
+                "track_count": 16,
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["title"], "Disc 2")
+        self.assertFalse("track_count" in response.json().keys())
+
+    def test_update_disc_with_missing_required_fields(self):
+        response = self.client.put(
+            reverse("api-1.0:update_disc", kwargs={"id": self.world_war_1["id"]}),
+            {
+                "title": "Disc 2",
+                "number": 2,
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 422)
+
+    def test_update_disc_with_invalid_values(self):
+        response = self.client.put(
+            reverse("api-1.0:update_disc", kwargs={"id": self.world_war_1["id"]}),
+            {
+                "album": "Wu-Tang Forever",
+                "title": "Disc 2",
+                "number": 2,
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 422)
+
+    def test_update_unknown_disc(self):
+        disc_id = self.world_war_1["id"] + 1
+        response = self.client.put(
+            reverse("api-1.0:update_disc", kwargs={"id": disc_id}),
+            {
+                "album": self.wutang_forever["id"],
+                "title": "Disc 1",
+                "number": 1,
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            response.json()["error"], f"Disc with id = {disc_id} does not exist."
+        )
