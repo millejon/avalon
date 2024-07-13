@@ -146,3 +146,46 @@ class AlbumSummaryOut(Schema):
     def resolve_url(obj, context):
         album_url = reverse("api-1.0:retrieve_album", kwargs={"id": obj.id})
         return context["request"].build_absolute_uri(album_url)
+
+
+class DiscIn(Schema):
+    album: int
+    title: str
+    number: int
+
+
+class DiscAlbumSummaryOut(Schema):
+    id: int
+    title: str
+    url: str
+
+    @staticmethod
+    def resolve_url(obj, context):
+        album_url = reverse("api-1.0:retrieve_album", kwargs={"id": obj.id})
+        return context["request"].build_absolute_uri(album_url)
+
+
+class DiscOut(Schema):
+    id: int
+    album: DiscAlbumSummaryOut
+    title: str
+    number: int
+    url: str
+    tracklist: Optional[DiscogPreview]
+
+    @staticmethod
+    def resolve_url(obj, context):
+        disc_url = reverse("api-1.0:retrieve_disc", kwargs={"id": obj.id})
+        return context["request"].build_absolute_uri(disc_url)
+
+    @staticmethod
+    def resolve_tracklist(obj, context):
+        tracklist = obj.song_set.all()
+        if tracklist:
+            tracklist_url = reverse(
+                "api-1.0:retrieve_disc_songs", kwargs={"id": obj.id}
+            )
+            return {
+                "count": tracklist.count(),
+                "url": context["request"].build_absolute_uri(tracklist_url),
+            }
