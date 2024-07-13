@@ -203,7 +203,7 @@ class UpdateDisc(TestCase):
             },
             content_type="application/json",
         ).json()
-        cls.world_war_1 = cls.client.post(
+        cls.disc2 = cls.client.post(
             reverse("api-1.0:create_disc"),
             {
                 "album": cls.wutang_forever["id"],
@@ -215,7 +215,7 @@ class UpdateDisc(TestCase):
 
     def test_update_disc_status_code(self):
         response = self.client.put(
-            reverse("api-1.0:update_disc", kwargs={"id": self.world_war_1["id"]}),
+            reverse("api-1.0:update_disc", kwargs={"id": self.disc2["id"]}),
             {
                 "album": self.wutang_forever["id"],
                 "title": "Disc 2",
@@ -228,7 +228,7 @@ class UpdateDisc(TestCase):
 
     def test_update_disc_json_response(self):
         response = self.client.put(
-            reverse("api-1.0:update_disc", kwargs={"id": self.world_war_1["id"]}),
+            reverse("api-1.0:update_disc", kwargs={"id": self.disc2["id"]}),
             {
                 "album": self.wutang_forever["id"],
                 "title": "Disc 2",
@@ -245,7 +245,7 @@ class UpdateDisc(TestCase):
 
     def test_update_disc_with_extraneous_whitespace(self):
         response = self.client.put(
-            reverse("api-1.0:update_disc", kwargs={"id": self.world_war_1["id"]}),
+            reverse("api-1.0:update_disc", kwargs={"id": self.disc2["id"]}),
             {
                 "album": self.wutang_forever["id"],
                 "title": "       Disc 2",
@@ -259,7 +259,7 @@ class UpdateDisc(TestCase):
 
     def test_update_disc_with_extraneous_fields(self):
         response = self.client.put(
-            reverse("api-1.0:update_disc", kwargs={"id": self.world_war_1["id"]}),
+            reverse("api-1.0:update_disc", kwargs={"id": self.disc2["id"]}),
             {
                 "album": self.wutang_forever["id"],
                 "title": "Disc 2",
@@ -275,7 +275,7 @@ class UpdateDisc(TestCase):
 
     def test_update_disc_with_missing_required_fields(self):
         response = self.client.put(
-            reverse("api-1.0:update_disc", kwargs={"id": self.world_war_1["id"]}),
+            reverse("api-1.0:update_disc", kwargs={"id": self.disc2["id"]}),
             {
                 "title": "Disc 2",
                 "number": 2,
@@ -287,7 +287,7 @@ class UpdateDisc(TestCase):
 
     def test_update_disc_with_invalid_values(self):
         response = self.client.put(
-            reverse("api-1.0:update_disc", kwargs={"id": self.world_war_1["id"]}),
+            reverse("api-1.0:update_disc", kwargs={"id": self.disc2["id"]}),
             {
                 "album": "Wu-Tang Forever",
                 "title": "Disc 2",
@@ -299,7 +299,7 @@ class UpdateDisc(TestCase):
         self.assertEqual(response.status_code, 422)
 
     def test_update_unknown_disc(self):
-        disc_id = self.world_war_1["id"] + 1
+        disc_id = self.disc2["id"] + 1
         response = self.client.put(
             reverse("api-1.0:update_disc", kwargs={"id": disc_id}),
             {
