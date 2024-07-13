@@ -4,16 +4,16 @@ import time
 from django.test import TestCase
 from django.db import IntegrityError
 
-from api import models
+from catalog import models
 
 
 class ArtistModelTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.artist = models.Artist.objects.create(name="2pac")
+        cls.artist = models.Artist.objects.create(name="2Pac")
 
     def test_artist_creation(self):
-        self.assertEqual(self.artist.name, "2pac")
+        self.assertEqual(self.artist.name, "2Pac")
 
     def test_name_max_length(self):
         max_length = self.artist._meta.get_field("name").max_length
@@ -21,7 +21,7 @@ class ArtistModelTestCase(TestCase):
         self.assertEqual(max_length, 100)
 
     def test_artist_str_method(self):
-        self.assertEqual(str(self.artist), "2pac")
+        self.assertEqual(str(self.artist), "2Pac")
 
     def test_artist_get_absolute_url(self):
         # TODO: Add test after coding front-end views
@@ -29,11 +29,11 @@ class ArtistModelTestCase(TestCase):
 
     def test_nonunique_artist_creation(self):
         with self.assertRaises(IntegrityError):
-            models.Artist.objects.create(name="2pac")
+            models.Artist.objects.create(name="2Pac")
 
     def test_nonunique_artist_creation_case_insensitive(self):
         with self.assertRaises(IntegrityError):
-            models.Artist.objects.create(name="2Pac")
+            models.Artist.objects.create(name="2pac")
 
     def test_artist_ordering(self):
         models.Artist.objects.create(name="Xzibit")
@@ -41,13 +41,13 @@ class ArtistModelTestCase(TestCase):
 
         artists = [str(artist) for artist in models.Artist.objects.all()]
 
-        self.assertEqual(artists, ["2pac", "Kurupt", "Xzibit"])
+        self.assertEqual(artists, ["2Pac", "Kurupt", "Xzibit"])
 
 
 class AlbumModelTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.artist = models.Artist.objects.create(name="2pac")
+        cls.artist = models.Artist.objects.create(name="2Pac")
         cls.album = models.Album.objects.create(
             title="Me Against The World",
             release_date=datetime.date(1995, 3, 14),
@@ -111,7 +111,7 @@ class AlbumModelTestCase(TestCase):
 class DiscModelTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.artist = models.Artist.objects.create(name="2pac")
+        cls.artist = models.Artist.objects.create(name="2Pac")
         cls.album = models.Album.objects.create(
             title="All Eyez On Me",
             release_date=datetime.date(1996, 2, 13),
@@ -397,11 +397,12 @@ class PlaylistModelTestCase(TestCase):
 
     def test_playlist_ordering(self):
         playlist2 = models.Playlist.objects.create(title="Kaleidoscope Dreams")
+        time.sleep(0.1)
         models.Playlist.objects.create(title="Computer Love")
+        time.sleep(0.1)
         album = models.Album.objects.create(
             title="Ready To Die", release_date=datetime.date(1994, 9, 13)
         )
-        time.sleep(0.1)
         song = models.Song.objects.create(
             album=album,
             title="Machine Gun Funk",

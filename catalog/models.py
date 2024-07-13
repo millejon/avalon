@@ -39,14 +39,18 @@ class Album(models.Model):
     class Meta:
         ordering = ["artists__name", "release_date"]
         constraints = [
-            models.UniqueConstraint(fields=["title", "release_date"], name="unique_album")
+            models.UniqueConstraint(
+                fields=["title", "release_date"], name="unique_album"
+            )
         ]
 
 
 class Disc(models.Model):
     album = models.ForeignKey(Album, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
-    number = models.PositiveSmallIntegerField(validators=[validators.MinValueValidator(1)])
+    number = models.PositiveSmallIntegerField(
+        validators=[validators.MinValueValidator(1)]
+    )
 
     def __str__(self):
         return f"{self.album.title} ({self.title})"
@@ -64,9 +68,11 @@ class Disc(models.Model):
 class Song(models.Model):
     artists = models.ManyToManyField(Artist, through="Feature")
     album = models.ForeignKey(Album, on_delete=models.CASCADE)
-    disc = models.ForeignKey(Disc, on_delete=models.RESTRICT, null=True, blank=True)
+    disc = models.ForeignKey(Disc, on_delete=models.SET_NULL, null=True, blank=True)
     title = models.CharField(max_length=600)
-    track_number = models.PositiveSmallIntegerField(validators=[validators.MinValueValidator(1)])
+    track_number = models.PositiveSmallIntegerField(
+        validators=[validators.MinValueValidator(1)]
+    )
     length = models.PositiveIntegerField()
     play_count = models.PositiveIntegerField(default=0)
     path = models.CharField(max_length=1000, unique=True)
@@ -95,8 +101,12 @@ class Feature(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["artist", "song", "group"], name="unique_vocalist"),
-            models.UniqueConstraint(fields=["artist", "song", "producer"], name="unique_producer"),
+            models.UniqueConstraint(
+                fields=["artist", "song", "group"], name="unique_vocalist"
+            ),
+            models.UniqueConstraint(
+                fields=["artist", "song", "producer"], name="unique_producer"
+            ),
         ]
 
 
