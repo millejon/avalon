@@ -22,17 +22,6 @@ class ArtistOut(Schema):
     id: int
     name: str
     url: str
-
-    @staticmethod
-    def resolve_url(obj, context):
-        artist_url = reverse("api-1.0:retrieve_artist", kwargs={"id": obj.id})
-        return context["request"].build_absolute_uri(artist_url)
-
-
-class DetailedArtistOut(Schema):
-    id: int
-    name: str
-    url: str
     albums: Optional[DiscogPreview]
     singles: Optional[DiscogPreview]
     songs: Optional[DiscogPreview]
@@ -54,8 +43,6 @@ class DetailedArtistOut(Schema):
                 "count": albums.count(),
                 "url": context["request"].build_absolute_uri(albums_url),
             }
-        else:
-            return None
 
     @staticmethod
     def resolve_singles(obj, context):
@@ -78,8 +65,6 @@ class DetailedArtistOut(Schema):
                 "count": songs.count(),
                 "url": context["request"].build_absolute_uri(songs_url),
             }
-        else:
-            return None
 
     @staticmethod
     def resolve_songs_produced(obj, context):
@@ -92,8 +77,17 @@ class DetailedArtistOut(Schema):
                 "count": produced.count(),
                 "url": context["request"].build_absolute_uri(produced_url),
             }
-        else:
-            return None
+
+
+class ArtistSummaryOut(Schema):
+    id: int
+    name: str
+    url: str
+
+    @staticmethod
+    def resolve_url(obj, context):
+        artist_url = reverse("api-1.0:retrieve_artist", kwargs={"id": obj.id})
+        return context["request"].build_absolute_uri(artist_url)
 
 
 class AlbumIn(Schema):
@@ -106,7 +100,7 @@ class AlbumIn(Schema):
 
 class AlbumOut(Schema):
     id: int
-    album_artists: List[ArtistOut]
+    album_artists: List[ArtistSummaryOut]
     title: str
     url: str
 
@@ -122,7 +116,7 @@ class AlbumOut(Schema):
 
 class DetailedAlbumOut(Schema):
     id: int
-    album_artists: List[ArtistOut]
+    album_artists: List[ArtistSummaryOut]
     title: str
     release_date: date
     single: bool = False
