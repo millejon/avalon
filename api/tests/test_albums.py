@@ -31,7 +31,7 @@ class CreateAlbumTestCase(TestCase):
         response = response.json()
         album_id = response["id"]
 
-        self.assertEqual(response["album_artists"][0]["name"], "Travis Scott")
+        self.assertEqual(response["artists"][0]["name"], "Travis Scott")
         self.assertEqual(response["title"], "Rodeo")
         self.assertEqual(response["release_date"], "2015-09-04")
         self.assertIsNone(response["tracklist"])
@@ -56,7 +56,7 @@ class CreateAlbumTestCase(TestCase):
         response = response.json()
         album_id = response["id"]
 
-        self.assertEqual(response["album_artists"][0]["name"], "Travis Scott")
+        self.assertEqual(response["artists"][0]["name"], "Travis Scott")
         self.assertEqual(response["title"], "Birds In The Trap Sing McKnight")
         self.assertEqual(response["release_date"], "2016-09-02")
         self.assertFalse(response["single"])
@@ -167,7 +167,7 @@ class RetrieveAlbumTestCase(TestCase):
 
         response = response.json()
 
-        self.assertEqual(response["album_artists"][0]["name"], "Schoolboy Q")
+        self.assertEqual(response["artists"][0]["name"], "Schoolboy Q")
         self.assertEqual(response["title"], "Oxymoron")
         self.assertEqual(response["release_date"], "2014-02-25")
         self.assertIsNone(response["tracklist"])
@@ -228,8 +228,8 @@ class UpdateAlbumTestCase(TestCase):
         response = response.json()
         album_id = response["id"]
 
-        self.assertEqual(response["album_artists"][0]["name"], "Freddie Gibbs")
-        self.assertEqual(response["album_artists"][1]["name"], "The Alchemist")
+        self.assertEqual(response["artists"][0]["name"], "Freddie Gibbs")
+        self.assertEqual(response["artists"][1]["name"], "The Alchemist")
         self.assertEqual(response["title"], "Alfredo")
         self.assertEqual(response["release_date"], "2020-05-29")
         self.assertIsNone(response["tracklist"])
