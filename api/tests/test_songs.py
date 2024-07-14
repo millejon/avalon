@@ -46,10 +46,10 @@ class CreateSong(TestCase):
             reverse("api-1.0:create_song"),
             {
                 "album": self.aquemini["id"],
-                "title": "Return Of The G",
-                "track_number": 2,
-                "length": 289,
-                "path": "/archive/outkast/aquemini/02_return_of_the_g.flac",
+                "title": "Skew It On The Bar-B",
+                "track_number": 4,
+                "length": 195,
+                "path": "/archive/outkast/aquemini/04_skew_it_on_the_barb.flac",
             },
             content_type="application/json",
         )
@@ -61,10 +61,10 @@ class CreateSong(TestCase):
             reverse("api-1.0:create_song"),
             {
                 "album": self.aquemini["id"],
-                "title": "Return Of The G",
-                "track_number": 2,
-                "length": 289,
-                "path": "/archive/outkast/aquemini/02_return_of_the_g.flac",
+                "title": "Skew It On The Bar-B",
+                "track_number": 4,
+                "length": 195,
+                "path": "/archive/outkast/aquemini/04_skew_it_on_the_barb.flac",
             },
             content_type="application/json",
         ).json()
@@ -72,11 +72,11 @@ class CreateSong(TestCase):
         self.assertEqual(len(response["artists"]), 0)
         self.assertEqual(response["album"]["title"], "Aquemini")
         self.assertIsNone(response["disc"])
-        self.assertEqual(response["track_number"], 2)
-        self.assertEqual(response["title"], "Return Of The G")
-        self.assertEqual(response["length"], 289)
+        self.assertEqual(response["track_number"], 4)
+        self.assertEqual(response["title"], "Skew It On The Bar-B")
+        self.assertEqual(response["length"], 195)
         self.assertEqual(response["play_count"], 0)
-        self.assertEqual(response["path"], "/archive/outkast/aquemini/02_return_of_the_g.flac")
+        self.assertEqual(response["path"], "/archive/outkast/aquemini/04_skew_it_on_the_barb.flac")
         self.assertTrue(response["url"].endswith(f"/api/v1/songs/{response["id"]}"))
 
     def test_create_valid_multidisc_song_status_code(self):
@@ -124,34 +124,34 @@ class CreateSong(TestCase):
             reverse("api-1.0:create_song"),
             {
                 "album": self.aquemini["id"],
-                "title": "       Return Of The G      ",
-                "track_number": 2,
-                "length": 289,
-                "path": "/archive/outkast/aquemini/02_return_of_the_g.flac     ",
+                "title": "       Skew It On The Bar-B     ",
+                "track_number": 4,
+                "length": 195,
+                "path": "/archive/outkast/aquemini/04_skew_it_on_the_barb.flac       ",
             },
             content_type="application/json",
         )
 
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.json()["title"], "Return Of The G")
-        self.assertEqual(response.json()["path"], "/archive/outkast/aquemini/02_return_of_the_g.flac")
+        self.assertEqual(response.json()["title"], "Skew It On The Bar-B")
+        self.assertEqual(response.json()["path"], "/archive/outkast/aquemini/04_skew_it_on_the_barb.flac")
 
     def test_create_song_with_extraneous_fields(self):
         response = self.client.post(
             reverse("api-1.0:create_song"),
             {
                 "album": self.aquemini["id"],
-                "title": "Rosa Parks",
-                "track_number": 3,
-                "length": 324,
-                "path": "/archive/outkast/aquemini/03_rosa_parks.flac",
-                "writers": ["André Benjamin", "Antwan Patton"]
+                "title": "Skew It On The Bar-B",
+                "track_number": 4,
+                "length": 195,
+                "path": "/archive/outkast/aquemini/04_skew_it_on_the_barb.flac",
+                "writers": ["Morton Stevens", "Organized Noize", "Antwan Patton", "André Benjamin", "Corey Woods"],
             },
             content_type="application/json",
         )
 
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.json()["title"], "Rosa Parks")
+        self.assertEqual(response.json()["title"], "Skew It On The Bar-B")
         self.assertFalse("writers" in response.json().keys())
 
     def test_create_duplicate_song(self):
@@ -182,28 +182,28 @@ class CreateSong(TestCase):
 
     def test_create_song_with_missing_required_fields(self):
         response = self.client.post(
-                reverse("api-1.0:create_song"),
-                {
-                    "album": self.aquemini["id"],
-                    "title": "Synthesizer",
-                    "track_number": 6,
-                },
-                content_type="application/json",
-            )
+            reverse("api-1.0:create_song"),
+            {
+                "album": self.aquemini["id"],
+                "title": "Skew It On The Bar-B",
+                "track_number": 4,
+            },
+            content_type="application/json",
+        )
 
         self.assertEqual(response.status_code, 422)
 
     def test_create_song_with_invalid_values(self):
         response = self.client.post(
-                reverse("api-1.0:create_song"),
-                {
-                    "album": "Aquemini",
-                    "title": "Slump",
-                    "track_number": 7,
-                    "length": 309,
-                    "path": "/archive/outkast/aquemini/07_slump.flac",
-                },
-                content_type="application/json",
-            )
+            reverse("api-1.0:create_song"),
+            {
+                "album": "Aquemini",
+                "title": "Skew It On The Bar-B",
+                "track_number": 4,
+                "length": 195,
+                "path": "/archive/outkast/aquemini/04_skew_it_on_the_barb.flac",
+            },
+            content_type="application/json",
+        )
 
         self.assertEqual(response.status_code, 422)
