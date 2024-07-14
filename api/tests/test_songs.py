@@ -207,3 +207,67 @@ class CreateSong(TestCase):
         )
 
         self.assertEqual(response.status_code, 422)
+
+
+class RetrieveSong(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = Client()
+        cls.ugk = cls.client.post(
+            reverse("api-1.0:create_artist"),
+            {"name": "UGK"},
+            content_type="application/json",
+        ).json()
+        cls.aquemini = cls.client.post(
+            reverse("api-1.0:create_album"),
+            {
+                "artists": [cls.ugk["id"]],
+                "title": "Ridin' Dirty",
+                "release_date": "1996-07-30",
+            },
+            content_type="application/json",
+        ).json()
+        cls.hilife = cls.client.post(
+            reverse("api-1.0:create_song"),
+            {
+                "album": cls.aquemini["id"],
+                "title": "Hi-Life",
+                "track_number": 10,
+                "length": 325,
+                "path": "/archive/ugk/ridin-dirty/10_hilife.flac",
+            },
+            content_type="application/json",
+        ).json()
+
+    def test_retrieve_song_status_code(self):
+        response = self.client.get(
+            reverse("api-1.0:retrieve_song", kwargs={"id": self.hilife["id"]})
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_retrieve_song_json_response(self):
+        response = self.client.get(
+            reverse("api-1.0:retrieve_song", kwargs={"id": self.hilife["id"]})
+        ).json()
+
+        self.assertEqual(len(response["artists"]), 0)
+        self.assertEqual(response["album"]["title"], "Ridin' Dirty")
+        self.assertIsNone(response["disc"])
+        self.assertEqual(response["track_number"], 10)
+        self.assertEqual(response["title"], "Hi-Life")
+        self.assertEqual(response["length"], 325)
+        self.assertEqual(response["play_count"], 0)
+        self.assertEqual(response["path"], "/archive/ugk/ridin-dirty/10_hilife.flac")
+        self.assertTrue(response["url"].endswith(f"/api/v1/songs/{response["id"]}"))
+
+    def test_retrieve_unknown_song(self):
+        song_id = self.hilife["id"] + 1
+        response = self.client.get(
+            reverse("api-1.0:retrieve_song", kwargs={"id": song_id})
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            response.json()["error"], f"Song with id = {song_id} does not exist."
+        )

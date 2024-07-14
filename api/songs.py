@@ -1,3 +1,6 @@
+from collections import OrderedDict
+from typing import List
+
 from ninja import Router
 
 from catalog import models
@@ -22,4 +25,8 @@ def create_song(request, data: schema.SongIn):
     tags=["songs"],
 )
 def retrieve_song(request, id: int):
-    pass
+    try:
+        song = models.Song.objects.get(pk=id)
+        return 200, song
+    except models.Song.DoesNotExist:
+        return 404, {"error": f"Song with id = {id} does not exist."}
