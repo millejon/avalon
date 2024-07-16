@@ -1,6 +1,3 @@
-from collections import OrderedDict
-from typing import List
-
 from ninja import Router
 
 from catalog import models
