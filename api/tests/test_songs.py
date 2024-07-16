@@ -271,3 +271,170 @@ class RetrieveSong(TestCase):
         self.assertEqual(
             response.json()["error"], f"Song with id = {song_id} does not exist."
         )
+
+
+class UpdateSong(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = Client()
+        cls.scarface = cls.client.post(
+            reverse("api-1.0:create_artist"),
+            {"name": "Scarface"},
+            content_type="application/json",
+        ).json()
+        cls.my_homies = cls.client.post(
+            reverse("api-1.0:create_album"),
+            {
+                "artists": [cls.scarface["id"]],
+                "title": "My Homies",
+                "release_date": "1998-03-03",
+                "multidisc": True,
+            },
+            content_type="application/json",
+        ).json()
+        cls.disc1 = cls.client.post(
+            reverse("api-1.0:create_disc"),
+            {
+                "album": cls.my_homies["id"],
+                "title": "Disc 1",
+                "number": 1,
+            },
+            content_type="application/json",
+        ).json()
+        cls.win_lose_or_draw = cls.client.post(
+            reverse("api-1.0:create_song"),
+            {
+                "album": cls.my_homies["id"],
+                "title": "Win, Lose, or Draw",
+                "track_number": 12,
+                "length": 316,
+                "path": "/archive/scarface/my-homies/disc-1/12_win_lose_or_draw.flac",
+            },
+            content_type="application/json",
+        ).json()
+
+    def test_update_song_status_code(self):
+        response = self.client.put(
+            reverse("api-1.0:update_song", kwargs={"id": self.win_lose_or_draw["id"]}),
+            {
+                "album": self.my_homies["id"],
+                "title": "Win Lose or Draw",
+                "track_number": 12,
+                "length": 316,
+                "path": "/archive/scarface/my-homies/disc-1/12_win_lose_or_draw.flac",
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_update_song_json_response(self):
+        response = self.client.put(
+            reverse("api-1.0:update_song", kwargs={"id": self.win_lose_or_draw["id"]}),
+            {
+                "album": self.my_homies["id"],
+                "disc": self.disc1["id"],
+                "title": "Win Lose or Draw",
+                "track_number": 12,
+                "length": 316,
+                "path": "/archive/scarface/my-homies/disc-1/12_win_lose_or_draw.flac",
+            },
+            content_type="application/json",
+        ).json()
+
+        self.assertEqual(len(response["artists"]), 0)
+        self.assertEqual(response["album"]["title"], "My Homies")
+        self.assertEqual(response["disc"], 1)
+        self.assertEqual(response["track_number"], 12)
+        self.assertEqual(response["title"], "Win Lose or Draw")
+        self.assertEqual(response["length"], 316)
+        self.assertEqual(response["play_count"], 0)
+        self.assertEqual(response["path"], "/archive/scarface/my-homies/disc-1/12_win_lose_or_draw.flac")
+        self.assertTrue(response["url"].endswith(f"/api/v1/songs/{response["id"]}"))
+
+    def test_update_song_with_extraneous_whitespace(self):
+        response = self.client.put(
+            reverse("api-1.0:update_song", kwargs={"id": self.win_lose_or_draw["id"]}),
+            {
+                "album": self.my_homies["id"],
+                "disc": self.disc1["id"],
+                "title": "Win Lose or Draw      ",
+                "track_number": 12,
+                "length": 316,
+                "path": "     /archive/scarface/my-homies/disc-1/12_win_lose_or_draw.flac",
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["title"], "Win Lose or Draw")
+        self.assertEqual(response.json()["path"], "/archive/scarface/my-homies/disc-1/12_win_lose_or_draw.flac")
+
+    def test_update_song_with_extraneous_fields(self):
+        response = self.client.put(
+            reverse("api-1.0:update_song", kwargs={"id": self.win_lose_or_draw["id"]}),
+            {
+                "album": self.my_homies["id"],
+                "disc": self.disc1["id"],
+                "title": "Win Lose or Draw",
+                "track_number": 12,
+                "length": 316,
+                "publisher": "N The Water Publishing, Inc.",
+                "path": "/archive/scarface/my-homies/disc-1/12_win_lose_or_draw.flac",
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["title"], "Win Lose or Draw")
+        self.assertFalse("publisher" in response.json().keys())
+
+    def test_update_song_with_missing_required_fields(self):
+        response = self.client.put(
+            reverse("api-1.0:update_song", kwargs={"id": self.win_lose_or_draw["id"]}),
+            {
+                "album": self.my_homies["id"],
+                "disc": self.disc1["id"],
+                "title": "Win Lose or Draw",
+                "length": 316,
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 422)
+
+    def test_update_song_with_invalid_values(self):
+        response = self.client.put(
+            reverse("api-1.0:update_song", kwargs={"id": self.win_lose_or_draw["id"]}),
+            {
+                "album": "My Homies",
+                "disc": "Disc 1",
+                "title": "Win Lose or Draw",
+                "track_number": 12,
+                "length": 316,
+                "path": "/archive/scarface/my-homies/disc-1/12_win_lose_or_draw.flac",
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 422)
+
+    def test_update_unknown_song(self):
+        song_id = self.win_lose_or_draw["id"] + 1
+        response = self.client.put(
+            reverse("api-1.0:update_song", kwargs={"id": song_id}),
+            {
+                "album": self.my_homies["id"],
+                "disc": self.disc1["id"],
+                "title": "Overnight",
+                "track_number": 13,
+                "length": 249,
+                "path": "/archive/scarface/my-homies/disc-1/13_overnight.flac",
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            response.json()["error"], f"Song with id = {song_id} does not exist."
+        )
