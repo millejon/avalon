@@ -438,3 +438,72 @@ class UpdateSong(TestCase):
         self.assertEqual(
             response.json()["error"], f"Song with id = {song_id} does not exist."
         )
+
+
+class DeleteSong(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = Client()
+        cls.three_6_mafia = cls.client.post(
+            reverse("api-1.0:create_artist"),
+            {"name": "Three 6 Mafia"},
+            content_type="application/json",
+        ).json()
+        cls.when_the_smoke_clears = cls.client.post(
+            reverse("api-1.0:create_album"),
+            {
+                "artists": [cls.three_6_mafia["id"]],
+                "title": "When The Smoke Clears: Sixty 6, Sixty 1",
+                "release_date": "2000-06-13",
+            },
+            content_type="application/json",
+        ).json()
+        cls.sippin_on_some_syrup = cls.client.post(
+            reverse("api-1.0:create_song"),
+            {
+                "album": cls.when_the_smoke_clears["id"],
+                "title": "Sippin' On Some Syrup",
+                "track_number": 3,
+                "length": 264,
+                "path": "/archive/three-6-mafia/when-the-smoke-clears-sixty-6-sixty-1/03_sippin_on_some_syrup.flac",
+            },
+            content_type="application/json",
+        ).json()
+
+    def test_delete_song_successful(self):
+        self.client.delete(
+            reverse("api-1.0:delete_song", kwargs={"id": self.sippin_on_some_syrup["id"]})
+        )
+        response = self.client.get(
+            reverse("api-1.0:retrieve_song", kwargs={"id": self.sippin_on_some_syrup["id"]})
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            response.json()["error"], f"Song with id = {self.sippin_on_some_syrup["id"]} does not exist."
+        )
+
+    def test_delete_song_status_code(self):
+        response = self.client.delete(
+            reverse("api-1.0:delete_song", kwargs={"id": self.sippin_on_some_syrup["id"]})
+        )
+
+        self.assertEqual(response.status_code, 204)
+
+    def test_delete_song_json_response(self):
+        response = self.client.delete(
+            reverse("api-1.0:delete_song", kwargs={"id": self.sippin_on_some_syrup["id"]})
+        )
+
+        self.assertEqual(response.content, b"")
+
+    def test_delete_unknown_song(self):
+        song_id = self.sippin_on_some_syrup["id"] + 1
+        response = self.client.delete(
+            reverse("api-1.0:delete_song", kwargs={"id": song_id})
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            response.json()["error"], f"Song with id = {song_id} does not exist."
+        )
