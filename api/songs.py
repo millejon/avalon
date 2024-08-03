@@ -16,9 +16,10 @@ def create_song(request, data: schema.SongIn):
 
     try:
         song = models.Song.objects.create(**data)
-        return 201, song
     except db.IntegrityError:
         return 404, {"error": "Song already exists in database."}
+    else:
+        return 201, song
 
 
 @router.get(
