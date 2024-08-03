@@ -63,7 +63,8 @@ def update_song(request, id: int, data: schema.SongIn):
 def delete_song(request, id: int):
     try:
         song = models.Song.objects.get(pk=id)
-        song.delete()
-        return 204, None
     except models.Song.DoesNotExist:
         return 404, {"error": f"Song with id = {id} does not exist."}
+    else:
+        song.delete()
+        return 204, None
