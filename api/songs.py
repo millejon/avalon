@@ -44,16 +44,19 @@ def retrieve_song(request, id: int):
 def update_song(request, id: int, data: schema.SongIn):
     try:
         song = models.Song.objects.get(pk=id)
+    except models.Song.DoesNotExist:
+        return 404, {"error": f"Song with id = {id} does not exist."}
+    else:
         data = util.strip_whitespace(data.dict())
         data["album"] = models.Album.objects.get(pk=data["album"])
         if data["disc"]:
             data["disc"] = models.Disc.objects.get(pk=data["disc"])
+
         for attr, value in data.items():
             setattr(song, attr, value)
         song.save()
+
         return 200, song
-    except models.Song.DoesNotExist:
-        return 404, {"error": f"Song with id = {id} does not exist."}
 
 
 @router.delete("{int:id}", response={204: None, 404: schema.Error}, tags=["songs"])
