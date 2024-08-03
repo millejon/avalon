@@ -185,28 +185,24 @@ class DiscModelTestCase(TestCase):
 class SongModelTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.artist = models.Artist.objects.create(name="Nas")
         cls.album = models.Album.objects.create(
             title="Illmatic",
             release_date=datetime.date(1994, 4, 19),
         )
-        cls.album.artists.add(cls.artist)
         cls.song = models.Song.objects.create(
             album=cls.album,
-            title="Life's A Bitch",
-            track_number=3,
-            length=210,
-            path="D:/Music/nas/illmatic/03_lifes_a_bitch.flac",
+            title="N.Y. State Of Mind",
+            track_number=2,
+            length=293,
+            path="/nas/illmatic/02_ny_state_of_mind.flac",
         )
-        cls.song.artists.add(cls.artist)
 
     def test_song_creation(self):
-        self.assertTrue(self.song.artists.contains(self.artist))
-        self.assertEqual(self.song.album, self.album)
-        self.assertEqual(self.song.title, "Life's A Bitch")
-        self.assertEqual(self.song.track_number, 3)
-        self.assertEqual(self.song.length, 210)
-        self.assertEqual(self.song.path, "D:/Music/nas/illmatic/03_lifes_a_bitch.flac")
+        self.assertEqual(self.song.album.title, "Illmatic")
+        self.assertEqual(self.song.title, "N.Y. State Of Mind")
+        self.assertEqual(self.song.track_number, 2)
+        self.assertEqual(self.song.length, 293)
+        self.assertEqual(self.song.path, "/nas/illmatic/02_ny_state_of_mind.flac")
 
     def test_song_creation_disc_null_by_default(self):
         self.assertIsNone(self.song.disc)
@@ -225,26 +221,37 @@ class SongModelTestCase(TestCase):
         self.assertEqual(max_length, 1000)
 
     def test_song_str_method(self):
-        self.assertEqual(str(self.song), "3. Life's A Bitch [Illmatic]")
+        self.assertEqual(str(self.song), "2. N.Y. State Of Mind [Illmatic]")
 
-    def test_nonunique_song_creation(self):
+    def test_song_creation_duplicate_song(self):
         with self.assertRaises(IntegrityError):
             models.Song.objects.create(
                 album=self.album,
-                title="Life's a Bitch",
-                track_number=3,
-                length=212,
-                path="D:/Music/nas/illmatic/03_lifes_a_bitch.flac",
+                title="New York State Of Mind",
+                track_number=2,
+                length=295,
+                path="/nas/illmatic/02_ny_state_of_mind.flac",
             )
 
-    def test_invalid_song_track_number_song_creation(self):
+    def test_song_creation_invalid_track_number(self):
         with self.assertRaises(IntegrityError):
             models.Song.objects.create(
                 album=self.album,
-                title="N.Y. State Of Mind",
+                title="I'm A Villain",
                 track_number=0,
-                length=293,
-                path="D:/Music/nas/illmatic/00_ny_state_of_mind.flac",
+                length=270,
+                path="/nas/illmatic/00_im_a_villain.flac",
+            )
+
+    def test_song_creation_invalid_play_count(self):
+        with self.assertRaises(IntegrityError):
+            models.Song.objects.create(
+                album=self.album,
+                title="Life's A Bitch",
+                track_number=3,
+                length=210,
+                path="/nas/illmatic/03_lifes_a_bitch.flac",
+                play_count=-1,
             )
 
     def test_song_ordering(self):
@@ -255,27 +262,36 @@ class SongModelTestCase(TestCase):
         disc1 = models.Disc.objects.create(album=album2, title="Disc 1", number=1)
         disc2 = models.Disc.objects.create(album=album2, title="Disc 2", number=2)
         models.Song.objects.create(
+            album=self.album,
+            title="It Ain't Hard To Tell",
+            track_number=10,
+            length=202,
+            path="/nas/illmatic/10_it_aint_hard_to_tell.flac",
+            play_count=3,
+        )
+        models.Song.objects.create(
             album=album2,
             disc=disc2,
             title="Suicide Bounce",
             track_number=1,
             length=237,
-            path="D:/Music/nas/streets-disciple/disc-2/01_suicide_bounce.flac",
+            path="/nas/streets-disciple/disc-2/01_suicide_bounce.flac",
         )
         models.Song.objects.create(
             album=album2,
             disc=disc1,
-            title="Just A Moment",
-            track_number=10,
-            length=263,
-            path="D:/Music/nas/streets-disciple/disc-1/10_just_a_moment.flac",
+            title="Disciple",
+            track_number=6,
+            length=180,
+            path="/nas/streets-disciple/disc-1/06_disciple.flac",
         )
 
         songs = [str(song) for song in models.Song.objects.all()]
         expected_song_order = [
-            "10. Just A Moment [Street's Disciple]",
+            "10. It Ain't Hard To Tell [Illmatic]",
+            "6. Disciple [Street's Disciple]",
             "1. Suicide Bounce [Street's Disciple]",
-            "3. Life's A Bitch [Illmatic]",
+            "2. N.Y. State Of Mind [Illmatic]",
         ]
 
         self.assertEqual(songs, expected_song_order)
