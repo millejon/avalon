@@ -205,39 +205,18 @@ class SongOut(Schema):
     artists: List[ArtistSummaryOut]
     album: MiniAlbumSummaryOut
     disc: Optional[int]
-    track_number: int
     title: str
+    track_number: int
     length: int
-    play_count: int
     path: str
+    play_count: int
     url: str
-
-    @staticmethod
-    def resolve_url(obj, context):
-        song_url = reverse("api-1.0:retrieve_song", kwargs={"id": obj.id})
-        return context["request"].build_absolute_uri(song_url)
 
     @staticmethod
     def resolve_disc(obj):
         return obj.disc.number if obj.disc else None
 
-
-class SongSummaryOut(Schema):
-    id: int
-    artists: List[str]
-    album: str
-    title: str
-    url: str
-
     @staticmethod
     def resolve_url(obj, context):
         song_url = reverse("api-1.0:retrieve_song", kwargs={"id": obj.id})
         return context["request"].build_absolute_uri(song_url)
-
-    @staticmethod
-    def resolve_artists(obj):
-        return [artist.name for artist in obj.artists.all()]
-
-    @staticmethod
-    def resolve_album(obj):
-        return obj.album.title
