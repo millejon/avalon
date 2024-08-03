@@ -207,15 +207,9 @@ class RetrieveSong(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.client = Client()
-        cls.ugk = cls.client.post(
-            reverse("api-1.0:create_artist"),
-            {"name": "UGK"},
-            content_type="application/json",
-        ).json()
-        cls.aquemini = cls.client.post(
+        cls.ridin_dirty = cls.client.post(
             reverse("api-1.0:create_album"),
             {
-                "artists": [cls.ugk["id"]],
                 "title": "Ridin' Dirty",
                 "release_date": "1996-07-30",
             },
@@ -224,11 +218,11 @@ class RetrieveSong(TestCase):
         cls.hilife = cls.client.post(
             reverse("api-1.0:create_song"),
             {
-                "album": cls.aquemini["id"],
+                "album": cls.ridin_dirty["id"],
                 "title": "Hi-Life",
                 "track_number": 10,
                 "length": 325,
-                "path": "/archive/ugk/ridin-dirty/10_hilife.flac",
+                "path": "/ugk/ridin-dirty/10_hilife.flac",
             },
             content_type="application/json",
         ).json()
@@ -245,15 +239,16 @@ class RetrieveSong(TestCase):
             reverse("api-1.0:retrieve_song", kwargs={"id": self.hilife["id"]})
         ).json()
 
+        self.assertEqual(response["id"], self.hilife["id"])
         self.assertEqual(len(response["artists"]), 0)
         self.assertEqual(response["album"]["title"], "Ridin' Dirty")
         self.assertIsNone(response["disc"])
-        self.assertEqual(response["track_number"], 10)
         self.assertEqual(response["title"], "Hi-Life")
+        self.assertEqual(response["track_number"], 10)
         self.assertEqual(response["length"], 325)
+        self.assertEqual(response["path"], "/ugk/ridin-dirty/10_hilife.flac")
         self.assertEqual(response["play_count"], 0)
-        self.assertEqual(response["path"], "/archive/ugk/ridin-dirty/10_hilife.flac")
-        self.assertTrue(response["url"].endswith(f"/api/v1/songs/{response["id"]}"))
+        self.assertTrue(response["url"].endswith(f"/api/v1/songs/{self.hilife["id"]}"))
 
     def test_retrieve_unknown_song(self):
         song_id = self.hilife["id"] + 1
