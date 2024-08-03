@@ -30,9 +30,10 @@ def create_song(request, data: schema.SongIn):
 def retrieve_song(request, id: int):
     try:
         song = models.Song.objects.get(pk=id)
-        return 200, song
     except models.Song.DoesNotExist:
         return 404, {"error": f"Song with id = {id} does not exist."}
+    else:
+        return 200, song
 
 
 @router.put(
