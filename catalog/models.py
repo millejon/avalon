@@ -95,22 +95,31 @@ class Song(models.Model):
 
 
 class Feature(models.Model):
-    artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
+    artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
     group = models.BooleanField(default=False, blank=True)
     producer = models.BooleanField(default=False, blank=True)
     role = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
-        return f"{self.artist.name} - {self.song.title}"
+        return f"{self.song.title} - {self.artist.name}"
 
     class Meta:
+        ordering = ["id"]
         constraints = [
             models.UniqueConstraint(
-                fields=["artist", "song", "group"], name="unique_vocalist"
+                fields=["artist", "song", "producer"], name="unique_credit"
             ),
-            models.UniqueConstraint(
-                fields=["artist", "song", "producer"], name="unique_producer"
+            models.CheckConstraint(
+                check=(~(models.Q(group=True) & models.Q(producer=True))),
+                name="producers_not_included_in_groups",
+            ),
+            models.CheckConstraint(
+                check=(
+                    models.Q(producer=False) & models.Q(role__exact="")
+                    | models.Q(producer=True) & ~models.Q(role__exact="")
+                ),
+                name="only_producers_have_roles",
             ),
         ]
 
