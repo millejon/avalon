@@ -201,11 +201,11 @@ class SongIn(Schema):
 
 class SongOut(Schema):
     id: int
+    title: str
     artists: List[ArtistSummaryOut]
     producers: List[ArtistSummaryOut]
     album: MiniAlbumSummaryOut
     disc: Optional[int]
-    title: str
     track_number: int
     length: int
     path: str
