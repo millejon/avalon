@@ -410,6 +410,46 @@ class UpdateSongTestCase(TestCase):
         self.assertEqual(response.json()["title"], "Win, Lose, or Draw")
         self.assertFalse("publisher" in response.json().keys())
 
+    def test_update_song_with_unknown_album(self):
+        response = self.client.put(
+            reverse("api-1.0:update_song", kwargs={"id": self.win_lose_or_draw["id"]}),
+            {
+                "album": self.my_homies["id"] + 100,
+                "disc": self.disc1["id"],
+                "title": "Win, Lose, or Draw",
+                "track_number": 12,
+                "length": 316,
+                "publisher": "N The Water Publishing, Inc.",
+                "path": "/scarface/my-homies/disc-1/12_win_lose_or_draw.flac",
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            response.json()["error"], f"Album with id = {self.my_homies["id"] + 100} does not exist."
+        )
+
+    def test_update_song_with_unknown_disc(self):
+        response = self.client.put(
+            reverse("api-1.0:update_song", kwargs={"id": self.win_lose_or_draw["id"]}),
+            {
+                "album": self.my_homies["id"],
+                "disc": self.disc1["id"] + 100,
+                "title": "Win, Lose, or Draw",
+                "track_number": 12,
+                "length": 316,
+                "publisher": "N The Water Publishing, Inc.",
+                "path": "/scarface/my-homies/disc-1/12_win_lose_or_draw.flac",
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            response.json()["error"], f"Disc with id = {self.disc1["id"] + 100} does not exist."
+        )
+
     def test_update_song_with_missing_required_fields(self):
         response = self.client.put(
             reverse("api-1.0:update_song", kwargs={"id": self.win_lose_or_draw["id"]}),

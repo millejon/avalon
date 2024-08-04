@@ -10,7 +10,6 @@ router = Router()
 @router.post("", response={201: schema.SongOut, 404: schema.Error}, tags=["songs"])
 def create_song(request, data: schema.SongIn):
     data = util.strip_whitespace(data.dict())
-
     try:
         data["album"] = models.Album.objects.get(pk=data["album"])
         if data["disc"]:
@@ -46,20 +45,22 @@ def retrieve_song(request, id: int):
     tags=["songs"],
 )
 def update_song(request, id: int, data: schema.SongIn):
+    data = util.strip_whitespace(data.dict())
     try:
         song = models.Song.objects.get(pk=id)
-    except models.Song.DoesNotExist:
-        return 404, {"error": f"Song with id = {id} does not exist."}
-    else:
-        data = util.strip_whitespace(data.dict())
         data["album"] = models.Album.objects.get(pk=data["album"])
         if data["disc"]:
             data["disc"] = models.Disc.objects.get(pk=data["disc"])
-
+    except models.Song.DoesNotExist:
+        return 404, {"error": f"Song with id = {id} does not exist."}
+    except models.Album.DoesNotExist:
+        return 404, {"error": f"Album with id = {data["album"]} does not exist."}
+    except models.Disc.DoesNotExist:
+        return 404, {"error": f"Disc with id = {data["disc"]} does not exist."}
+    else:
         for attr, value in data.items():
             setattr(song, attr, value)
         song.save()
-
         return 200, song
 
 
