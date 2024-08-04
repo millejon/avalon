@@ -2,7 +2,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 
 
-class CreateSong(TestCase):
+class CreateSongTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.client = Client()
@@ -203,7 +203,7 @@ class CreateSong(TestCase):
         self.assertEqual(response.status_code, 422)
 
 
-class RetrieveSong(TestCase):
+class RetrieveSongTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.client = Client()
@@ -262,7 +262,7 @@ class RetrieveSong(TestCase):
         )
 
 
-class UpdateSong(TestCase):
+class UpdateSongTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.client = Client()
@@ -422,7 +422,7 @@ class UpdateSong(TestCase):
         )
 
 
-class DeleteSong(TestCase):
+class DeleteSongTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.client = Client()
