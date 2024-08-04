@@ -91,7 +91,6 @@ class ArtistSummaryOut(Schema):
 
 
 class AlbumIn(Schema):
-    artists: List[int]
     title: str
     release_date: date
     single: bool = False
