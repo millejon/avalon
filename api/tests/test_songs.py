@@ -61,11 +61,11 @@ class CreateSongTestCase(TestCase):
             content_type="application/json",
         ).json()
 
+        self.assertEqual(response["title"], "Rosa Parks")
         self.assertEqual(len(response["artists"]), 0)
         self.assertEqual(len(response["producers"]), 0)
         self.assertEqual(response["album"]["title"], "Aquemini")
         self.assertIsNone(response["disc"])
-        self.assertEqual(response["title"], "Rosa Parks")
         self.assertEqual(response["track_number"], 3)
         self.assertEqual(response["length"], 324)
         self.assertEqual(response["path"], "/outkast/aquemini/03_rosa_parks.flac")
@@ -102,11 +102,11 @@ class CreateSongTestCase(TestCase):
             content_type="application/json",
         ).json()
 
+        self.assertEqual(response["title"], "Flip Flop Rock")
         self.assertEqual(len(response["artists"]), 0)
         self.assertEqual(len(response["producers"]), 0)
         self.assertEqual(response["album"]["title"], "Speakerboxxx / The Love Below")
         self.assertEqual(response["disc"], 1)
-        self.assertEqual(response["title"], "Flip Flop Rock")
         self.assertEqual(response["track_number"], 14)
         self.assertEqual(response["length"], 276)
         self.assertEqual(response["path"], "/outkast/speakerboxx-the-love-below/speakerboxx/11_flip_flop_rock.flac")
@@ -278,12 +278,12 @@ class RetrieveSongTestCase(TestCase):
             reverse("api-1.0:retrieve_song", kwargs={"id": self.hilife["id"]})
         ).json()
 
+        self.assertEqual(response["title"], "Hi-Life")
         self.assertEqual(response["id"], self.hilife["id"])
         self.assertEqual(len(response["artists"]), 0)
         self.assertEqual(len(response["producers"]), 0)
         self.assertEqual(response["album"]["title"], "Ridin' Dirty")
         self.assertIsNone(response["disc"])
-        self.assertEqual(response["title"], "Hi-Life")
         self.assertEqual(response["track_number"], 10)
         self.assertEqual(response["length"], 325)
         self.assertEqual(response["path"], "/ugk/ridin-dirty/10_hilife.flac")
@@ -365,12 +365,12 @@ class UpdateSongTestCase(TestCase):
             content_type="application/json",
         ).json()
 
+        self.assertEqual(response["title"], "Win, Lose, or Draw")
         self.assertEqual(response["id"], self.win_lose_or_draw["id"])
         self.assertEqual(len(response["artists"]), 0)
         self.assertEqual(len(response["producers"]), 0)
         self.assertEqual(response["album"]["title"], "My Homies")
         self.assertEqual(response["disc"], 1)
-        self.assertEqual(response["title"], "Win, Lose, or Draw")
         self.assertEqual(response["track_number"], 12)
         self.assertEqual(response["length"], 316)
         self.assertEqual(response["path"], "/scarface/my-homies/disc-1/12_win_lose_or_draw.flac")
