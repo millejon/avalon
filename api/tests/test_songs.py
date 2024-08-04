@@ -146,6 +146,43 @@ class CreateSongTestCase(TestCase):
         self.assertEqual(response.json()["title"], "Synthesizer")
         self.assertFalse("writers" in response.json().keys())
 
+    def test_create_song_with_unknown_album(self):
+        response = self.client.post(
+            reverse("api-1.0:create_song"),
+            {
+                "album": self.aquemini["id"] + 100,
+                "title": "Slump",
+                "track_number": 7,
+                "length": 309,
+                "path": "/outkast/aquemini/07_slump.flac",
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            response.json()["error"], f"Album with id = {self.aquemini["id"] + 100} does not exist."
+        )
+
+    def test_create_song_with_unknown_disc(self):
+        response = self.client.post(
+            reverse("api-1.0:create_song"),
+            {
+                "album": self.speakerboxxx_the_love_below["id"],
+                "disc": self.speakerboxxx["id"] + 100,
+                "title": "Last Call",
+                "track_number": 18,
+                "length": 238,
+                "path": "/outkast/speakerboxx-the-love-below/speakerboxx/18_last_call.flac",
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            response.json()["error"], f"Disc with id = {self.speakerboxxx["id"] + 100} does not exist."
+        )
+
     def test_create_duplicate_song(self):
         self.client.post(
             reverse("api-1.0:create_song"),
@@ -251,7 +288,7 @@ class RetrieveSongTestCase(TestCase):
         self.assertTrue(response["url"].endswith(f"/api/v1/songs/{self.hilife["id"]}"))
 
     def test_retrieve_unknown_song(self):
-        song_id = self.hilife["id"] + 1
+        song_id = self.hilife["id"] + 100
         response = self.client.get(
             reverse("api-1.0:retrieve_song", kwargs={"id": song_id})
         )
@@ -402,7 +439,7 @@ class UpdateSongTestCase(TestCase):
         self.assertEqual(response.status_code, 422)
 
     def test_update_unknown_song(self):
-        song_id = self.win_lose_or_draw["id"] + 1
+        song_id = self.win_lose_or_draw["id"] + 100
         response = self.client.put(
             reverse("api-1.0:update_song", kwargs={"id": song_id}),
             {
@@ -474,7 +511,7 @@ class DeleteSongTestCase(TestCase):
         )
 
     def test_delete_unknown_song(self):
-        song_id = self.sippin_on_some_syrup["id"] + 1
+        song_id = self.sippin_on_some_syrup["id"] + 100
         response = self.client.delete(
             reverse("api-1.0:delete_song", kwargs={"id": song_id})
         )

@@ -10,12 +10,16 @@ router = Router()
 @router.post("", response={201: schema.SongOut, 404: schema.Error}, tags=["songs"])
 def create_song(request, data: schema.SongIn):
     data = util.strip_whitespace(data.dict())
-    data["album"] = models.Album.objects.get(pk=data["album"])
-    if data["disc"]:
-        data["disc"] = models.Disc.objects.get(pk=data["disc"])
 
     try:
+        data["album"] = models.Album.objects.get(pk=data["album"])
+        if data["disc"]:
+            data["disc"] = models.Disc.objects.get(pk=data["disc"])
         song = models.Song.objects.create(**data)
+    except models.Album.DoesNotExist:
+        return 404, {"error": f"Album with id = {data["album"]} does not exist."}
+    except models.Disc.DoesNotExist:
+        return 404, {"error": f"Disc with id = {data["disc"]} does not exist."}
     except db.IntegrityError:
         return 404, {"error": "Song already exists in database."}
     else:
