@@ -151,10 +151,10 @@ class CreateSongTestCase(TestCase):
             reverse("api-1.0:create_song"),
             {
                 "album": self.aquemini["id"] + 100,
-                "title": "Slump",
-                "track_number": 7,
-                "length": 309,
-                "path": "/outkast/aquemini/07_slump.flac",
+                "title": "B.O.B.",
+                "track_number": 11,
+                "length": 304,
+                "path": "/outkast/stankonia/11_bob.flac",
             },
             content_type="application/json",
         )
