@@ -230,3 +230,41 @@ class SongOut(Schema):
     def resolve_url(obj, context):
         song_url = reverse("api-1.0:retrieve_song", kwargs={"id": obj.id})
         return context["request"].build_absolute_uri(song_url)
+
+
+class SongSummaryOut(Schema):
+    id: int
+    title: str
+    url: str
+
+    @staticmethod
+    def resolve_url(obj, context):
+        song_url = reverse("api-1.0:retrieve_song", kwargs={"id": obj.id})
+        return context["request"].build_absolute_uri(song_url)
+
+
+class FeatureIn(Schema):
+    artist: int
+    group: bool = False
+    producer: bool = False
+    role: str = ""
+
+
+class FeatureOut(Schema):
+    song: SongSummaryOut
+    artist: ArtistSummaryOut
+    group: bool
+    producer: bool
+    role: Optional[str]
+
+    @staticmethod
+    def resolve_song(obj):
+        return obj.song
+
+    @staticmethod
+    def resolve_artist(obj):
+        return obj.artist
+
+    @staticmethod
+    def resolve_role(obj):
+        return None if not obj.role else obj.role
