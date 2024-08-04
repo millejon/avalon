@@ -62,6 +62,7 @@ class CreateSongTestCase(TestCase):
         ).json()
 
         self.assertEqual(len(response["artists"]), 0)
+        self.assertEqual(len(response["producers"]), 0)
         self.assertEqual(response["album"]["title"], "Aquemini")
         self.assertIsNone(response["disc"])
         self.assertEqual(response["title"], "Rosa Parks")
@@ -102,6 +103,7 @@ class CreateSongTestCase(TestCase):
         ).json()
 
         self.assertEqual(len(response["artists"]), 0)
+        self.assertEqual(len(response["producers"]), 0)
         self.assertEqual(response["album"]["title"], "Speakerboxxx / The Love Below")
         self.assertEqual(response["disc"], 1)
         self.assertEqual(response["title"], "Flip Flop Rock")
@@ -278,6 +280,7 @@ class RetrieveSongTestCase(TestCase):
 
         self.assertEqual(response["id"], self.hilife["id"])
         self.assertEqual(len(response["artists"]), 0)
+        self.assertEqual(len(response["producers"]), 0)
         self.assertEqual(response["album"]["title"], "Ridin' Dirty")
         self.assertIsNone(response["disc"])
         self.assertEqual(response["title"], "Hi-Life")
@@ -364,6 +367,7 @@ class UpdateSongTestCase(TestCase):
 
         self.assertEqual(response["id"], self.win_lose_or_draw["id"])
         self.assertEqual(len(response["artists"]), 0)
+        self.assertEqual(len(response["producers"]), 0)
         self.assertEqual(response["album"]["title"], "My Homies")
         self.assertEqual(response["disc"], 1)
         self.assertEqual(response["title"], "Win, Lose, or Draw")

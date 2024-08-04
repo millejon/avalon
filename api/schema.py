@@ -202,6 +202,7 @@ class SongIn(Schema):
 class SongOut(Schema):
     id: int
     artists: List[ArtistSummaryOut]
+    producers: List[ArtistSummaryOut]
     album: MiniAlbumSummaryOut
     disc: Optional[int]
     title: str
@@ -210,6 +211,16 @@ class SongOut(Schema):
     path: str
     play_count: int
     url: str
+
+    @staticmethod
+    def resolve_artists(obj):
+        song_artists = obj.feature_set.filter(group=False, producer=False)
+        return [feature.artist for feature in song_artists]
+
+    @staticmethod
+    def resolve_producers(obj):
+        producers = obj.feature_set.filter(role="Producer")
+        return [feature.artist for feature in producers]
 
     @staticmethod
     def resolve_disc(obj):
