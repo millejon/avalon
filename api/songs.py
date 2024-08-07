@@ -7,7 +7,7 @@ from api import schema, utilities as util
 router = Router()
 
 
-@router.post("", response={201: schema.SongOut, 404: schema.Error}, tags=["songs"])
+@router.post("", response={201: schema.SongOut, 400: schema.Error, 404: schema.Error}, tags=["songs"])
 def create_song(request, data: schema.SongIn):
     data = util.strip_whitespace(data.dict())
     try:
@@ -20,7 +20,7 @@ def create_song(request, data: schema.SongIn):
     except models.Disc.DoesNotExist:
         return 404, {"error": f"Disc with id = {data["disc"]} does not exist."}
     except db.IntegrityError:
-        return 404, {"error": "Song already exists in database."}
+        return 400, {"error": "Song already exists in database."}
     else:
         return 201, song
 
@@ -73,3 +73,38 @@ def delete_song(request, id: int):
     else:
         song.delete()
         return 204, None
+
+
+@router.post(
+    "{int:id}/artists",
+    response={201: schema.FeatureOut, 400: schema.Error, 404: schema.Error},
+    tags=["songs"],
+)
+def create_song_feature(request, id: int, data: schema.FeatureIn):
+    data = util.strip_whitespace(data.dict())
+    try:
+        data["song"] = models.Song.objects.get(pk=id)
+        data["artist"] = models.Artist.objects.get(pk=data["artist"])
+        feature = models.Feature.objects.create(**data)
+    except models.Song.DoesNotExist:
+        return 404, {"error": f"Song with id = {id} does not exist."}
+    except models.Artist.DoesNotExist:
+        return 404, {"error": f"Artist with id = {data["artist"]} does not exist."}
+    except db.IntegrityError as error:
+        error = str(error.__cause__)
+        if "check constraint" in error:
+            message = ("There is something wrong with the data submitted. "
+                       "Please consult the API documentation and try again.")
+            return 400, {"error": message}
+        elif "unique constraint" in error:
+            if data["producer"]:
+                message = (f"Artist with id = {data["artist"].id} is already "
+                           f"credited as a producer for song with id = {id}.")
+            else:
+                message = (f"Artist with id = {data["artist"].id} is already "
+                           f"credited as a song artist for song with id = {id}.")
+            return 400, {"error": message}
+        else:
+            return 400, {"error": error}
+    else:
+        return 201, feature
