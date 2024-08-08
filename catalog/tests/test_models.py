@@ -192,6 +192,7 @@ class SongModelTestCase(TestCase):
         cls.streets_disciple = models.Album.objects.create(
             title="Street's Disciple",
             release_date=datetime.date(2004, 11, 30),
+            multidisc=True,
         )
         cls.ny_state_of_mind = models.Song.objects.create(
             title="N.Y. State Of Mind",
@@ -386,6 +387,7 @@ class SongProducerModelTestCase(TestCase):
         cls.wutang_forever = models.Album.objects.create(
             title="Wu-Tang Forever",
             release_date=datetime.date(1997, 6, 3),
+            multidisc=True,
         )
         cls.impossible = models.Song.objects.create(
             title="Impossible",
