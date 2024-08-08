@@ -189,17 +189,21 @@ class SongModelTestCase(TestCase):
             title="Illmatic",
             release_date=datetime.date(1994, 4, 19),
         )
+        cls.streets_disciple = models.Album.objects.create(
+            title="Street's Disciple",
+            release_date=datetime.date(2004, 11, 30),
+        )
         cls.ny_state_of_mind = models.Song.objects.create(
-            album=cls.illmatic,
             title="N.Y. State Of Mind",
+            album=cls.illmatic,
             track_number=2,
             length=293,
             path="/nas/illmatic/02_ny_state_of_mind.flac",
         )
 
     def test_song_creation(self):
-        self.assertEqual(self.ny_state_of_mind.album.title, "Illmatic")
         self.assertEqual(self.ny_state_of_mind.title, "N.Y. State Of Mind")
+        self.assertEqual(self.ny_state_of_mind.album.title, "Illmatic")
         self.assertEqual(self.ny_state_of_mind.track_number, 2)
         self.assertEqual(self.ny_state_of_mind.length, 293)
         self.assertEqual(
@@ -228,18 +232,29 @@ class SongModelTestCase(TestCase):
     def test_song_creation_duplicate_song(self):
         with self.assertRaises(IntegrityError):
             models.Song.objects.create(
-                album=self.illmatic,
                 title="New York State Of Mind",
+                album=self.illmatic,
                 track_number=2,
                 length=295,
                 path="/nas/illmatic/02_ny_state_of_mind.flac",
             )
 
+    def test_song_creation_invalid_disc_number(self):
+        with self.assertRaises(IntegrityError):
+            models.Song.objects.create(
+                title="Nazareth Savage",
+                album=self.streets_disciple,
+                disc=0,
+                track_number=3,
+                length=160,
+                path="/nas/streets-disciple/disc-1/03_nazareth_savage.flac",
+            )
+
     def test_song_creation_invalid_track_number(self):
         with self.assertRaises(IntegrityError):
             models.Song.objects.create(
-                album=self.illmatic,
                 title="I'm A Villain",
+                album=self.illmatic,
                 track_number=0,
                 length=270,
                 path="/nas/illmatic/00_im_a_villain.flac",
@@ -248,8 +263,8 @@ class SongModelTestCase(TestCase):
     def test_song_creation_invalid_play_count(self):
         with self.assertRaises(IntegrityError):
             models.Song.objects.create(
-                album=self.illmatic,
                 title="Life's A Bitch",
+                album=self.illmatic,
                 track_number=3,
                 length=210,
                 path="/nas/illmatic/03_lifes_a_bitch.flac",
@@ -257,36 +272,26 @@ class SongModelTestCase(TestCase):
             )
 
     def test_song_ordering(self):
-        streets_disciple = models.Album.objects.create(
-            title="Street's Disciple",
-            release_date=datetime.date(2004, 11, 30),
-        )
-        disc1 = models.Disc.objects.create(
-            album=streets_disciple, title="Disc 1", number=1
-        )
-        disc2 = models.Disc.objects.create(
-            album=streets_disciple, title="Disc 2", number=2
-        )
         models.Song.objects.create(
-            album=self.illmatic,
             title="It Ain't Hard To Tell",
+            album=self.illmatic,
             track_number=10,
             length=202,
             path="/nas/illmatic/10_it_aint_hard_to_tell.flac",
             play_count=3,
         )
         models.Song.objects.create(
-            album=streets_disciple,
-            disc=disc2,
             title="Suicide Bounce",
+            album=self.streets_disciple,
+            disc=2,
             track_number=1,
             length=237,
             path="/nas/streets-disciple/disc-2/01_suicide_bounce.flac",
         )
         models.Song.objects.create(
-            album=streets_disciple,
-            disc=disc1,
             title="Disciple",
+            album=self.streets_disciple,
+            disc=1,
             track_number=6,
             length=180,
             path="/nas/streets-disciple/disc-1/06_disciple.flac",
