@@ -66,14 +66,19 @@ class Disc(models.Model):
 
 
 class Song(models.Model):
-    artists = models.ManyToManyField(Artist, through="Feature")
-    album = models.ForeignKey(Album, on_delete=models.CASCADE)
-    disc = models.ForeignKey(Disc, on_delete=models.SET_NULL, null=True, blank=True)
     title = models.CharField(max_length=600)
+    artists = models.ManyToManyField(
+        Artist, through="SongArtist", related_name="artists"
+    )
+    producers = models.ManyToManyField(
+        Artist, through="SongProducer", related_name="producers"
+    )
+    album = models.ForeignKey(Album, on_delete=models.CASCADE)
+    disc = models.PositiveSmallIntegerField(null=True, blank=True)
     track_number = models.PositiveSmallIntegerField(
         validators=[validators.MinValueValidator(1)]
     )
-    length = models.PositiveIntegerField()
+    length = models.PositiveSmallIntegerField()
     path = models.CharField(max_length=1000, unique=True)
     play_count = models.PositiveIntegerField(default=0)
 
@@ -81,25 +86,23 @@ class Song(models.Model):
         return f"{self.track_number}. {self.title} [{self.album.title}]"
 
     class Meta:
-        ordering = [
-            "-play_count",
-            "-album__release_date",
-            "disc__number",
-            "track_number",
-        ]
+        ordering = ["-play_count", "-album__release_date", "disc", "track_number"]
         constraints = [
             models.CheckConstraint(
-                check=models.Q(track_number__gte=1), name="track_number_greater_than_0"
-            )
+                check=(models.Q(disc__gte=1) | models.Q(disc__isnull=True)),
+                name="disc_number_greater_than_0_or_null",
+            ),
+            models.CheckConstraint(
+                check=(models.Q(track_number__gte=1)),
+                name="track_number_greater_than_0",
+            ),
         ]
 
 
-class Feature(models.Model):
+class SongArtist(models.Model):
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
     group = models.BooleanField(default=False, blank=True)
-    producer = models.BooleanField(default=False, blank=True)
-    role = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
         return f"{self.song.title} - {self.artist.name}"
@@ -107,20 +110,22 @@ class Feature(models.Model):
     class Meta:
         ordering = ["id"]
         constraints = [
-            models.UniqueConstraint(
-                fields=["artist", "song", "producer"], name="unique_credit"
-            ),
-            models.CheckConstraint(
-                check=(~(models.Q(group=True) & models.Q(producer=True))),
-                name="producers_not_included_in_groups",
-            ),
-            models.CheckConstraint(
-                check=(
-                    models.Q(producer=False) & models.Q(role__exact="")
-                    | models.Q(producer=True) & ~models.Q(role__exact="")
-                ),
-                name="only_producers_have_roles",
-            ),
+            models.UniqueConstraint(fields=["song", "artist"], name="unique_vocalist")
+        ]
+
+
+class SongProducer(models.Model):
+    song = models.ForeignKey(Song, on_delete=models.CASCADE)
+    producer = models.ForeignKey(Artist, on_delete=models.CASCADE)
+    role = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.song.title} - {self.producer.name} [{self.role}]"
+
+    class Meta:
+        ordering = ["id"]
+        constraints = [
+            models.UniqueConstraint(fields=["song", "producer"], name="unique_producer")
         ]
 
 
