@@ -378,111 +378,64 @@ class SongArtistModelTestCase(TestCase):
         self.assertEqual(song_artists, expected_artist_order)
 
 
-class FeatureModelTestCase(TestCase):
+class SongProducerModelTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.tha_dogg_pound = models.Artist.objects.create(name="Tha Dogg Pound")
-        cls.kurupt = models.Artist.objects.create(name="Kurupt")
-        cls.daz_dillinger = models.Artist.objects.create(name="Daz Dillinger")
-        cls.fredwreck = models.Artist.objects.create(name="Fredwreck")
-        cls.tha_streetz_iz_a_mutha = models.Album.objects.create(
-            title="Tha Streetz Iz A Mutha", release_date=datetime.date(1999, 11, 16)
+        cls.fourth_disciple = models.Artist.objects.create(name="4th Disciple")
+        cls.rza = models.Artist.objects.create(name="RZA")
+        cls.wutang_forever = models.Album.objects.create(
+            title="Wu-Tang Forever",
+            release_date=datetime.date(1997, 6, 3),
         )
-        cls.who_ride_wit_us = models.Song.objects.create(
-            album=cls.tha_streetz_iz_a_mutha,
-            title="Who Ride Wit Us",
+        cls.impossible = models.Song.objects.create(
+            title="Impossible",
+            album=cls.wutang_forever,
+            disc=2,
             track_number=3,
-            length=261,
-            path="/kurupt/tha-streetz-iz-a-mutha/03_who_ride_wit_us.flac",
+            length=268,
+            path="/wutang-clan/wutang-forever/disc-2/03_impossible.flac",
         )
-        cls.feature = models.Feature.objects.create(
-            song=cls.who_ride_wit_us, artist=cls.tha_dogg_pound
+        cls.song_producer = models.SongProducer.objects.create(
+            song=cls.impossible, producer=cls.rza, role="Co-Producer"
         )
 
-    def test_feature_creation(self):
-        self.assertEqual(self.feature.song.title, "Who Ride Wit Us")
-        self.assertEqual(self.feature.artist.name, "Tha Dogg Pound")
-
-    def test_feature_creation_producer_false_by_default(self):
-        self.assertFalse(self.feature.producer)
-
-    def test_feature_creation_producer_role_empty_string_by_default(self):
-        self.assertEqual(self.feature.role, "")
+    def test_song_producer_creation(self):
+        self.assertEqual(self.song_producer.song.title, "Impossible")
+        self.assertEqual(self.song_producer.producer.name, "RZA")
+        self.assertEqual(self.song_producer.role, "Co-Producer")
 
     def test_role_max_length(self):
-        max_length = self.feature._meta.get_field("role").max_length
+        max_length = self.song_producer._meta.get_field("role").max_length
 
         self.assertEqual(max_length, 100)
 
-    def test_feature_str_method(self):
-        self.assertEqual(str(self.feature), "Who Ride Wit Us - Tha Dogg Pound")
+    def test_song_producer_str_method(self):
+        self.assertEqual(str(self.song_producer), "Impossible - RZA [Co-Producer]")
 
-    def test_nonunique_feature_creation(self):
+    def test_nonunique_song_producer_creation(self):
         with self.assertRaises(IntegrityError):
-            models.Feature.objects.create(
-                artist=self.tha_dogg_pound, song=self.who_ride_wit_us
+            models.SongProducer.objects.create(
+                song=self.impossible, producer=self.rza, role="Producer"
             )
 
-    def test_feature_creation_producer(self):
-        producer_feature = models.Feature.objects.create(
-            artist=self.fredwreck,
-            song=self.who_ride_wit_us,
-            producer=True,
-            role="Producer",
-        )
-
-        self.assertEqual(producer_feature.artist.name, "Fredwreck")
-        self.assertEqual(producer_feature.song.title, "Who Ride Wit Us")
-        self.assertTrue(producer_feature.producer)
-        self.assertEqual(producer_feature.role, "Producer")
-
-    def test_feature_creation_nonunique_producer(self):
-        models.Feature.objects.create(
-            artist=self.fredwreck,
-            song=self.who_ride_wit_us,
-            producer=True,
-            role="Producer",
-        )
-
+    def test_song_producer_creation_without_a_role(self):
         with self.assertRaises(IntegrityError):
-            models.Feature.objects.create(
-                artist=self.fredwreck,
-                song=self.who_ride_wit_us,
-                producer=True,
-                role="Co-Producer",
+            models.SongProducer.objects.create(
+                song=self.impossible, producer=self.fourth_disciple
             )
 
-    def test_feature_creation_producer_without_a_role(self):
-        with self.assertRaises(IntegrityError):
-            models.Feature.objects.create(
-                artist=self.fredwreck,
-                song=self.who_ride_wit_us,
-                producer=True,
-            )
-
-    def test_feature_ordering(self):
-        models.Feature.objects.create(
-            artist=self.kurupt, song=self.who_ride_wit_us, group=True
-        )
-        models.Feature.objects.create(
-            artist=self.fredwreck,
-            song=self.who_ride_wit_us,
-            producer=True,
-            role="Producer",
-        )
-        models.Feature.objects.create(
-            artist=self.daz_dillinger, song=self.who_ride_wit_us, group=True
+    def test_song_producer_ordering(self):
+        models.SongProducer.objects.create(
+            song=self.impossible, producer=self.fourth_disciple, role="Producer"
         )
 
-        features = [str(feature) for feature in models.Feature.objects.all()]
-        expected_feature_order = [
-            "Who Ride Wit Us - Tha Dogg Pound",
-            "Who Ride Wit Us - Kurupt",
-            "Who Ride Wit Us - Fredwreck",
-            "Who Ride Wit Us - Daz Dillinger",
+        producers = [str(producer) for producer in models.SongProducer.objects.all()]
+        expected_producer_order = [
+            "Impossible - RZA [Co-Producer]",
+            "Impossible - 4th Disciple [Producer]",
         ]
 
-        self.assertEqual(features, expected_feature_order)
+        self.assertEqual(producers, expected_producer_order)
 
 
 class PlaylistModelTestCase(TestCase):
