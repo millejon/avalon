@@ -93,7 +93,7 @@ class Song(models.Model):
                 name="disc_number_greater_than_0_or_null",
             ),
             models.CheckConstraint(
-                check=(models.Q(track_number__gte=1)),
+                check=models.Q(track_number__gte=1),
                 name="track_number_greater_than_0",
             ),
         ]
@@ -125,7 +125,10 @@ class SongProducer(models.Model):
     class Meta:
         ordering = ["id"]
         constraints = [
-            models.UniqueConstraint(fields=["song", "producer"], name="unique_producer")
+            models.UniqueConstraint(
+                fields=["song", "producer"], name="unique_producer"
+            ),
+            models.CheckConstraint(check=~models.Q(role=""), name="role_required"),
         ]
 
 
