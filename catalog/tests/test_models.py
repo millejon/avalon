@@ -308,6 +308,76 @@ class SongModelTestCase(TestCase):
         self.assertEqual(songs, expected_song_order)
 
 
+class SongArtistModelTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.tha_dogg_pound = models.Artist.objects.create(name="Tha Dogg Pound")
+        cls.kurupt = models.Artist.objects.create(name="Kurupt")
+        cls.snoop_dogg = models.Artist.objects.create(name="Snoop Dogg")
+        cls.val_young = models.Artist.objects.create(name="Val Young")
+        cls.dogg_food = models.Album.objects.create(
+            title="Dogg Food", release_date=datetime.date(1995, 10, 31)
+        )
+        cls.smooth = models.Song.objects.create(
+            title="Smooth",
+            album=cls.dogg_food,
+            track_number=5,
+            length=275,
+            path="/tha-dogg-pound/dogg-food/05_smooth.flac",
+        )
+        cls.song_artist = models.SongArtist.objects.create(
+            song=cls.smooth, artist=cls.tha_dogg_pound
+        )
+
+    def test_song_artist_creation(self):
+        self.assertEqual(self.song_artist.song.title, "Smooth")
+        self.assertEqual(self.song_artist.artist.name, "Tha Dogg Pound")
+
+    def test_song_artist_creation_group_false_by_default(self):
+        self.assertFalse(self.song_artist.group)
+
+    def test_song_artist_str_method(self):
+        self.assertEqual(str(self.song_artist), "Smooth - Tha Dogg Pound")
+
+    def test_nonunique_song_artist_creation(self):
+        with self.assertRaises(IntegrityError):
+            models.SongArtist.objects.create(
+                song=self.smooth, artist=self.tha_dogg_pound
+            )
+
+    def test_song_artist_creation_group_member(self):
+        group_feature = models.SongArtist.objects.create(
+            song=self.smooth, artist=self.kurupt, group=True
+        )
+
+        self.assertEqual(group_feature.song.title, "Smooth")
+        self.assertEqual(group_feature.artist.name, "Kurupt")
+        self.assertTrue(group_feature.group)
+
+    def test_song_artist_creation_nonunique_group_member(self):
+        with self.assertRaises(IntegrityError):
+            models.SongArtist.objects.create(
+                song=self.smooth, artist=self.tha_dogg_pound, group=True
+            )
+
+    def test_song_artist_ordering(self):
+        models.SongArtist.objects.create(song=self.smooth, artist=self.snoop_dogg)
+        models.SongArtist.objects.create(
+            song=self.smooth, artist=self.kurupt, group=True
+        )
+        models.SongArtist.objects.create(song=self.smooth, artist=self.val_young)
+
+        song_artists = [str(artist) for artist in models.SongArtist.objects.all()]
+        expected_artist_order = [
+            "Smooth - Tha Dogg Pound",
+            "Smooth - Snoop Dogg",
+            "Smooth - Kurupt",
+            "Smooth - Val Young",
+        ]
+
+        self.assertEqual(song_artists, expected_artist_order)
+
+
 class FeatureModelTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -333,9 +403,6 @@ class FeatureModelTestCase(TestCase):
         self.assertEqual(self.feature.song.title, "Who Ride Wit Us")
         self.assertEqual(self.feature.artist.name, "Tha Dogg Pound")
 
-    def test_feature_creation_group_false_by_default(self):
-        self.assertFalse(self.feature.group)
-
     def test_feature_creation_producer_false_by_default(self):
         self.assertFalse(self.feature.producer)
 
@@ -354,38 +421,6 @@ class FeatureModelTestCase(TestCase):
         with self.assertRaises(IntegrityError):
             models.Feature.objects.create(
                 artist=self.tha_dogg_pound, song=self.who_ride_wit_us
-            )
-
-    def test_feature_creation_with_a_role(self):
-        with self.assertRaises(IntegrityError):
-            models.Feature.objects.create(
-                artist=self.tha_dogg_pound,
-                song=self.who_ride_wit_us,
-                role="Vocals",
-            )
-
-    def test_feature_creation_group_member(self):
-        group_feature = models.Feature.objects.create(
-            artist=self.kurupt, song=self.who_ride_wit_us, group=True
-        )
-
-        self.assertEqual(group_feature.song.title, "Who Ride Wit Us")
-        self.assertEqual(group_feature.artist.name, "Kurupt")
-        self.assertTrue(group_feature.group)
-
-    def test_feature_creation_nonunique_group_member(self):
-        with self.assertRaises(IntegrityError):
-            models.Feature.objects.create(
-                artist=self.tha_dogg_pound, song=self.who_ride_wit_us, group=True
-            )
-
-    def test_feature_creation_group_member_with_a_role(self):
-        with self.assertRaises(IntegrityError):
-            models.Feature.objects.create(
-                artist=self.kurupt,
-                song=self.who_ride_wit_us,
-                group=True,
-                role="Lyricist",
             )
 
     def test_feature_creation_producer(self):
@@ -415,16 +450,6 @@ class FeatureModelTestCase(TestCase):
                 song=self.who_ride_wit_us,
                 producer=True,
                 role="Co-Producer",
-            )
-
-    def test_feature_creation_producer_is_a_group_member(self):
-        with self.assertRaises(IntegrityError):
-            models.Feature.objects.create(
-                artist=self.fredwreck,
-                song=self.who_ride_wit_us,
-                group=True,
-                producer=True,
-                role="Producer",
             )
 
     def test_feature_creation_producer_without_a_role(self):
