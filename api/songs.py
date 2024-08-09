@@ -29,11 +29,7 @@ def create_song(request, data: schema.SongIn):
         return 201, song
 
 
-@router.get(
-    "{int:id}",
-    response={200: schema.SongOut, 404: schema.Error},
-    tags=["songs"],
-)
+@router.get("{int:id}", response={200: schema.SongOut, 404: schema.Error}, tags=["songs"])
 def retrieve_song(request, id: int):
     try:
         song = models.Song.objects.get(pk=id)
@@ -43,11 +39,7 @@ def retrieve_song(request, id: int):
         return 200, song
 
 
-@router.put(
-    "{int:id}",
-    response={200: schema.SongOut, 404: schema.Error},
-    tags=["songs"],
-)
+@router.put("{int:id}", response={200: schema.SongOut, 404: schema.Error}, tags=["songs"])
 def update_song(request, id: int, data: schema.SongIn):
     data = util.strip_whitespace(data.dict())
     try:

@@ -252,8 +252,8 @@ class RetrieveSongTestCase(TestCase):
         cls.hilife = cls.client.post(
             reverse("api-1.0:create_song"),
             {
-                "album": cls.ridin_dirty["id"],
                 "title": "Hi-Life",
+                "album": cls.ridin_dirty["id"],
                 "track_number": 10,
                 "length": 325,
                 "path": "/ugk/ridin-dirty/10_hilife.flac",
@@ -273,8 +273,8 @@ class RetrieveSongTestCase(TestCase):
             reverse("api-1.0:retrieve_song", kwargs={"id": self.hilife["id"]})
         ).json()
 
-        self.assertEqual(response["title"], "Hi-Life")
         self.assertEqual(response["id"], self.hilife["id"])
+        self.assertEqual(response["title"], "Hi-Life")
         self.assertEqual(len(response["artists"]), 0)
         self.assertEqual(len(response["producers"]), 0)
         self.assertEqual(response["album"]["title"], "Ridin' Dirty")
