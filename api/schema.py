@@ -191,9 +191,9 @@ class DiscOut(Schema):
 
 
 class SongIn(Schema):
+    title: str
     album: int
     disc: int = None
-    title: str
     track_number: int
     length: int
     path: str
@@ -212,19 +212,16 @@ class SongOut(Schema):
     play_count: int
     url: str
 
-    @staticmethod
-    def resolve_artists(obj):
-        song_artists = obj.feature_set.filter(group=False, producer=False)
-        return [feature.artist for feature in song_artists]
+    # TODO: Check these methods after finishing with re-working Feature model.
+    # @staticmethod
+    # def resolve_artists(obj):
+    #     artists = obj.artists.filter(group=False)
+    #     return [feature.artist for feature in artists]
 
-    @staticmethod
-    def resolve_producers(obj):
-        producers = obj.feature_set.filter(role="Producer")
-        return [feature.artist for feature in producers]
-
-    @staticmethod
-    def resolve_disc(obj):
-        return obj.disc.number if obj.disc else None
+    # @staticmethod
+    # def resolve_producers(obj):
+    #     producers = obj.producers.filter(role="Producer")
+    #     return [feature.producer for feature in producers]
 
     @staticmethod
     def resolve_url(obj, context):
