@@ -23,22 +23,13 @@ class CreateSongTestCase(TestCase):
             },
             content_type="application/json",
         ).json()
-        cls.speakerboxxx = cls.client.post(
-            reverse("api-1.0:create_disc"),
-            {
-                "album": cls.speakerboxxx_the_love_below["id"],
-                "title": "Speakerboxxx",
-                "number": 1,
-            },
-            content_type="application/json",
-        ).json()
 
     def test_create_valid_song_status_code(self):
         response = self.client.post(
             reverse("api-1.0:create_song"),
             {
-                "album": self.aquemini["id"],
                 "title": "Rosa Parks",
+                "album": self.aquemini["id"],
                 "track_number": 3,
                 "length": 324,
                 "path": "/outkast/aquemini/03_rosa_parks.flac",
@@ -52,8 +43,8 @@ class CreateSongTestCase(TestCase):
         response = self.client.post(
             reverse("api-1.0:create_song"),
             {
-                "album": self.aquemini["id"],
                 "title": "Rosa Parks",
+                "album": self.aquemini["id"],
                 "track_number": 3,
                 "length": 324,
                 "path": "/outkast/aquemini/03_rosa_parks.flac",
@@ -76,9 +67,9 @@ class CreateSongTestCase(TestCase):
         response = self.client.post(
             reverse("api-1.0:create_song"),
             {
-                "album": self.speakerboxxx_the_love_below["id"],
-                "disc": self.speakerboxxx["id"],
                 "title": "Flip Flop Rock",
+                "album": self.speakerboxxx_the_love_below["id"],
+                "disc": 1,
                 "track_number": 14,
                 "length": 276,
                 "path": "/outkast/speakerboxx-the-love-below/speakerboxx/11_flip_flop_rock.flac",
@@ -92,9 +83,9 @@ class CreateSongTestCase(TestCase):
         response = self.client.post(
             reverse("api-1.0:create_song"),
             {
-                "album": self.speakerboxxx_the_love_below["id"],
-                "disc": self.speakerboxxx["id"],
                 "title": "Flip Flop Rock",
+                "album": self.speakerboxxx_the_love_below["id"],
+                "disc": 1,
                 "track_number": 14,
                 "length": 276,
                 "path": "/outkast/speakerboxx-the-love-below/speakerboxx/11_flip_flop_rock.flac",
@@ -117,8 +108,8 @@ class CreateSongTestCase(TestCase):
         response = self.client.post(
             reverse("api-1.0:create_song"),
             {
-                "album": self.aquemini["id"],
                 "title": "       Skew It On The Bar-B     ",
+                "album": self.aquemini["id"],
                 "track_number": 4,
                 "length": 195,
                 "path": "/outkast/aquemini/04_skew_it_on_the_barb.flac       ",
@@ -134,8 +125,8 @@ class CreateSongTestCase(TestCase):
         response = self.client.post(
             reverse("api-1.0:create_song"),
             {
-                "album": self.aquemini["id"],
                 "title": "Synthesizer",
+                "album": self.aquemini["id"],
                 "track_number": 6,
                 "length": 311,
                 "path": "/outkast/aquemini/06_synthesizer.flac",
@@ -152,8 +143,8 @@ class CreateSongTestCase(TestCase):
         response = self.client.post(
             reverse("api-1.0:create_song"),
             {
-                "album": self.aquemini["id"] + 100,
                 "title": "B.O.B.",
+                "album": self.aquemini["id"] + 100,
                 "track_number": 11,
                 "length": 304,
                 "path": "/outkast/stankonia/11_bob.flac",
@@ -166,13 +157,13 @@ class CreateSongTestCase(TestCase):
             response.json()["error"], f"Album with id = {self.aquemini["id"] + 100} does not exist."
         )
 
-    def test_create_song_with_unknown_disc(self):
+    def test_create_song_with_invalid_disc_number(self):
         response = self.client.post(
             reverse("api-1.0:create_song"),
             {
-                "album": self.speakerboxxx_the_love_below["id"],
-                "disc": self.speakerboxxx["id"] + 100,
                 "title": "Last Call",
+                "album": self.speakerboxxx_the_love_below["id"],
+                "disc": -1,
                 "track_number": 18,
                 "length": 238,
                 "path": "/outkast/speakerboxx-the-love-below/speakerboxx/18_last_call.flac",
@@ -180,35 +171,39 @@ class CreateSongTestCase(TestCase):
             content_type="application/json",
         )
 
-        self.assertEqual(response.status_code, 404)
-        self.assertEqual(
-            response.json()["error"], f"Disc with id = {self.speakerboxxx["id"] + 100} does not exist."
-        )
+        self.assertEqual(response.status_code, 400)
+        message = ("There is something wrong with the data submitted. Please "
+                   "consult the API documentation and try again.")
+        self.assertEqual(response.json()["error"], message)
 
-    def test_create_duplicate_song(self):
-        self.client.post(
-            reverse("api-1.0:create_song"),
-            {
-                "album": self.aquemini["id"],
-                "title": "Da Art Of Storytellin', Pt. 2",
-                "track_number": 10,
-                "length": 168,
-                "path": "/outkast/aquemini/10_da_art_of_storytellin_pt_2.flac",
-            },
-            content_type="application/json",
-        )
-
+    def test_create_song_with_invalid_track_number(self):
         response = self.client.post(
             reverse("api-1.0:create_song"),
             {
+                "title": "Da Art Of Storytellin', Pt. 1",
                 "album": self.aquemini["id"],
-                "title": "Da Art Of Storytellin', Pt. 2",
-                "track_number": 10,
-                "length": 168,
-                "path": "/outkast/aquemini/10_da_art_of_storytellin_pt_2.flac",
+                "track_number": -9,
+                "length": 223,
+                "path": "/outkast/aquemini/09_da_art_of_storytellin_pt_1.flac",
             },
             content_type="application/json",
         )
+
+        self.assertEqual(response.status_code, 400)
+        message = ("There is something wrong with the data submitted. Please "
+                   "consult the API documentation and try again.")
+        self.assertEqual(response.json()["error"], message)
+
+    def test_create_duplicate_song(self):
+        song_metadata = {
+            "title": "Da Art Of Storytellin', Pt. 2",
+            "album": self.aquemini["id"],
+            "track_number": 10,
+            "length": 168,
+            "path": "/outkast/aquemini/10_da_art_of_storytellin_pt_2.flac",
+        }
+        self.client.post(reverse("api-1.0:create_song"), song_metadata, content_type="application/json")
+        response = self.client.post(reverse("api-1.0:create_song"), song_metadata, content_type="application/json")
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()["error"], "Song already exists in database.")
@@ -217,8 +212,8 @@ class CreateSongTestCase(TestCase):
         response = self.client.post(
             reverse("api-1.0:create_song"),
             {
-                "album": self.aquemini["id"],
                 "title": "Mamacita",
+                "album": self.aquemini["id"],
                 "track_number": 11,
             },
             content_type="application/json",
@@ -230,8 +225,8 @@ class CreateSongTestCase(TestCase):
         response = self.client.post(
             reverse("api-1.0:create_song"),
             {
-                "album": "Aquemini",
                 "title": "Chonkyfire",
+                "album": "Aquemini",
                 "track_number": 16,
                 "length": 370,
                 "path": "/outkast/aquemini/16_chonkyfire.flac",
@@ -585,11 +580,6 @@ class CreateSongFeatureTestCase(TestCase):
             {"name": "Organized Noize"},
             content_type="application/json",
         ).json()
-        cls.mr_dj = cls.client.post(
-            reverse("api-1.0:create_artist"),
-            {"name": "Mr. DJ"},
-            content_type="application/json",
-        ).json()
         cls.soul_food = cls.client.post(
             reverse("api-1.0:create_album"),
             {
@@ -755,7 +745,6 @@ class CreateSongFeatureTestCase(TestCase):
         )
 
         self.assertEqual(response.status_code, 400)
-
         message = ("There is something wrong with the data submitted. Please "
                    "consult the API documentation and try again.")
         self.assertEqual(response.json()["error"], message)
@@ -772,7 +761,6 @@ class CreateSongFeatureTestCase(TestCase):
         )
 
         self.assertEqual(response.status_code, 400)
-
         message = ("There is something wrong with the data submitted. Please "
                    "consult the API documentation and try again.")
         self.assertEqual(response.json()["error"], message)
@@ -795,7 +783,6 @@ class CreateSongFeatureTestCase(TestCase):
         )
 
         self.assertEqual(response.status_code, 400)
-
         message = (f"Artist with id = {self.goodie_mob["id"]} is already "
                    f"credited as a song artist for song with id = {song_id}.")
         self.assertEqual(response.json()["error"], message)
@@ -823,7 +810,6 @@ class CreateSongFeatureTestCase(TestCase):
         )
 
         self.assertEqual(response.status_code, 400)
-
         message = (f"Artist with id = {self.organized_noize["id"]} is already "
                    f"credited as a producer for song with id = {song_id}.")
         self.assertEqual(response.json()["error"], message)

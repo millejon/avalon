@@ -1,4 +1,4 @@
-from django import db
+from django.db import IntegrityError
 from ninja import Router
 
 from catalog import models
@@ -12,15 +12,19 @@ def create_song(request, data: schema.SongIn):
     data = util.strip_whitespace(data.dict())
     try:
         data["album"] = models.Album.objects.get(pk=data["album"])
-        if data["disc"]:
-            data["disc"] = models.Disc.objects.get(pk=data["disc"])
         song = models.Song.objects.create(**data)
     except models.Album.DoesNotExist:
         return 404, {"error": f"Album with id = {data["album"]} does not exist."}
-    except models.Disc.DoesNotExist:
-        return 404, {"error": f"Disc with id = {data["disc"]} does not exist."}
-    except db.IntegrityError:
-        return 400, {"error": "Song already exists in database."}
+    except IntegrityError as error:
+        error = str(error.__cause__)
+        if "check constraint" in error:
+            message = ("There is something wrong with the data submitted. "
+                       "Please consult the API documentation and try again.")
+            return 400, {"error": message}
+        elif "unique constraint" in error:
+            return 400, {"error": "Song already exists in database."}
+        else:
+            return 400, {"error": error}
     else:
         return 201, song
 
@@ -90,7 +94,7 @@ def create_song_feature(request, id: int, data: schema.FeatureIn):
         return 404, {"error": f"Song with id = {id} does not exist."}
     except models.Artist.DoesNotExist:
         return 404, {"error": f"Artist with id = {data["artist"]} does not exist."}
-    except db.IntegrityError as error:
+    except IntegrityError as error:
         error = str(error.__cause__)
         if "check constraint" in error:
             message = ("There is something wrong with the data submitted. "
