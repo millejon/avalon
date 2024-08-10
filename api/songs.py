@@ -92,3 +92,30 @@ def create_song_artist(request, id: int, data: schema.SongArtistIn):
             return 400, {"error": error}
     else:
         return 201, song_artist
+
+
+@router.post(
+    "{int:id}/producers",
+    response={201: schema.SongProducerOut, 400: schema.Error, 404: schema.Error},
+    tags=["songs"],
+)
+def create_song_producer(request, id: int, data: schema.SongProducerIn):
+    data = util.strip_whitespace(data.dict())
+    try:
+        data["song"] = models.Song.objects.get(pk=id)
+        data["producer"] = models.Artist.objects.get(pk=data["producer"])
+        song_producer = models.SongProducer.objects.create(**data)
+    except models.Song.DoesNotExist:
+        return 404, {"error": f"Song with id = {id} does not exist."}
+    except models.Artist.DoesNotExist:
+        return 404, {"error": f"Artist with id = {data["producer"]} does not exist."}
+    except IntegrityError as error:
+        error = str(error.__cause__)
+        if "unique constraint" in error:
+            message = (f"Artist with id = {data["producer"].id} is already "
+                       f"credited as a producer for song with id = {id}.")
+            return 400, {"error": message}
+        else:
+            return 400, {"error": error}
+    else:
+        return 201, song_producer

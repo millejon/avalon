@@ -631,14 +631,14 @@ class CreateSongArtistTestCase(TestCase):
             reverse("api-1.0:create_song_artist", kwargs={"id": self.dirty_south["id"]}),
             {
                 "artist": self.goodie_mob["id"],
-                "hub": "dungeon_family",
+                "order": 1,
             },
             content_type="application/json",
         )
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()["artist"]["name"], "Goodie Mob")
-        self.assertFalse("hub" in response.json().keys())
+        self.assertFalse("order" in response.json().keys())
 
     def test_create_song_artist_with_unknown_song(self):
         response = self.client.post(
@@ -675,7 +675,7 @@ class CreateSongArtistTestCase(TestCase):
             reverse("api-1.0:create_song_artist", kwargs={"id": self.dirty_south["id"]}),
             {
                 "artist": self.goodie_mob["id"],
-                "group": True
+                "group": True,
             },
             content_type="application/json",
         )
@@ -699,6 +699,170 @@ class CreateSongArtistTestCase(TestCase):
             reverse("api-1.0:create_song_artist", kwargs={"id": self.dirty_south["id"]}),
             {
                 "artist": "Goodie Mob",
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 422)
+
+
+class CreateSongProducerTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = Client()
+        cls.ti = cls.client.post(
+            reverse("api-1.0:create_artist"),
+            {"name": "T.I."},
+            content_type="application/json",
+        ).json()
+        cls.dj_toomp = cls.client.post(
+            reverse("api-1.0:create_artist"),
+            {"name": "DJ Toomp"},
+            content_type="application/json",
+        ).json()
+        cls.trap_muzik = cls.client.post(
+            reverse("api-1.0:create_album"),
+            {
+                "title": "Trap Muzik",
+                "release_date": "2003-08-19",
+            },
+            content_type="application/json",
+        ).json()
+        cls.be_easy = cls.client.post(
+            reverse("api-1.0:create_song"),
+            {
+                "title": "Be Easy",
+                "album": cls.trap_muzik["id"],
+                "track_number": 3,
+                "length": 198,
+                "path": "/ti/trap-muzik/03_be_easy.flac",
+            },
+            content_type="application/json",
+        ).json()
+
+    def test_create_valid_song_producer_status_code(self):
+        response = self.client.post(
+            reverse("api-1.0:create_song_producer", kwargs={"id": self.be_easy["id"]}),
+            {
+                "producer": self.dj_toomp["id"],
+                "role": "Producer",
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+
+    def test_create_valid_song_producer_json_response(self):
+        response = self.client.post(
+            reverse("api-1.0:create_song_producer", kwargs={"id": self.be_easy["id"]}),
+            {
+                "producer": self.dj_toomp["id"],
+                "role": "Producer",
+            },
+            content_type="application/json",
+        ).json()
+
+        self.assertEqual(response["song"]["title"], "Be Easy")
+        self.assertEqual(response["producer"]["name"], "DJ Toomp")
+        self.assertEqual(response["role"], "Producer")
+
+    def test_create_song_producer_with_extraneous_whitespace(self):
+        response = self.client.post(
+            reverse("api-1.0:create_song_producer", kwargs={"id": self.be_easy["id"]}),
+            {
+                "producer": self.dj_toomp["id"],
+                "role": "           Producer",
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()["role"], "Producer")
+
+    def test_create_song_producer_with_extraneous_fields(self):
+        response = self.client.post(
+            reverse("api-1.0:create_song_producer", kwargs={"id": self.be_easy["id"]}),
+            {
+                "producer": self.dj_toomp["id"],
+                "role": "Producer",
+                "order": 1,
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()["producer"]["name"], "DJ Toomp")
+        self.assertFalse("order" in response.json().keys())
+
+    def test_create_song_producer_with_unknown_song(self):
+        response = self.client.post(
+            reverse("api-1.0:create_song_producer", kwargs={"id": self.be_easy["id"] + 100}),
+            {
+                "producer": self.dj_toomp["id"],
+                "role": "Producer",
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            response.json()["error"], f"Song with id = {self.be_easy["id"] + 100} does not exist."
+        )
+
+    def test_create_song_producer_with_unknown_artist(self):
+        response = self.client.post(
+            reverse("api-1.0:create_song_producer", kwargs={"id": self.be_easy["id"]}),
+            {
+                "producer": self.dj_toomp["id"] + 100,
+                "role": "Producer",
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            response.json()["error"], f"Artist with id = {self.dj_toomp["id"] + 100} does not exist."
+        )
+
+    def test_create_duplicate_producer(self):
+        self.client.post(
+            reverse("api-1.0:create_song_producer", kwargs={"id": self.be_easy["id"]}),
+            {
+                "producer": self.dj_toomp["id"],
+                "role": "Producer",
+            },
+            content_type="application/json",
+        )
+
+        response = self.client.post(
+            reverse("api-1.0:create_song_producer", kwargs={"id": self.be_easy["id"]}),
+            {
+                "producer": self.dj_toomp["id"],
+                "role": "Co-Producer",
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        message = (f"Artist with id = {self.dj_toomp["id"]} is already credited "
+                   f"as a producer for song with id = {self.be_easy["id"]}.")
+        self.assertEqual(response.json()["error"], message)
+
+    def test_create_song_producer_with_missing_required_fields(self):
+        response = self.client.post(
+            reverse("api-1.0:create_song_producer", kwargs={"id": self.be_easy["id"]}),
+            {"producer": self.dj_toomp["id"]},
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 422)
+
+    def test_create_song_producer_with_invalid_values(self):
+        response = self.client.post(
+            reverse("api-1.0:create_song_producer", kwargs={"id": self.be_easy["id"]}),
+            {
+                "producer": "DJ Toomp",
+                "role": "Producer",
             },
             content_type="application/json",
         )
