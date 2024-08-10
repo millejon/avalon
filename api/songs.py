@@ -45,14 +45,10 @@ def update_song(request, id: int, data: schema.SongIn):
     try:
         song = models.Song.objects.get(pk=id)
         data["album"] = models.Album.objects.get(pk=data["album"])
-        if data["disc"]:
-            data["disc"] = models.Disc.objects.get(pk=data["disc"])
     except models.Song.DoesNotExist:
         return 404, {"error": f"Song with id = {id} does not exist."}
     except models.Album.DoesNotExist:
         return 404, {"error": f"Album with id = {data["album"]} does not exist."}
-    except models.Disc.DoesNotExist:
-        return 404, {"error": f"Disc with id = {data["disc"]} does not exist."}
     else:
         for attr, value in data.items():
             setattr(song, attr, value)
