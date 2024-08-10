@@ -493,8 +493,8 @@ class DeleteSongTestCase(TestCase):
         cls.sippin_on_some_syrup = cls.client.post(
             reverse("api-1.0:create_song"),
             {
-                "album": cls.when_the_smoke_clears["id"],
                 "title": "Sippin' On Some Syrup",
+                "album": cls.when_the_smoke_clears["id"],
                 "track_number": 3,
                 "length": 264,
                 "path": "/three-6-mafia/when-the-smoke-clears-sixty-6-sixty-1/03_sippin_on_some_syrup.flac",
@@ -516,7 +516,7 @@ class DeleteSongTestCase(TestCase):
 
         self.assertFalse(response.content)
 
-    def test_delete_song_successful(self):
+    def test_deleted_song_no_longer_exists(self):
         self.client.delete(
             reverse("api-1.0:delete_song", kwargs={"id": self.sippin_on_some_syrup["id"]})
         )
