@@ -541,7 +541,7 @@ class DeleteSongTestCase(TestCase):
         )
 
 
-class CreateSongFeatureTestCase(TestCase):
+class CreateSongArtistTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.client = Client()
@@ -550,14 +550,14 @@ class CreateSongFeatureTestCase(TestCase):
             {"name": "Goodie Mob"},
             content_type="application/json",
         ).json()
+        cls.big_boi = cls.client.post(
+            reverse("api-1.0:create_artist"),
+            {"name": "Big Boi"},
+            content_type="application/json",
+        ).json()
         cls.big_gipp = cls.client.post(
             reverse("api-1.0:create_artist"),
             {"name": "Big Gipp"},
-            content_type="application/json",
-        ).json()
-        cls.organized_noize = cls.client.post(
-            reverse("api-1.0:create_artist"),
-            {"name": "Organized Noize"},
             content_type="application/json",
         ).json()
         cls.soul_food = cls.client.post(
@@ -568,43 +568,41 @@ class CreateSongFeatureTestCase(TestCase):
             },
             content_type="application/json",
         ).json()
-        cls.goodie_bag = cls.client.post(
+        cls.dirty_south = cls.client.post(
             reverse("api-1.0:create_song"),
             {
+                "title": "Dirty South",
                 "album": cls.soul_food["id"],
-                "title": "Goodie Bag",
-                "track_number": 12,
-                "length": 265,
-                "path": "/goodie-mob/soul-food/12_goodie_bag.flac",
+                "track_number": 4,
+                "length": 214,
+                "path": "/goodie-mob/soul-food/04_dirty_south.flac",
             },
             content_type="application/json",
         ).json()
 
-    def test_create_valid_artist_song_feature_status_code(self):
+    def test_create_valid_song_artist_status_code(self):
         response = self.client.post(
-            reverse("api-1.0:create_song_feature", kwargs={"id": self.goodie_bag["id"]}),
+            reverse("api-1.0:create_song_artist", kwargs={"id": self.dirty_south["id"]}),
             {"artist": self.goodie_mob["id"]},
             content_type="application/json",
         )
 
         self.assertEqual(response.status_code, 201)
 
-    def test_create_valid_artist_song_feature_json_response(self):
+    def test_create_valid_song_artist_json_response(self):
         response = self.client.post(
-            reverse("api-1.0:create_song_feature", kwargs={"id": self.goodie_bag["id"]}),
+            reverse("api-1.0:create_song_artist", kwargs={"id": self.dirty_south["id"]}),
             {"artist": self.goodie_mob["id"]},
             content_type="application/json",
         ).json()
 
-        self.assertEqual(response["song"]["title"], "Goodie Bag")
+        self.assertEqual(response["song"]["title"], "Dirty South")
         self.assertEqual(response["artist"]["name"], "Goodie Mob")
         self.assertFalse(response["group"])
-        self.assertFalse(response["producer"])
-        self.assertIsNone(response["role"])
 
-    def test_create_valid_group_song_feature_status_code(self):
+    def test_create_valid_group_artist_status_code(self):
         response = self.client.post(
-            reverse("api-1.0:create_song_feature", kwargs={"id": self.goodie_bag["id"]}),
+            reverse("api-1.0:create_song_artist", kwargs={"id": self.dirty_south["id"]}),
             {
                 "artist": self.big_gipp["id"],
                 "group": True,
@@ -614,9 +612,9 @@ class CreateSongFeatureTestCase(TestCase):
 
         self.assertEqual(response.status_code, 201)
 
-    def test_create_valid_group_song_feature_json_response(self):
+    def test_create_valid_group_artist_json_response(self):
         response = self.client.post(
-            reverse("api-1.0:create_song_feature", kwargs={"id": self.goodie_bag["id"]}),
+            reverse("api-1.0:create_song_artist", kwargs={"id": self.dirty_south["id"]}),
             {
                 "artist": self.big_gipp["id"],
                 "group": True,
@@ -624,62 +622,16 @@ class CreateSongFeatureTestCase(TestCase):
             content_type="application/json",
         ).json()
 
-        self.assertEqual(response["song"]["title"], "Goodie Bag")
+        self.assertEqual(response["song"]["title"], "Dirty South")
         self.assertEqual(response["artist"]["name"], "Big Gipp")
         self.assertTrue(response["group"])
-        self.assertFalse(response["producer"])
-        self.assertIsNone(response["role"])
 
-    def test_create_valid_producer_song_feature_status_code(self):
+    def test_create_song_artist_with_extraneous_fields(self):
         response = self.client.post(
-            reverse("api-1.0:create_song_feature", kwargs={"id": self.goodie_bag["id"]}),
-            {
-                "artist": self.organized_noize["id"],
-                "producer": True,
-                "role": "Producer"
-            },
-            content_type="application/json",
-        )
-
-        self.assertEqual(response.status_code, 201)
-
-    def test_create_valid_producer_song_feature_json_response(self):
-        response = self.client.post(
-            reverse("api-1.0:create_song_feature", kwargs={"id": self.goodie_bag["id"]}),
-            {
-                "artist": self.organized_noize["id"],
-                "producer": True,
-                "role": "Producer"
-            },
-            content_type="application/json",
-        ).json()
-
-        self.assertEqual(response["song"]["title"], "Goodie Bag")
-        self.assertEqual(response["artist"]["name"], "Organized Noize")
-        self.assertFalse(response["group"])
-        self.assertTrue(response["producer"])
-        self.assertEqual(response["role"], "Producer")
-
-    def test_create_song_feature_with_extraneous_whitespace(self):
-        response = self.client.post(
-            reverse("api-1.0:create_song_feature", kwargs={"id": self.goodie_bag["id"]}),
-            {
-                "artist": self.organized_noize["id"],
-                "producer": True,
-                "role": "           Producer"
-            },
-            content_type="application/json",
-        )
-
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.json()["role"], "Producer")
-
-    def test_create_song_feature_with_extraneous_fields(self):
-        response = self.client.post(
-            reverse("api-1.0:create_song_feature", kwargs={"id": self.goodie_bag["id"]}),
+            reverse("api-1.0:create_song_artist", kwargs={"id": self.dirty_south["id"]}),
             {
                 "artist": self.goodie_mob["id"],
-                "hub": "dungeon_family"
+                "hub": "dungeon_family",
             },
             content_type="application/json",
         )
@@ -688,21 +640,21 @@ class CreateSongFeatureTestCase(TestCase):
         self.assertEqual(response.json()["artist"]["name"], "Goodie Mob")
         self.assertFalse("hub" in response.json().keys())
 
-    def test_create_song_feature_with_unknown_song(self):
+    def test_create_song_artist_with_unknown_song(self):
         response = self.client.post(
-            reverse("api-1.0:create_song_feature", kwargs={"id": self.goodie_bag["id"] + 100}),
+            reverse("api-1.0:create_song_artist", kwargs={"id": self.dirty_south["id"] + 100}),
             {"artist": self.goodie_mob["id"]},
             content_type="application/json",
         )
 
         self.assertEqual(response.status_code, 404)
         self.assertEqual(
-            response.json()["error"], f"Song with id = {self.goodie_bag["id"] + 100} does not exist."
+            response.json()["error"], f"Song with id = {self.dirty_south["id"] + 100} does not exist."
         )
 
-    def test_create_song_feature_with_unknown_artist(self):
+    def test_create_song_artist_with_unknown_artist(self):
         response = self.client.post(
-            reverse("api-1.0:create_song_feature", kwargs={"id": self.goodie_bag["id"]}),
+            reverse("api-1.0:create_song_artist", kwargs={"id": self.dirty_south["id"]}),
             {"artist": self.goodie_mob["id"] + 100},
             content_type="application/json",
         )
@@ -712,49 +664,15 @@ class CreateSongFeatureTestCase(TestCase):
             response.json()["error"], f"Artist with id = {self.goodie_mob["id"] + 100} does not exist."
         )
 
-    def test_create_producer_song_feature_group_member(self):
-        response = self.client.post(
-            reverse("api-1.0:create_song_feature", kwargs={"id": self.goodie_bag["id"]}),
-            {
-                "artist": self.organized_noize["id"],
-                "group": True,
-                "producer": True,
-                "role": "Producer"
-            },
-            content_type="application/json",
-        )
-
-        self.assertEqual(response.status_code, 400)
-        message = ("There is something wrong with the data submitted. Please "
-                   "consult the API documentation and try again.")
-        self.assertEqual(response.json()["error"], message)
-
-    def test_create_group_song_feature_with_role(self):
-        response = self.client.post(
-            reverse("api-1.0:create_song_feature", kwargs={"id": self.goodie_bag["id"]}),
-            {
-                "artist": self.big_gipp["id"],
-                "group": True,
-                "role": "Vocalist",
-            },
-            content_type="application/json",
-        )
-
-        self.assertEqual(response.status_code, 400)
-        message = ("There is something wrong with the data submitted. Please "
-                   "consult the API documentation and try again.")
-        self.assertEqual(response.json()["error"], message)
-
-    def test_create_duplicate_artist_song_feature(self):
-        song_id = self.goodie_bag["id"]
+    def test_create_duplicate_song_artist(self):
         self.client.post(
-            reverse("api-1.0:create_song_feature", kwargs={"id": song_id}),
+            reverse("api-1.0:create_song_artist", kwargs={"id": self.dirty_south["id"]}),
             {"artist": self.goodie_mob["id"]},
             content_type="application/json",
         )
 
         response = self.client.post(
-            reverse("api-1.0:create_song_feature", kwargs={"id": song_id}),
+            reverse("api-1.0:create_song_artist", kwargs={"id": self.dirty_south["id"]}),
             {
                 "artist": self.goodie_mob["id"],
                 "group": True
@@ -763,49 +681,22 @@ class CreateSongFeatureTestCase(TestCase):
         )
 
         self.assertEqual(response.status_code, 400)
-        message = (f"Artist with id = {self.goodie_mob["id"]} is already "
-                   f"credited as a song artist for song with id = {song_id}.")
+        message = (f"Artist with id = {self.goodie_mob["id"]} is already credited "
+                   f"as an artist for song with id = {self.dirty_south["id"]}.")
         self.assertEqual(response.json()["error"], message)
 
-    def test_create_duplicate_producer_song_feature(self):
-        song_id = self.goodie_bag["id"]
-        self.client.post(
-            reverse("api-1.0:create_song_feature", kwargs={"id": self.goodie_bag["id"]}),
-            {
-                "artist": self.organized_noize["id"],
-                "producer": True,
-                "role": "Producer"
-            },
-            content_type="application/json",
-        )
-
+    def test_create_song_artist_with_missing_required_fields(self):
         response = self.client.post(
-            reverse("api-1.0:create_song_feature", kwargs={"id": self.goodie_bag["id"]}),
-            {
-                "artist": self.organized_noize["id"],
-                "producer": True,
-                "role": "Additional Producer"
-            },
-            content_type="application/json",
-        )
-
-        self.assertEqual(response.status_code, 400)
-        message = (f"Artist with id = {self.organized_noize["id"]} is already "
-                   f"credited as a producer for song with id = {song_id}.")
-        self.assertEqual(response.json()["error"], message)
-
-    def test_create_song_feature_with_missing_required_fields(self):
-        response = self.client.post(
-            reverse("api-1.0:create_song_feature", kwargs={"id": self.goodie_bag["id"]}),
+            reverse("api-1.0:create_song_artist", kwargs={"id": self.dirty_south["id"]}),
             {},
             content_type="application/json",
         )
 
         self.assertEqual(response.status_code, 422)
 
-    def test_create_song_feature_with_invalid_values(self):
+    def test_create_song_artist_with_invalid_values(self):
         response = self.client.post(
-            reverse("api-1.0:create_song_feature", kwargs={"id": self.goodie_bag["id"]}),
+            reverse("api-1.0:create_song_artist", kwargs={"id": self.dirty_south["id"]}),
             {
                 "artist": "Goodie Mob",
             },

@@ -69,34 +69,26 @@ def delete_song(request, id: int):
 
 @router.post(
     "{int:id}/artists",
-    response={201: schema.FeatureOut, 400: schema.Error, 404: schema.Error},
+    response={201: schema.SongArtistOut, 400: schema.Error, 404: schema.Error},
     tags=["songs"],
 )
-def create_song_feature(request, id: int, data: schema.FeatureIn):
-    data = util.strip_whitespace(data.dict())
+def create_song_artist(request, id: int, data: schema.SongArtistIn):
+    data = data.dict()
     try:
         data["song"] = models.Song.objects.get(pk=id)
         data["artist"] = models.Artist.objects.get(pk=data["artist"])
-        feature = models.Feature.objects.create(**data)
+        song_artist = models.SongArtist.objects.create(**data)
     except models.Song.DoesNotExist:
         return 404, {"error": f"Song with id = {id} does not exist."}
     except models.Artist.DoesNotExist:
         return 404, {"error": f"Artist with id = {data["artist"]} does not exist."}
     except IntegrityError as error:
         error = str(error.__cause__)
-        if "check constraint" in error:
-            message = ("There is something wrong with the data submitted. "
-                       "Please consult the API documentation and try again.")
-            return 400, {"error": message}
-        elif "unique constraint" in error:
-            if data["producer"]:
-                message = (f"Artist with id = {data["artist"].id} is already "
-                           f"credited as a producer for song with id = {id}.")
-            else:
-                message = (f"Artist with id = {data["artist"].id} is already "
-                           f"credited as a song artist for song with id = {id}.")
+        if "unique constraint" in error:
+            message = (f"Artist with id = {data["artist"].id} is already "
+                       f"credited as an artist for song with id = {id}.")
             return 400, {"error": message}
         else:
             return 400, {"error": error}
     else:
-        return 201, feature
+        return 201, song_artist
