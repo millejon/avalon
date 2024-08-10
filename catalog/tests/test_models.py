@@ -420,12 +420,6 @@ class SongProducerModelTestCase(TestCase):
                 song=self.impossible, producer=self.rza, role="Producer"
             )
 
-    def test_song_producer_creation_without_a_role(self):
-        with self.assertRaises(IntegrityError):
-            models.SongProducer.objects.create(
-                song=self.impossible, producer=self.fourth_disciple
-            )
-
     def test_song_producer_ordering(self):
         models.SongProducer.objects.create(
             song=self.impossible, producer=self.fourth_disciple, role="Producer"
