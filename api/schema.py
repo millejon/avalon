@@ -249,3 +249,14 @@ class SongArtistOut(Schema):
     song: SongSummaryOut
     artist: ArtistSummaryOut
     group: bool
+
+
+class SongProducerIn(Schema):
+    producer: int
+    role: str
+
+
+class SongProducerOut(Schema):
+    song: SongSummaryOut
+    producer: ArtistSummaryOut
+    role: str
