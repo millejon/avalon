@@ -24,8 +24,8 @@ class ArtistOut(Schema):
     url: str
     albums: Optional[DiscogPreview]
     singles: Optional[DiscogPreview]
-    songs: Optional[DiscogPreview]
-    songs_produced: Optional[DiscogPreview]
+    # songs: Optional[DiscogPreview]
+    # songs_produced: Optional[DiscogPreview]
 
     @staticmethod
     def resolve_url(obj, context):
@@ -240,28 +240,12 @@ class SongSummaryOut(Schema):
         return context["request"].build_absolute_uri(song_url)
 
 
-class FeatureIn(Schema):
+class SongArtistIn(Schema):
     artist: int
     group: bool = False
-    producer: bool = False
-    role: str = ""
 
 
-class FeatureOut(Schema):
+class SongArtistOut(Schema):
     song: SongSummaryOut
     artist: ArtistSummaryOut
     group: bool
-    producer: bool
-    role: Optional[str]
-
-    @staticmethod
-    def resolve_song(obj):
-        return obj.song
-
-    @staticmethod
-    def resolve_artist(obj):
-        return obj.artist
-
-    @staticmethod
-    def resolve_role(obj):
-        return None if not obj.role else obj.role
