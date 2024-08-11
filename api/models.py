@@ -9,8 +9,8 @@ class Artist(models.Model):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse("view-artist", args=[str(self.id)])
+    def get_url(self):
+        return reverse("api-1.0:retrieve_artist", args=[str(self.id)])
 
     class Meta:
         ordering = ["name"]
@@ -84,6 +84,9 @@ class Song(models.Model):
 
     def __str__(self):
         return f"{self.track_number}. {self.title} [{self.album.title}]"
+
+    def get_url(self):
+        return reverse("api-1.0:retrieve_song", args=[str(self.id)])
 
     class Meta:
         ordering = ["-play_count", "-album__release_date", "disc", "track_number"]

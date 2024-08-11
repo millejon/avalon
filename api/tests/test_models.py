@@ -230,6 +230,13 @@ class SongModelTestCase(TestCase):
     def test_song_str_method(self):
         self.assertEqual(str(self.ny_state_of_mind), "2. N.Y. State Of Mind [Illmatic]")
 
+    def test_song_get_url_method(self):
+        self.assertTrue(
+            self.ny_state_of_mind.get_url().endswith(
+                f"/api/v1/songs/{self.ny_state_of_mind.id}"
+            )
+        )
+
     def test_song_creation_duplicate_song(self):
         with self.assertRaises(IntegrityError):
             models.Song.objects.create(

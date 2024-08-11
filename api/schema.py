@@ -224,8 +224,7 @@ class SongOut(Schema):
 
     @staticmethod
     def resolve_url(obj, context):
-        song_url = reverse("api-1.0:retrieve_song", kwargs={"id": obj.id})
-        return context["request"].build_absolute_uri(song_url)
+        return context["request"].build_absolute_uri(obj.get_url())
 
 
 class SongSummaryOut(Schema):
@@ -235,8 +234,7 @@ class SongSummaryOut(Schema):
 
     @staticmethod
     def resolve_url(obj, context):
-        song_url = reverse("api-1.0:retrieve_song", kwargs={"id": obj.id})
-        return context["request"].build_absolute_uri(song_url)
+        return context["request"].build_absolute_uri(obj.get_url())
 
 
 class SongArtistIn(Schema):
@@ -266,8 +264,7 @@ class SongArtistSummaryOut(Schema):
 
     @staticmethod
     def resolve_url(obj, context):
-        artist_url = reverse("api-1.0:retrieve_artist", kwargs={"id": obj.artist.id})
-        return context["request"].build_absolute_uri(artist_url)
+        return context["request"].build_absolute_uri(obj.artist.get_url())
 
 
 class SongArtistsOut(Schema):
@@ -282,8 +279,7 @@ class SongArtistsOut(Schema):
 
     @staticmethod
     def resolve_url(obj, context):
-        song_url = reverse("api-1.0:retrieve_song", kwargs={"id": obj.id})
-        return context["request"].build_absolute_uri(song_url)
+        return context["request"].build_absolute_uri(obj.get_url())
 
 
 class SongProducerIn(Schema):
@@ -313,10 +309,7 @@ class SongProducerSummaryOut(Schema):
 
     @staticmethod
     def resolve_url(obj, context):
-        producer_url = reverse(
-            "api-1.0:retrieve_artist", kwargs={"id": obj.producer.id}
-        )
-        return context["request"].build_absolute_uri(producer_url)
+        return context["request"].build_absolute_uri(obj.producer.get_url())
 
 
 class SongProducersOut(Schema):
@@ -331,5 +324,4 @@ class SongProducersOut(Schema):
 
     @staticmethod
     def resolve_url(obj, context):
-        song_url = reverse("api-1.0:retrieve_song", kwargs={"id": obj.id})
-        return context["request"].build_absolute_uri(song_url)
+        return context["request"].build_absolute_uri(obj.get_url())
