@@ -881,18 +881,61 @@ class DeleteSongArtistTestCase(TestCase):
 
         self.assertFalse(response.content)
 
-    # def test_deleted_song_artist_is_not_linked_to_song(self):
-    #     print(self.back_that_azz_up["artists"])
-    #     self.assertTrue(self.juvenile["name"] in self.back_that_azz_up["artists"])
-    #     self.client.delete(
-    #         reverse(
-    #             "api-1.0:delete_song_artist",
-    #             kwargs={
-    #                 "song_id": self.back_that_azz_up["id"],
-    #                 "artist_id": self.juvenile["id"],
-    #             }
-    #         )
-    #     )
+    def test_deleted_song_artist_is_not_linked_to_song(self):
+        back_that_azz_up = self.client.get(
+            reverse("api-1.0:retrieve_song", kwargs={"id": self.back_that_azz_up["id"]})
+        ).json()
+        self.assertEqual(len(back_that_azz_up["artists"]), 1)
+        self.assertEqual(back_that_azz_up["artists"][0]["name"], "Juvenile")
+
+        self.client.delete(
+            reverse(
+                "api-1.0:delete_song_artist",
+                kwargs={
+                    "song_id": self.back_that_azz_up["id"],
+                    "artist_id": self.juvenile["id"],
+                }
+            )
+        )
+
+        back_that_azz_up = self.client.get(
+            reverse("api-1.0:retrieve_song", kwargs={"id": self.back_that_azz_up["id"]})
+        ).json()
+        self.assertEqual(len(back_that_azz_up["artists"]), 0)
+
+    def test_delete_song_artist_with_unknown_song(self):
+        song_id = self.back_that_azz_up["id"] + 100
+        response = self.client.delete(
+            reverse(
+                "api-1.0:delete_song_artist",
+                kwargs={
+                    "song_id": song_id,
+                    "artist_id": self.juvenile["id"],
+                }
+            )
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            response.json()["error"], f"Song with id = {song_id} does not exist."
+        )
+
+    def test_delete_song_artist_with_unknown_artist(self):
+        artist_id = self.juvenile["id"] + 100
+        response = self.client.delete(
+            reverse(
+                "api-1.0:delete_song_artist",
+                kwargs={
+                    "song_id": self.back_that_azz_up["id"],
+                    "artist_id": artist_id,
+                }
+            )
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            response.json()["error"], f"Artist with id = {artist_id} does not exist."
+        )
 
 
 class CreateSongProducerTestCase(TestCase):
