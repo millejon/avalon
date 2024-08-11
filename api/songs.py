@@ -151,3 +151,17 @@ def create_song_producer(request, id: int, data: schema.SongProducerIn):
             return 400, {"error": error}
     else:
         return 201, song_producer
+
+
+@router.get(
+    "{int:id}/producers",
+    response={200: schema.SongProducersOut, 404: schema.Error},
+    tags=["songs"],
+)
+def retrieve_all_song_producers(request, id: int):
+    try:
+        song = models.Song.objects.get(pk=id)
+    except models.Song.DoesNotExist:
+        return 404, {"error": f"Song with id = {id} does not exist."}
+    else:
+        return 200, song

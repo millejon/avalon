@@ -112,14 +112,14 @@ class CreateSongTestCase(TestCase):
                 "album": self.aquemini["id"],
                 "track_number": 4,
                 "length": 195,
-                "path": "/outkast/aquemini/04_skew_it_on_the_barb.flac       ",
+                "path": "/outkast/aquemini/04_skew_it_on_the_bar-b.flac       ",
             },
             content_type="application/json",
         )
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()["title"], "Skew It On The Bar-B")
-        self.assertEqual(response.json()["path"], "/outkast/aquemini/04_skew_it_on_the_barb.flac")
+        self.assertEqual(response.json()["path"], "/outkast/aquemini/04_skew_it_on_the_bar-b.flac")
 
     def test_create_song_with_extraneous_fields(self):
         response = self.client.post(
@@ -258,31 +258,31 @@ class RetrieveSongTestCase(TestCase):
             },
             content_type="application/json",
         ).json()
-        cls.hilife = cls.client.post(
+        cls.hi_life = cls.client.post(
             reverse("api-1.0:create_song"),
             {
                 "title": "Hi-Life",
                 "album": cls.ridin_dirty["id"],
                 "track_number": 10,
                 "length": 325,
-                "path": "/ugk/ridin-dirty/10_hilife.flac",
+                "path": "/ugk/ridin-dirty/10_hi-life.flac",
             },
             content_type="application/json",
         ).json()
 
     def test_retrieve_song_status_code(self):
         response = self.client.get(
-            reverse("api-1.0:retrieve_song", kwargs={"id": self.hilife["id"]})
+            reverse("api-1.0:retrieve_song", kwargs={"id": self.hi_life["id"]})
         )
 
         self.assertEqual(response.status_code, 200)
 
     def test_retrieve_song_json_response(self):
         response = self.client.get(
-            reverse("api-1.0:retrieve_song", kwargs={"id": self.hilife["id"]})
+            reverse("api-1.0:retrieve_song", kwargs={"id": self.hi_life["id"]})
         ).json()
 
-        self.assertEqual(response["id"], self.hilife["id"])
+        self.assertEqual(response["id"], self.hi_life["id"])
         self.assertEqual(response["title"], "Hi-Life")
         self.assertEqual(len(response["artists"]), 0)
         self.assertEqual(len(response["producers"]), 0)
@@ -290,12 +290,12 @@ class RetrieveSongTestCase(TestCase):
         self.assertIsNone(response["disc"])
         self.assertEqual(response["track_number"], 10)
         self.assertEqual(response["length"], 325)
-        self.assertEqual(response["path"], "/ugk/ridin-dirty/10_hilife.flac")
+        self.assertEqual(response["path"], "/ugk/ridin-dirty/10_hi-life.flac")
         self.assertEqual(response["play_count"], 0)
-        self.assertTrue(response["url"].endswith(f"/api/v1/songs/{self.hilife["id"]}"))
+        self.assertTrue(response["url"].endswith(f"/api/v1/songs/{self.hi_life["id"]}"))
 
     def test_retrieve_unknown_song(self):
-        song_id = self.hilife["id"] + 100
+        song_id = self.hi_life["id"] + 100
         response = self.client.get(
             reverse("api-1.0:retrieve_song", kwargs={"id": song_id})
         )
@@ -1117,3 +1117,117 @@ class CreateSongProducerTestCase(TestCase):
         )
 
         self.assertEqual(response.status_code, 422)
+
+
+class RetrieveAllSongProducersTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = Client()
+        cls.kanye_west = cls.client.post(
+            reverse("api-1.0:create_artist"),
+            {"name": "Kanye West"},
+            content_type="application/json",
+        ).json()
+        cls.ludacris = cls.client.post(
+            reverse("api-1.0:create_artist"),
+            {"name": "Ludacris"},
+            content_type="application/json",
+        ).json()
+        cls.chicken_n_beer = cls.client.post(
+            reverse("api-1.0:create_album"),
+            {
+                "title": "Chicken-N-Beer",
+                "release_date": "2003-10-07",
+            },
+            content_type="application/json",
+        ).json()
+        cls.stand_up = cls.client.post(
+            reverse("api-1.0:create_song"),
+            {
+                "title": "Stand Up",
+                "album": cls.chicken_n_beer["id"],
+                "track_number": 3,
+                "length": 213,
+                "path": "/ludacris/chicken-n-beer/03_stand_up.flac",
+            },
+            content_type="application/json",
+        ).json()
+        cls.client.post(
+            reverse("api-1.0:create_song_producer", kwargs={"id": cls.stand_up["id"]}),
+            {
+                "producer": cls.kanye_west["id"],
+                "role": "Producer",
+            },
+            content_type="application/json",
+        )
+        cls.client.post(
+            reverse("api-1.0:create_song_producer", kwargs={"id": cls.stand_up["id"]}),
+            {
+                "producer": cls.ludacris["id"],
+                "role": "Co-Producer",
+            },
+            content_type="application/json",
+        )
+
+    def test_retrieve_all_song_producers_status_code(self):
+        response = self.client.get(
+            reverse(
+                "api-1.0:retrieve_all_song_producers",
+                kwargs={"id": self.stand_up["id"]},
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_retrieve_all_song_producers_json_response(self):
+        response = self.client.get(
+            reverse(
+                "api-1.0:retrieve_all_song_producers",
+                kwargs={"id": self.stand_up["id"]},
+            )
+        ).json()
+
+        self.assertEqual(response["id"], self.stand_up["id"])
+        self.assertEqual(response["title"], "Stand Up")
+        self.assertEqual(response["producers"][0]["id"], self.kanye_west["id"])
+        self.assertEqual(response["producers"][0]["name"], "Kanye West")
+        self.assertEqual(response["producers"][0]["role"], "Producer")
+        self.assertTrue(response["producers"][0]["url"].endswith(f"/api/v1/artists/{self.kanye_west["id"]}"))
+        self.assertEqual(response["producers"][1]["id"], self.ludacris["id"])
+        self.assertEqual(response["producers"][1]["name"], "Ludacris")
+        self.assertEqual(response["producers"][1]["role"], "Co-Producer")
+        self.assertTrue(response["producers"][1]["url"].endswith(f"/api/v1/artists/{self.ludacris["id"]}"))
+        self.assertTrue(response["url"].endswith(f"/api/v1/songs/{self.stand_up["id"]}"))
+
+    def test_retrieve_all_song_producers_song_has_no_producers(self):
+        we_got = self.client.post(
+            reverse("api-1.0:create_song"),
+            {
+                "title": "We Got",
+                "album": self.chicken_n_beer["id"],
+                "track_number": 16,
+                "length": 261,
+                "path": "/ludacris/chicken-n-beer/16_we_got.flac",
+            },
+            content_type="application/json",
+        ).json()
+        response = self.client.get(
+            reverse(
+                "api-1.0:retrieve_all_song_producers",
+                kwargs={"id": we_got["id"]},
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()["producers"]), 0)
+
+    def test_retrieve_all_song_producers_unknown_song(self):
+        song_id = self.stand_up["id"] + 100
+        response = self.client.get(
+            reverse("api-1.0:retrieve_all_song_producers", kwargs={"id": song_id})
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            response.json()["error"], f"Song with id = {song_id} does not exist."
+        )
