@@ -203,8 +203,16 @@ class CreateSongTestCase(TestCase):
             "length": 168,
             "path": "/outkast/aquemini/10_da_art_of_storytellin_pt_2.flac",
         }
-        self.client.post(reverse("api-1.0:create_song"), song_metadata, content_type="application/json")
-        response = self.client.post(reverse("api-1.0:create_song"), song_metadata, content_type="application/json")
+        self.client.post(
+            reverse("api-1.0:create_song"),
+            song_metadata,
+            content_type="application/json",
+        )
+        response = self.client.post(
+            reverse("api-1.0:create_song"),
+            song_metadata,
+            content_type="application/json",
+        )
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()["error"], "Song already exists in database.")
@@ -400,7 +408,7 @@ class UpdateSongTestCase(TestCase):
                 "track_number": 16,
                 "length": 253,
                 "path": "/scarface/greatest-hits/16_jesse_james.flac",
-                "engineer": "Mike Dean"
+                "engineer": "Mike Dean",
             },
             content_type="application/json",
         )
@@ -701,9 +709,7 @@ class CreateSongArtistTestCase(TestCase):
     def test_create_song_artist_with_invalid_values(self):
         response = self.client.post(
             reverse("api-1.0:create_song_artist", kwargs={"id": self.dirty_south["id"]}),
-            {
-                "artist": "Goodie Mob",
-            },
+            {"artist": "Goodie Mob"},
             content_type="application/json",
         )
 
@@ -850,7 +856,10 @@ class DeleteSongArtistTestCase(TestCase):
             content_type="application/json",
         ).json()
         cls.client.post(
-            reverse("api-1.0:create_song_artist", kwargs={"id": cls.back_that_azz_up["id"]}),
+            reverse(
+                "api-1.0:create_song_artist",
+                kwargs={"id": cls.back_that_azz_up["id"]},
+            ),
             {"artist": cls.juvenile["id"]},
             content_type="application/json",
         )
@@ -862,7 +871,7 @@ class DeleteSongArtistTestCase(TestCase):
                 kwargs={
                     "song_id": self.back_that_azz_up["id"],
                     "artist_id": self.juvenile["id"],
-                }
+                },
             )
         )
 
@@ -875,18 +884,21 @@ class DeleteSongArtistTestCase(TestCase):
                 kwargs={
                     "song_id": self.back_that_azz_up["id"],
                     "artist_id": self.juvenile["id"],
-                }
+                },
             )
         )
 
         self.assertFalse(response.content)
 
     def test_deleted_song_artist_is_not_linked_to_song(self):
-        back_that_azz_up = self.client.get(
-            reverse("api-1.0:retrieve_song", kwargs={"id": self.back_that_azz_up["id"]})
+        song_artists = self.client.get(
+            reverse(
+                "api-1.0:retrieve_all_song_artists",
+                kwargs={"id": self.back_that_azz_up["id"]},
+            )
         ).json()
-        self.assertEqual(len(back_that_azz_up["artists"]), 1)
-        self.assertEqual(back_that_azz_up["artists"][0]["name"], "Juvenile")
+        self.assertEqual(len(song_artists["artists"]), 1)
+        self.assertEqual(song_artists["artists"][0]["name"], "Juvenile")
 
         self.client.delete(
             reverse(
@@ -894,14 +906,17 @@ class DeleteSongArtistTestCase(TestCase):
                 kwargs={
                     "song_id": self.back_that_azz_up["id"],
                     "artist_id": self.juvenile["id"],
-                }
+                },
             )
         )
 
-        back_that_azz_up = self.client.get(
-            reverse("api-1.0:retrieve_song", kwargs={"id": self.back_that_azz_up["id"]})
+        song_artists = self.client.get(
+            reverse(
+                "api-1.0:retrieve_all_song_artists",
+                kwargs={"id": self.back_that_azz_up["id"]},
+            )
         ).json()
-        self.assertEqual(len(back_that_azz_up["artists"]), 0)
+        self.assertEqual(len(song_artists["artists"]), 0)
 
     def test_delete_song_artist_with_unknown_song(self):
         song_id = self.back_that_azz_up["id"] + 100
@@ -911,7 +926,7 @@ class DeleteSongArtistTestCase(TestCase):
                 kwargs={
                     "song_id": song_id,
                     "artist_id": self.juvenile["id"],
-                }
+                },
             )
         )
 
@@ -928,7 +943,7 @@ class DeleteSongArtistTestCase(TestCase):
                 kwargs={
                     "song_id": self.back_that_azz_up["id"],
                     "artist_id": artist_id,
-                }
+                },
             )
         )
 
