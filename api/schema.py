@@ -24,8 +24,8 @@ class ArtistOut(Schema):
     url: str
     albums: Optional[DiscogPreview]
     singles: Optional[DiscogPreview]
-    songs: Optional[DiscogPreview]
-    songs_produced: Optional[DiscogPreview]
+    # songs: Optional[DiscogPreview]
+    # songs_produced: Optional[DiscogPreview]
 
     @staticmethod
     def resolve_url(obj, context):
@@ -91,7 +91,6 @@ class ArtistSummaryOut(Schema):
 
 
 class AlbumIn(Schema):
-    artists: List[int]
     title: str
     release_date: date
     single: bool = False
@@ -192,9 +191,9 @@ class DiscOut(Schema):
 
 
 class SongIn(Schema):
+    title: str
     album: int
     disc: int = None
-    title: str
     track_number: int
     length: int
     path: str
@@ -202,30 +201,35 @@ class SongIn(Schema):
 
 class SongOut(Schema):
     id: int
+    title: str
     artists: List[ArtistSummaryOut]
+    producers: List[ArtistSummaryOut]
     album: MiniAlbumSummaryOut
     disc: Optional[int]
     track_number: int
-    title: str
     length: int
-    play_count: int
     path: str
+    play_count: int
     url: str
+
+    @staticmethod
+    def resolve_artists(obj):
+        artists = obj.songartist_set.filter(group=False)
+        return [feature.artist for feature in artists]
+
+    @staticmethod
+    def resolve_producers(obj):
+        producers = obj.songproducer_set.filter(role="Producer")
+        return [feature.producer for feature in producers]
 
     @staticmethod
     def resolve_url(obj, context):
         song_url = reverse("api-1.0:retrieve_song", kwargs={"id": obj.id})
         return context["request"].build_absolute_uri(song_url)
-
-    @staticmethod
-    def resolve_disc(obj):
-        return obj.disc.number if obj.disc else None
 
 
 class SongSummaryOut(Schema):
     id: int
-    artists: List[str]
-    album: str
     title: str
     url: str
 
@@ -234,10 +238,98 @@ class SongSummaryOut(Schema):
         song_url = reverse("api-1.0:retrieve_song", kwargs={"id": obj.id})
         return context["request"].build_absolute_uri(song_url)
 
-    @staticmethod
-    def resolve_artists(obj):
-        return [artist.name for artist in obj.artists.all()]
+
+class SongArtistIn(Schema):
+    artist: int
+    group: bool = False
+
+
+class SongArtistOut(Schema):
+    song: SongSummaryOut
+    artist: ArtistSummaryOut
+    group: bool
+
+
+class SongArtistSummaryOut(Schema):
+    id: int
+    name: str
+    group: bool
+    url: str
 
     @staticmethod
-    def resolve_album(obj):
-        return obj.album.title
+    def resolve_id(obj):
+        return obj.artist.id
+
+    @staticmethod
+    def resolve_name(obj):
+        return obj.artist.name
+
+    @staticmethod
+    def resolve_url(obj, context):
+        artist_url = reverse("api-1.0:retrieve_artist", kwargs={"id": obj.artist.id})
+        return context["request"].build_absolute_uri(artist_url)
+
+
+class SongArtistsOut(Schema):
+    id: int
+    title: str
+    artists: List[SongArtistSummaryOut]
+    url: str
+
+    @staticmethod
+    def resolve_artists(obj):
+        return obj.songartist_set.all()
+
+    @staticmethod
+    def resolve_url(obj, context):
+        song_url = reverse("api-1.0:retrieve_song", kwargs={"id": obj.id})
+        return context["request"].build_absolute_uri(song_url)
+
+
+class SongProducerIn(Schema):
+    producer: int
+    role: str
+
+
+class SongProducerOut(Schema):
+    song: SongSummaryOut
+    producer: ArtistSummaryOut
+    role: str
+
+
+class SongProducerSummaryOut(Schema):
+    id: int
+    name: str
+    role: str
+    url: str
+
+    @staticmethod
+    def resolve_id(obj):
+        return obj.producer.id
+
+    @staticmethod
+    def resolve_name(obj):
+        return obj.producer.name
+
+    @staticmethod
+    def resolve_url(obj, context):
+        producer_url = reverse(
+            "api-1.0:retrieve_artist", kwargs={"id": obj.producer.id}
+        )
+        return context["request"].build_absolute_uri(producer_url)
+
+
+class SongProducersOut(Schema):
+    id: int
+    title: str
+    producers: List[SongProducerSummaryOut]
+    url: str
+
+    @staticmethod
+    def resolve_producers(obj):
+        return obj.songproducer_set.all()
+
+    @staticmethod
+    def resolve_url(obj, context):
+        song_url = reverse("api-1.0:retrieve_song", kwargs={"id": obj.id})
+        return context["request"].build_absolute_uri(song_url)

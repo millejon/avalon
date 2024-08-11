@@ -4,7 +4,7 @@ import time
 from django.test import TestCase
 from django.db import IntegrityError
 
-from catalog import models
+from api import models
 
 
 class ArtistModelTestCase(TestCase):
@@ -185,181 +185,253 @@ class DiscModelTestCase(TestCase):
 class SongModelTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.artist = models.Artist.objects.create(name="Nas")
-        cls.album = models.Album.objects.create(
+        cls.illmatic = models.Album.objects.create(
             title="Illmatic",
             release_date=datetime.date(1994, 4, 19),
         )
-        cls.album.artists.add(cls.artist)
-        cls.song = models.Song.objects.create(
-            album=cls.album,
-            title="Life's A Bitch",
-            track_number=3,
-            length=210,
-            path="D:/Music/nas/illmatic/03_lifes_a_bitch.flac",
+        cls.streets_disciple = models.Album.objects.create(
+            title="Street's Disciple",
+            release_date=datetime.date(2004, 11, 30),
+            multidisc=True,
         )
-        cls.song.artists.add(cls.artist)
+        cls.ny_state_of_mind = models.Song.objects.create(
+            title="N.Y. State Of Mind",
+            album=cls.illmatic,
+            track_number=2,
+            length=293,
+            path="/nas/illmatic/02_ny_state_of_mind.flac",
+        )
 
     def test_song_creation(self):
-        self.assertTrue(self.song.artists.contains(self.artist))
-        self.assertEqual(self.song.album, self.album)
-        self.assertEqual(self.song.title, "Life's A Bitch")
-        self.assertEqual(self.song.track_number, 3)
-        self.assertEqual(self.song.length, 210)
-        self.assertEqual(self.song.path, "D:/Music/nas/illmatic/03_lifes_a_bitch.flac")
+        self.assertEqual(self.ny_state_of_mind.title, "N.Y. State Of Mind")
+        self.assertEqual(self.ny_state_of_mind.album.title, "Illmatic")
+        self.assertEqual(self.ny_state_of_mind.track_number, 2)
+        self.assertEqual(self.ny_state_of_mind.length, 293)
+        self.assertEqual(
+            self.ny_state_of_mind.path, "/nas/illmatic/02_ny_state_of_mind.flac"
+        )
 
     def test_song_creation_disc_null_by_default(self):
-        self.assertIsNone(self.song.disc)
+        self.assertIsNone(self.ny_state_of_mind.disc)
 
     def test_song_creation_play_count_zero_by_default(self):
-        self.assertEqual(self.song.play_count, 0)
+        self.assertEqual(self.ny_state_of_mind.play_count, 0)
 
     def test_title_max_length(self):
-        max_length = self.song._meta.get_field("title").max_length
+        max_length = self.ny_state_of_mind._meta.get_field("title").max_length
 
         self.assertEqual(max_length, 600)
 
     def test_path_max_length(self):
-        max_length = self.song._meta.get_field("path").max_length
+        max_length = self.ny_state_of_mind._meta.get_field("path").max_length
 
         self.assertEqual(max_length, 1000)
 
     def test_song_str_method(self):
-        self.assertEqual(str(self.song), "3. Life's A Bitch [Illmatic]")
+        self.assertEqual(str(self.ny_state_of_mind), "2. N.Y. State Of Mind [Illmatic]")
 
-    def test_nonunique_song_creation(self):
+    def test_song_creation_duplicate_song(self):
         with self.assertRaises(IntegrityError):
             models.Song.objects.create(
-                album=self.album,
-                title="Life's a Bitch",
-                track_number=3,
-                length=212,
-                path="D:/Music/nas/illmatic/03_lifes_a_bitch.flac",
+                title="New York State Of Mind",
+                album=self.illmatic,
+                track_number=2,
+                length=295,
+                path="/nas/illmatic/02_ny_state_of_mind.flac",
             )
 
-    def test_invalid_song_track_number_song_creation(self):
+    def test_song_creation_invalid_disc_number(self):
         with self.assertRaises(IntegrityError):
             models.Song.objects.create(
-                album=self.album,
-                title="N.Y. State Of Mind",
+                title="Nazareth Savage",
+                album=self.streets_disciple,
+                disc=0,
+                track_number=3,
+                length=160,
+                path="/nas/streets-disciple/disc-1/03_nazareth_savage.flac",
+            )
+
+    def test_song_creation_invalid_track_number(self):
+        with self.assertRaises(IntegrityError):
+            models.Song.objects.create(
+                title="I'm A Villain",
+                album=self.illmatic,
                 track_number=0,
-                length=293,
-                path="D:/Music/nas/illmatic/00_ny_state_of_mind.flac",
+                length=270,
+                path="/nas/illmatic/00_im_a_villain.flac",
+            )
+
+    def test_song_creation_invalid_play_count(self):
+        with self.assertRaises(IntegrityError):
+            models.Song.objects.create(
+                title="Life's A Bitch",
+                album=self.illmatic,
+                track_number=3,
+                length=210,
+                path="/nas/illmatic/03_lifes_a_bitch.flac",
+                play_count=-1,
             )
 
     def test_song_ordering(self):
-        album2 = models.Album.objects.create(
-            title="Street's Disciple",
-            release_date=datetime.date(2004, 11, 30),
-        )
-        disc1 = models.Disc.objects.create(album=album2, title="Disc 1", number=1)
-        disc2 = models.Disc.objects.create(album=album2, title="Disc 2", number=2)
         models.Song.objects.create(
-            album=album2,
-            disc=disc2,
+            title="It Ain't Hard To Tell",
+            album=self.illmatic,
+            track_number=10,
+            length=202,
+            path="/nas/illmatic/10_it_aint_hard_to_tell.flac",
+            play_count=3,
+        )
+        models.Song.objects.create(
             title="Suicide Bounce",
+            album=self.streets_disciple,
+            disc=2,
             track_number=1,
             length=237,
-            path="D:/Music/nas/streets-disciple/disc-2/01_suicide_bounce.flac",
+            path="/nas/streets-disciple/disc-2/01_suicide_bounce.flac",
         )
         models.Song.objects.create(
-            album=album2,
-            disc=disc1,
-            title="Just A Moment",
-            track_number=10,
-            length=263,
-            path="D:/Music/nas/streets-disciple/disc-1/10_just_a_moment.flac",
+            title="Disciple",
+            album=self.streets_disciple,
+            disc=1,
+            track_number=6,
+            length=180,
+            path="/nas/streets-disciple/disc-1/06_disciple.flac",
         )
 
         songs = [str(song) for song in models.Song.objects.all()]
         expected_song_order = [
-            "10. Just A Moment [Street's Disciple]",
+            "10. It Ain't Hard To Tell [Illmatic]",
+            "6. Disciple [Street's Disciple]",
             "1. Suicide Bounce [Street's Disciple]",
-            "3. Life's A Bitch [Illmatic]",
+            "2. N.Y. State Of Mind [Illmatic]",
         ]
 
         self.assertEqual(songs, expected_song_order)
 
 
-class FeatureModelTestCase(TestCase):
+class SongArtistModelTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.artist = models.Artist.objects.create(name="Kurupt")
-        cls.album = models.Album.objects.create(
-            title="Tha Streetz Iz A Mutha", release_date=datetime.date(1999, 11, 16)
+        cls.tha_dogg_pound = models.Artist.objects.create(name="Tha Dogg Pound")
+        cls.kurupt = models.Artist.objects.create(name="Kurupt")
+        cls.snoop_dogg = models.Artist.objects.create(name="Snoop Dogg")
+        cls.val_young = models.Artist.objects.create(name="Val Young")
+        cls.dogg_food = models.Album.objects.create(
+            title="Dogg Food", release_date=datetime.date(1995, 10, 31)
         )
-        cls.song = models.Song.objects.create(
-            album=cls.album,
-            title="Who Ride Wit Us",
+        cls.smooth = models.Song.objects.create(
+            title="Smooth",
+            album=cls.dogg_food,
+            track_number=5,
+            length=275,
+            path="/tha-dogg-pound/dogg-food/05_smooth.flac",
+        )
+        cls.song_artist = models.SongArtist.objects.create(
+            song=cls.smooth, artist=cls.tha_dogg_pound
+        )
+
+    def test_song_artist_creation(self):
+        self.assertEqual(self.song_artist.song.title, "Smooth")
+        self.assertEqual(self.song_artist.artist.name, "Tha Dogg Pound")
+
+    def test_song_artist_creation_group_false_by_default(self):
+        self.assertFalse(self.song_artist.group)
+
+    def test_song_artist_str_method(self):
+        self.assertEqual(str(self.song_artist), "Smooth - Tha Dogg Pound")
+
+    def test_nonunique_song_artist_creation(self):
+        with self.assertRaises(IntegrityError):
+            models.SongArtist.objects.create(
+                song=self.smooth, artist=self.tha_dogg_pound
+            )
+
+    def test_song_artist_creation_group_member(self):
+        group_feature = models.SongArtist.objects.create(
+            song=self.smooth, artist=self.kurupt, group=True
+        )
+
+        self.assertEqual(group_feature.song.title, "Smooth")
+        self.assertEqual(group_feature.artist.name, "Kurupt")
+        self.assertTrue(group_feature.group)
+
+    def test_song_artist_creation_nonunique_group_member(self):
+        with self.assertRaises(IntegrityError):
+            models.SongArtist.objects.create(
+                song=self.smooth, artist=self.tha_dogg_pound, group=True
+            )
+
+    def test_song_artist_ordering(self):
+        models.SongArtist.objects.create(song=self.smooth, artist=self.snoop_dogg)
+        models.SongArtist.objects.create(
+            song=self.smooth, artist=self.kurupt, group=True
+        )
+        models.SongArtist.objects.create(song=self.smooth, artist=self.val_young)
+
+        song_artists = [str(artist) for artist in models.SongArtist.objects.all()]
+        expected_artist_order = [
+            "Smooth - Tha Dogg Pound",
+            "Smooth - Snoop Dogg",
+            "Smooth - Kurupt",
+            "Smooth - Val Young",
+        ]
+
+        self.assertEqual(song_artists, expected_artist_order)
+
+
+class SongProducerModelTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.fourth_disciple = models.Artist.objects.create(name="4th Disciple")
+        cls.rza = models.Artist.objects.create(name="RZA")
+        cls.wu_tang_forever = models.Album.objects.create(
+            title="Wu-Tang Forever",
+            release_date=datetime.date(1997, 6, 3),
+            multidisc=True,
+        )
+        cls.impossible = models.Song.objects.create(
+            title="Impossible",
+            album=cls.wu_tang_forever,
+            disc=2,
             track_number=3,
-            length=261,
-            path="D:/Music/kurupt/tha-streetz-iz-a-mutha/03_who_ride_wit_us.flac",
+            length=268,
+            path="/wu-tang-clan/wu-tang-forever/disc-2/03_impossible.flac",
         )
-        cls.feature = models.Feature.objects.create(artist=cls.artist, song=cls.song)
+        cls.song_producer = models.SongProducer.objects.create(
+            song=cls.impossible, producer=cls.rza, role="Co-Producer"
+        )
 
-    def test_feature_creation(self):
-        self.assertEqual(self.feature.artist.name, "Kurupt")
-        self.assertEqual(self.feature.song.title, "Who Ride Wit Us")
-
-    def test_feature_creation_group_false_by_default(self):
-        self.assertFalse(self.feature.group)
-
-    def test_feature_creation_producer_false_by_default(self):
-        self.assertFalse(self.feature.producer)
-
-    def test_feature_creation_producer_role_empty_string_by_default(self):
-        self.assertEqual(self.feature.role, "")
+    def test_song_producer_creation(self):
+        self.assertEqual(self.song_producer.song.title, "Impossible")
+        self.assertEqual(self.song_producer.producer.name, "RZA")
+        self.assertEqual(self.song_producer.role, "Co-Producer")
 
     def test_role_max_length(self):
-        max_length = self.feature._meta.get_field("role").max_length
+        max_length = self.song_producer._meta.get_field("role").max_length
 
         self.assertEqual(max_length, 100)
 
-    def test_feature_str_method(self):
-        self.assertEqual(str(self.feature), "Kurupt - Who Ride Wit Us")
+    def test_song_producer_str_method(self):
+        self.assertEqual(str(self.song_producer), "Impossible - RZA [Co-Producer]")
 
-    def test_nonunique_feature_creation(self):
+    def test_nonunique_song_producer_creation(self):
         with self.assertRaises(IntegrityError):
-            models.Feature.objects.create(artist=self.artist, song=self.song)
-
-    def test_group_member_creation(self):
-        group = models.Artist.objects.create(name="Tha Dogg Pound")
-        group_feature = models.Feature.objects.create(
-            artist=group, song=self.song, group=True
-        )
-
-        self.assertEqual(group_feature.artist.name, "Tha Dogg Pound")
-        self.assertEqual(group_feature.song.title, "Who Ride Wit Us")
-        self.assertTrue(group_feature.group)
-
-    def test_nonunique_group_member_creation(self):
-        group = models.Artist.objects.create(name="Tha Dogg Pound")
-        models.Feature.objects.create(artist=group, song=self.song, group=True)
-
-        with self.assertRaises(IntegrityError):
-            models.Feature.objects.create(artist=group, song=self.song, group=True)
-
-    def test_producer_creation(self):
-        producer = models.Artist.objects.create(name="Fredwreck")
-        producer_feature = models.Feature.objects.create(
-            artist=producer, song=self.song, producer=True, role="Producer"
-        )
-
-        self.assertEqual(producer_feature.artist.name, "Fredwreck")
-        self.assertEqual(producer_feature.song.title, "Who Ride Wit Us")
-        self.assertTrue(producer_feature.producer)
-        self.assertEqual(producer_feature.role, "Producer")
-
-    def test_nonunique_producer_creation(self):
-        producer = models.Artist.objects.create(name="Fredwreck")
-        models.Feature.objects.create(
-            artist=producer, song=self.song, producer=True, role="Producer"
-        )
-
-        with self.assertRaises(IntegrityError):
-            models.Feature.objects.create(
-                artist=producer, song=self.song, producer=True, role="Producer"
+            models.SongProducer.objects.create(
+                song=self.impossible, producer=self.rza, role="Producer"
             )
+
+    def test_song_producer_ordering(self):
+        models.SongProducer.objects.create(
+            song=self.impossible, producer=self.fourth_disciple, role="Producer"
+        )
+
+        producers = [str(producer) for producer in models.SongProducer.objects.all()]
+        expected_producer_order = [
+            "Impossible - RZA [Co-Producer]",
+            "Impossible - 4th Disciple [Producer]",
+        ]
+
+        self.assertEqual(producers, expected_producer_order)
 
 
 class PlaylistModelTestCase(TestCase):
