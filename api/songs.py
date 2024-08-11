@@ -94,6 +94,20 @@ def create_song_artist(request, id: int, data: schema.SongArtistIn):
         return 201, song_artist
 
 
+@router.get(
+    "{int:id}/artists",
+    response={200: schema.SongArtistsOut, 404: schema.Error},
+    tags=["songs"],
+)
+def retrieve_all_song_artists(request, id: int):
+    try:
+        song = models.Song.objects.get(pk=id)
+    except models.Song.DoesNotExist:
+        return 404, {"error": f"Song with id = {id} does not exist."}
+    else:
+        return 200, song
+
+
 @router.post(
     "{int:id}/producers",
     response={201: schema.SongProducerOut, 400: schema.Error, 404: schema.Error},

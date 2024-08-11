@@ -140,11 +140,12 @@ class CreateSongTestCase(TestCase):
         self.assertFalse("writers" in response.json().keys())
 
     def test_create_song_with_unknown_album(self):
+        album_id = self.aquemini["id"] + 100
         response = self.client.post(
             reverse("api-1.0:create_song"),
             {
                 "title": "B.O.B.",
-                "album": self.aquemini["id"] + 100,
+                "album": album_id,
                 "track_number": 11,
                 "length": 304,
                 "path": "/outkast/stankonia/11_bob.flac",
@@ -154,7 +155,7 @@ class CreateSongTestCase(TestCase):
 
         self.assertEqual(response.status_code, 404)
         self.assertEqual(
-            response.json()["error"], f"Album with id = {self.aquemini["id"] + 100} does not exist."
+            response.json()["error"], f"Album with id = {album_id} does not exist."
         )
 
     def test_create_song_with_invalid_disc_number(self):
@@ -429,11 +430,12 @@ class UpdateSongTestCase(TestCase):
         )
 
     def test_update_song_with_unknown_album(self):
+        album_id = self.greatest_hits["id"] + 100
         response = self.client.put(
             reverse("api-1.0:update_song", kwargs={"id": self.jesse_james["id"]}),
             {
                 "title": "Jesse James",
-                "album": self.greatest_hits["id"] + 100,
+                "album": album_id,
                 "disc": 1,
                 "track_number": 16,
                 "length": 253,
@@ -444,7 +446,7 @@ class UpdateSongTestCase(TestCase):
 
         self.assertEqual(response.status_code, 404)
         self.assertEqual(
-            response.json()["error"], f"Album with id = {self.greatest_hits["id"] + 100} does not exist."
+            response.json()["error"], f"Album with id = {album_id} does not exist."
         )
 
     def test_update_song_with_missing_required_fields(self):
@@ -516,7 +518,7 @@ class DeleteSongTestCase(TestCase):
 
         self.assertFalse(response.content)
 
-    def test_deleted_song_no_longer_exists(self):
+    def test_deleted_song_does_not_exist(self):
         self.client.delete(
             reverse("api-1.0:delete_song", kwargs={"id": self.sippin_on_some_syrup["id"]})
         )
@@ -641,27 +643,29 @@ class CreateSongArtistTestCase(TestCase):
         self.assertFalse("order" in response.json().keys())
 
     def test_create_song_artist_with_unknown_song(self):
+        song_id = self.dirty_south["id"] + 100
         response = self.client.post(
-            reverse("api-1.0:create_song_artist", kwargs={"id": self.dirty_south["id"] + 100}),
+            reverse("api-1.0:create_song_artist", kwargs={"id": song_id}),
             {"artist": self.goodie_mob["id"]},
             content_type="application/json",
         )
 
         self.assertEqual(response.status_code, 404)
         self.assertEqual(
-            response.json()["error"], f"Song with id = {self.dirty_south["id"] + 100} does not exist."
+            response.json()["error"], f"Song with id = {song_id} does not exist."
         )
 
     def test_create_song_artist_with_unknown_artist(self):
+        artist_id = self.goodie_mob["id"] + 100
         response = self.client.post(
             reverse("api-1.0:create_song_artist", kwargs={"id": self.dirty_south["id"]}),
-            {"artist": self.goodie_mob["id"] + 100},
+            {"artist": artist_id},
             content_type="application/json",
         )
 
         self.assertEqual(response.status_code, 404)
         self.assertEqual(
-            response.json()["error"], f"Artist with id = {self.goodie_mob["id"] + 100} does not exist."
+            response.json()["error"], f"Artist with id = {artist_id} does not exist."
         )
 
     def test_create_duplicate_song_artist(self):
@@ -704,6 +708,113 @@ class CreateSongArtistTestCase(TestCase):
         )
 
         self.assertEqual(response.status_code, 422)
+
+
+class RetrieveAllSongArtistsTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = Client()
+        cls.master_p = cls.client.post(
+            reverse("api-1.0:create_artist"),
+            {"name": "Master P"},
+            content_type="application/json",
+        ).json()
+        cls.tru = cls.client.post(
+            reverse("api-1.0:create_artist"),
+            {"name": "Tru"},
+            content_type="application/json",
+        ).json()
+        cls.ghetto_d = cls.client.post(
+            reverse("api-1.0:create_album"),
+            {
+                "title": "Ghetto D",
+                "release_date": "1997-09-02",
+            },
+            content_type="application/json",
+        ).json()
+        cls.make_em_say_uhh = cls.client.post(
+            reverse("api-1.0:create_song"),
+            {
+                "title": "Make 'Em Say Uhh!",
+                "album": cls.ghetto_d["id"],
+                "track_number": 12,
+                "length": 306,
+                "path": "/master-p/ghetto-d/12_make_em_say_uhh.flac",
+            },
+            content_type="application/json",
+        ).json()
+        cls.client.post(
+            reverse("api-1.0:create_song_artist", kwargs={"id": cls.make_em_say_uhh["id"]}),
+            {"artist": cls.master_p["id"]},
+            content_type="application/json",
+        )
+        cls.client.post(
+            reverse("api-1.0:create_song_artist", kwargs={"id": cls.make_em_say_uhh["id"]}),
+            {
+                "artist": cls.tru["id"],
+                "group": True,
+            },
+            content_type="application/json",
+        )
+
+    def test_retrieve_all_song_artists_status_code(self):
+        response = self.client.get(
+            reverse(
+                "api-1.0:retrieve_all_song_artists",
+                kwargs={"id": self.make_em_say_uhh["id"]},
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_retrieve_all_song_artists_json_response(self):
+        response = self.client.get(
+            reverse(
+                "api-1.0:retrieve_all_song_artists",
+                kwargs={"id": self.make_em_say_uhh["id"]},
+            )
+        ).json()
+
+        self.assertEqual(response["id"], self.make_em_say_uhh["id"])
+        self.assertEqual(response["title"], "Make 'Em Say Uhh!")
+        self.assertEqual(response["artists"][0]["name"], "Master P")
+        self.assertFalse(response["artists"][0]["group"])
+        self.assertEqual(response["artists"][1]["name"], "Tru")
+        self.assertTrue(response["artists"][1]["group"])
+        self.assertTrue(response["url"].endswith(f"/api/v1/songs/{self.make_em_say_uhh["id"]}"))
+
+    def test_retrieve_all_song_artists_song_has_no_artists(self):
+        i_miss_my_homies = self.client.post(
+            reverse("api-1.0:create_song"),
+            {
+                "title": "I Miss My Homies",
+                "album": self.ghetto_d["id"],
+                "track_number": 3,
+                "length": 325,
+                "path": "/master-p/ghetto-d/03_i_miss_my_homies.flac",
+            },
+            content_type="application/json",
+        ).json()
+        response = self.client.get(
+            reverse(
+                "api-1.0:retrieve_all_song_artists",
+                kwargs={"id": i_miss_my_homies["id"]},
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()["artists"]), 0)
+
+    def test_retrieve_all_song_artists_unknown_song(self):
+        song_id = self.make_em_say_uhh["id"] + 100
+        response = self.client.get(
+            reverse("api-1.0:retrieve_all_song_artists", kwargs={"id": song_id})
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            response.json()["error"], f"Song with id = {song_id} does not exist."
+        )
 
 
 class CreateSongProducerTestCase(TestCase):
@@ -795,8 +906,9 @@ class CreateSongProducerTestCase(TestCase):
         self.assertFalse("order" in response.json().keys())
 
     def test_create_song_producer_with_unknown_song(self):
+        song_id = self.be_easy["id"] + 100
         response = self.client.post(
-            reverse("api-1.0:create_song_producer", kwargs={"id": self.be_easy["id"] + 100}),
+            reverse("api-1.0:create_song_producer", kwargs={"id": song_id}),
             {
                 "producer": self.dj_toomp["id"],
                 "role": "Producer",
@@ -806,14 +918,15 @@ class CreateSongProducerTestCase(TestCase):
 
         self.assertEqual(response.status_code, 404)
         self.assertEqual(
-            response.json()["error"], f"Song with id = {self.be_easy["id"] + 100} does not exist."
+            response.json()["error"], f"Song with id = {song_id} does not exist."
         )
 
     def test_create_song_producer_with_unknown_artist(self):
+        artist_id = self.dj_toomp["id"] + 100
         response = self.client.post(
             reverse("api-1.0:create_song_producer", kwargs={"id": self.be_easy["id"]}),
             {
-                "producer": self.dj_toomp["id"] + 100,
+                "producer": artist_id,
                 "role": "Producer",
             },
             content_type="application/json",
@@ -821,7 +934,7 @@ class CreateSongProducerTestCase(TestCase):
 
         self.assertEqual(response.status_code, 404)
         self.assertEqual(
-            response.json()["error"], f"Artist with id = {self.dj_toomp["id"] + 100} does not exist."
+            response.json()["error"], f"Artist with id = {artist_id} does not exist."
         )
 
     def test_create_duplicate_producer(self):
