@@ -257,12 +257,16 @@ class SongArtistSummaryOut(Schema):
     url: str
 
     @staticmethod
+    def resolve_id(obj):
+        return obj.artist.id
+
+    @staticmethod
     def resolve_name(obj):
         return obj.artist.name
 
     @staticmethod
     def resolve_url(obj, context):
-        artist_url = reverse("api-1.0:retrieve_artist", kwargs={"id": obj.id})
+        artist_url = reverse("api-1.0:retrieve_artist", kwargs={"id": obj.artist.id})
         return context["request"].build_absolute_uri(artist_url)
 
 
