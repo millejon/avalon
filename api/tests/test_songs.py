@@ -250,6 +250,21 @@ class RetrieveSongTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.client = Client()
+        cls.ugk = cls.client.post(
+            reverse("api-1.0:create_artist"),
+            {"name": "U.G.K."},
+            content_type="application/json",
+        ).json()
+        cls.pimp_c = cls.client.post(
+            reverse("api-1.0:create_artist"),
+            {"name": "Pimp C"},
+            content_type="application/json",
+        ).json()
+        cls.no_joe = cls.client.post(
+            reverse("api-1.0:create_artist"),
+            {"name": "N.O. Joe"},
+            content_type="application/json",
+        ).json()
         cls.ridin_dirty = cls.client.post(
             reverse("api-1.0:create_album"),
             {
@@ -293,6 +308,55 @@ class RetrieveSongTestCase(TestCase):
         self.assertEqual(response["path"], "/ugk/ridin-dirty/10_hi-life.flac")
         self.assertEqual(response["play_count"], 0)
         self.assertTrue(response["url"].endswith(f"/api/v1/songs/{self.hi_life["id"]}"))
+
+    def test_retrieve_song_json_response_only_shows_main_artists(self):
+        self.client.post(
+            reverse("api-1.0:create_song_artist", kwargs={"id": self.hi_life["id"]}),
+            {"artist": self.ugk["id"]},
+            content_type="application/json",
+        )
+        self.client.post(
+            reverse("api-1.0:create_song_artist", kwargs={"id": self.hi_life["id"]}),
+            {
+                "artist": self.pimp_c["id"],
+                "group": True,
+            },
+            content_type="application/json",
+        )
+        response = self.client.get(
+            reverse("api-1.0:retrieve_song", kwargs={"id": self.hi_life["id"]})
+        ).json()
+
+        self.assertEqual(len(response["artists"]), 1)
+        self.assertEqual(response["artists"][0]["id"], self.ugk["id"])
+        self.assertEqual(response["artists"][0]["name"], "U.G.K.")
+        self.assertTrue(response["artists"][0]["url"].endswith(f"/api/v1/artists/{self.ugk["id"]}"))
+
+    def test_retrieve_song_json_response_only_shows_main_producers(self):
+        self.client.post(
+            reverse("api-1.0:create_song_producer", kwargs={"id": self.hi_life["id"]}),
+            {
+                "producer": self.no_joe["id"],
+                "role": "Producer",
+            },
+            content_type="application/json",
+        )
+        self.client.post(
+            reverse("api-1.0:create_song_producer", kwargs={"id": self.hi_life["id"]}),
+            {
+                "producer": self.pimp_c["id"],
+                "role": "Co-Producer",
+            },
+            content_type="application/json",
+        )
+        response = self.client.get(
+            reverse("api-1.0:retrieve_song", kwargs={"id": self.hi_life["id"]})
+        ).json()
+
+        self.assertEqual(len(response["producers"]), 1)
+        self.assertEqual(response["producers"][0]["id"], self.no_joe["id"])
+        self.assertEqual(response["producers"][0]["name"], "N.O. Joe")
+        self.assertTrue(response["producers"][0]["url"].endswith(f"/api/v1/artists/{self.no_joe["id"]}"))
 
     def test_retrieve_unknown_song(self):
         song_id = self.hi_life["id"] + 100
