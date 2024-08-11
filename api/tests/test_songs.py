@@ -817,6 +817,80 @@ class RetrieveAllSongArtistsTestCase(TestCase):
         )
 
 
+class DeleteSongArtistTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = Client()
+        cls.juvenile = cls.client.post(
+            reverse("api-1.0:create_artist"),
+            {"name": "Juvenile"},
+            content_type="application/json",
+        ).json()
+        cls.four_hundred_degreez = cls.client.post(
+            reverse("api-1.0:create_album"),
+            {
+                "title": "400 Degreez",
+                "release_date": "1998-11-03",
+            },
+            content_type="application/json",
+        ).json()
+        cls.back_that_azz_up = cls.client.post(
+            reverse("api-1.0:create_song"),
+            {
+                "title": "Back That Azz Up",
+                "album": cls.four_hundred_degreez["id"],
+                "track_number": 13,
+                "length": 265,
+                "path": "/juvenile/400-degreez/13_back_that_azz_up.flac",
+            },
+            content_type="application/json",
+        ).json()
+        cls.client.post(
+            reverse("api-1.0:create_song_artist", kwargs={"id": cls.back_that_azz_up["id"]}),
+            {"artist": cls.juvenile["id"]},
+            content_type="application/json",
+        )
+
+    def test_delete_song_artist_status_code(self):
+        response = self.client.delete(
+            reverse(
+                "api-1.0:delete_song_artist",
+                kwargs={
+                    "song_id": self.back_that_azz_up["id"],
+                    "artist_id": self.juvenile["id"],
+                }
+            )
+        )
+
+        self.assertEqual(response.status_code, 204)
+
+    def test_delete_song_artist_json_response(self):
+        response = self.client.delete(
+            reverse(
+                "api-1.0:delete_song_artist",
+                kwargs={
+                    "song_id": self.back_that_azz_up["id"],
+                    "artist_id": self.juvenile["id"],
+                }
+            )
+        )
+
+        self.assertFalse(response.content)
+
+    # def test_deleted_song_artist_is_not_linked_to_song(self):
+    #     print(self.back_that_azz_up["artists"])
+    #     self.assertTrue(self.juvenile["name"] in self.back_that_azz_up["artists"])
+    #     self.client.delete(
+    #         reverse(
+    #             "api-1.0:delete_song_artist",
+    #             kwargs={
+    #                 "song_id": self.back_that_azz_up["id"],
+    #                 "artist_id": self.juvenile["id"],
+    #             }
+    #         )
+    #     )
+
+
 class CreateSongProducerTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):

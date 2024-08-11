@@ -108,6 +108,24 @@ def retrieve_all_song_artists(request, id: int):
         return 200, song
 
 
+@router.delete(
+    "{int:song_id}/artists/{int:artist_id}",
+    response={204: None, 404: schema.Error},
+    tags=["songs"],
+)
+def delete_song_artist(request, song_id: int, artist_id: int):
+    try:
+        song = models.Song.objects.get(pk=song_id)
+        artist = models.Artist.objects.get(pk=artist_id)
+    except models.Song.DoesNotExist:
+        return 404, {"error": f"Song with id = {song_id} does not exist."}
+    except models.Artist.DoesNotExist:
+        return 404, {"error": f"Artist with id = {artist_id} does not exist."}
+    else:
+        song.artists.remove(artist)
+        return 204, None
+
+
 @router.post(
     "{int:id}/producers",
     response={201: schema.SongProducerOut, 400: schema.Error, 404: schema.Error},
