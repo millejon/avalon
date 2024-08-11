@@ -777,10 +777,14 @@ class RetrieveAllSongArtistsTestCase(TestCase):
 
         self.assertEqual(response["id"], self.make_em_say_uhh["id"])
         self.assertEqual(response["title"], "Make 'Em Say Uhh!")
+        self.assertEqual(response["artists"][0]["id"], self.master_p["id"])
         self.assertEqual(response["artists"][0]["name"], "Master P")
         self.assertFalse(response["artists"][0]["group"])
+        self.assertTrue(response["artists"][0]["url"].endswith(f"/api/v1/artists/{self.master_p["id"]}"))
+        self.assertEqual(response["artists"][1]["id"], self.tru["id"])
         self.assertEqual(response["artists"][1]["name"], "Tru")
         self.assertTrue(response["artists"][1]["group"])
+        self.assertTrue(response["artists"][1]["url"].endswith(f"/api/v1/artists/{self.tru["id"]}"))
         self.assertTrue(response["url"].endswith(f"/api/v1/songs/{self.make_em_say_uhh["id"]}"))
 
     def test_retrieve_all_song_artists_song_has_no_artists(self):
