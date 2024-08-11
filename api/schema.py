@@ -212,16 +212,15 @@ class SongOut(Schema):
     play_count: int
     url: str
 
-    # TODO: Check these methods after finishing with re-working Feature model.
-    # @staticmethod
-    # def resolve_artists(obj):
-    #     artists = obj.artists.filter(group=False)
-    #     return [feature.artist for feature in artists]
+    @staticmethod
+    def resolve_artists(obj):
+        artists = obj.songartist_set.filter(group=False)
+        return [feature.artist for feature in artists]
 
-    # @staticmethod
-    # def resolve_producers(obj):
-    #     producers = obj.producers.filter(role="Producer")
-    #     return [feature.producer for feature in producers]
+    @staticmethod
+    def resolve_producers(obj):
+        producers = obj.songproducer_set.filter(role="Producer")
+        return [feature.producer for feature in producers]
 
     @staticmethod
     def resolve_url(obj, context):
