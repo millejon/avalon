@@ -3,7 +3,7 @@ from typing import List
 
 from ninja import Router
 
-from catalog import models
+from api import models
 from api import schema, utilities as util
 
 router = Router()
@@ -12,11 +12,7 @@ router = Router()
 @router.post("", response={201: schema.AlbumOut}, tags=["albums"])
 def create_album(request, data: schema.AlbumIn):
     data = util.strip_whitespace(data.dict())
-    artists = data.pop("artists")
-
     album = models.Album.objects.create(**data)
-    for artist in artists:
-        album.artists.add(artist)
     album.save()
     return 201, album
 

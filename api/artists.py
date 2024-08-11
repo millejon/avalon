@@ -2,7 +2,7 @@ from typing import List
 
 from ninja import Router
 
-from catalog import models
+from api import models
 from api import schema, utilities as util
 
 router = Router()
@@ -62,21 +62,21 @@ def retrieve_all_artists(request):
     return 200, artists
 
 
-@router.get("{int:id}/albums/")
+@router.get("{int:id}/albums")
 def retrieve_artist_albums(request, id: int):
     pass
 
 
-@router.get("{int:id}/singles/")
+@router.get("{int:id}/singles")
 def retrieve_artist_singles(request, id: int):
     pass
 
 
-@router.get("{int:id}/songs/")
+@router.get("{int:id}/songs")
 def retrieve_artist_songs(request, id: int):
     pass
 
 
-@router.get("{int:id}/produced/")
+@router.get("{int:id}/produced")
 def retrieve_artist_production_credits(request, id: int):
     pass
