@@ -251,6 +251,38 @@ class SongArtistOut(Schema):
     group: bool
 
 
+class SongArtistSummaryOut(Schema):
+    id: int
+    name: str
+    group: bool
+    url: str
+
+    @staticmethod
+    def resolve_name(obj):
+        return obj.artist.name
+
+    @staticmethod
+    def resolve_url(obj, context):
+        artist_url = reverse("api-1.0:retrieve_artist", kwargs={"id": obj.id})
+        return context["request"].build_absolute_uri(artist_url)
+
+
+class SongArtistsOut(Schema):
+    id: int
+    title: str
+    artists: List[SongArtistSummaryOut]
+    url: str
+
+    @staticmethod
+    def resolve_artists(obj):
+        return obj.songartist_set.all()
+
+    @staticmethod
+    def resolve_url(obj, context):
+        song_url = reverse("api-1.0:retrieve_song", kwargs={"id": obj.id})
+        return context["request"].build_absolute_uri(song_url)
+
+
 class SongProducerIn(Schema):
     producer: int
     role: str
