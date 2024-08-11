@@ -1231,3 +1231,132 @@ class RetrieveAllSongProducersTestCase(TestCase):
         self.assertEqual(
             response.json()["error"], f"Song with id = {song_id} does not exist."
         )
+
+
+class DeleteSongProducerTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = Client()
+        cls.mannie_fresh = cls.client.post(
+            reverse("api-1.0:create_artist"),
+            {"name": "Mannie Fresh"},
+            content_type="application/json",
+        ).json()
+        cls.tha_carter = cls.client.post(
+            reverse("api-1.0:create_album"),
+            {
+                "title": "Tha Carter",
+                "release_date": "2004-06-29",
+            },
+            content_type="application/json",
+        ).json()
+        cls.go_dj = cls.client.post(
+            reverse("api-1.0:create_song"),
+            {
+                "title": "Go DJ",
+                "album": cls.tha_carter["id"],
+                "track_number": 2,
+                "length": 282,
+                "path": "/lil-wayne/tha-carter/02_go_dj.flac",
+            },
+            content_type="application/json",
+        ).json()
+        cls.client.post(
+            reverse(
+                "api-1.0:create_song_producer",
+                kwargs={"id": cls.go_dj["id"]},
+            ),
+            {
+                "producer": cls.mannie_fresh["id"],
+                "role": "Producer",
+            },
+            content_type="application/json",
+        )
+
+    def test_delete_song_producer_status_code(self):
+        response = self.client.delete(
+            reverse(
+                "api-1.0:delete_song_producer",
+                kwargs={
+                    "song_id": self.go_dj["id"],
+                    "producer_id": self.mannie_fresh["id"],
+                },
+            )
+        )
+
+        self.assertEqual(response.status_code, 204)
+
+    def test_delete_song_producer_json_response(self):
+        response = self.client.delete(
+            reverse(
+                "api-1.0:delete_song_producer",
+                kwargs={
+                    "song_id": self.go_dj["id"],
+                    "producer_id": self.mannie_fresh["id"],
+                },
+            )
+        )
+
+        self.assertFalse(response.content)
+
+    def test_deleted_song_producer_is_not_linked_to_song(self):
+        song_producers = self.client.get(
+            reverse(
+                "api-1.0:retrieve_all_song_producers",
+                kwargs={"id": self.go_dj["id"]},
+            )
+        ).json()
+        self.assertEqual(len(song_producers["producers"]), 1)
+        self.assertEqual(song_producers["producers"][0]["name"], "Mannie Fresh")
+
+        self.client.delete(
+            reverse(
+                "api-1.0:delete_song_producer",
+                kwargs={
+                    "song_id": self.go_dj["id"],
+                    "producer_id": self.mannie_fresh["id"],
+                },
+            )
+        )
+
+        song_producers = self.client.get(
+            reverse(
+                "api-1.0:retrieve_all_song_producers",
+                kwargs={"id": self.go_dj["id"]},
+            )
+        ).json()
+        self.assertEqual(len(song_producers["producers"]), 0)
+
+    def test_delete_song_producer_with_unknown_song(self):
+        song_id = self.go_dj["id"] + 100
+        response = self.client.delete(
+            reverse(
+                "api-1.0:delete_song_producer",
+                kwargs={
+                    "song_id": song_id,
+                    "producer_id": self.mannie_fresh["id"],
+                },
+            )
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            response.json()["error"], f"Song with id = {song_id} does not exist."
+        )
+
+    def test_delete_song_producer_with_unknown_artist(self):
+        producer_id = self.mannie_fresh["id"] + 100
+        response = self.client.delete(
+            reverse(
+                "api-1.0:delete_song_producer",
+                kwargs={
+                    "song_id": self.go_dj["id"],
+                    "producer_id": producer_id,
+                },
+            )
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            response.json()["error"], f"Artist with id = {producer_id} does not exist."
+        )
