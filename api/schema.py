@@ -295,3 +295,41 @@ class SongProducerOut(Schema):
     song: SongSummaryOut
     producer: ArtistSummaryOut
     role: str
+
+
+class SongProducerSummaryOut(Schema):
+    id: int
+    name: str
+    role: str
+    url: str
+
+    @staticmethod
+    def resolve_id(obj):
+        return obj.producer.id
+
+    @staticmethod
+    def resolve_name(obj):
+        return obj.producer.name
+
+    @staticmethod
+    def resolve_url(obj, context):
+        producer_url = reverse(
+            "api-1.0:retrieve_artist", kwargs={"id": obj.producer.id}
+        )
+        return context["request"].build_absolute_uri(producer_url)
+
+
+class SongProducersOut(Schema):
+    id: int
+    title: str
+    producers: List[SongProducerSummaryOut]
+    url: str
+
+    @staticmethod
+    def resolve_producers(obj):
+        return obj.songproducer_set.all()
+
+    @staticmethod
+    def resolve_url(obj, context):
+        song_url = reverse("api-1.0:retrieve_song", kwargs={"id": obj.id})
+        return context["request"].build_absolute_uri(song_url)
