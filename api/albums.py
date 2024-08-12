@@ -59,10 +59,11 @@ def update_album(request, id: int, data: schema.AlbumIn):
 def delete_album(request, id: int):
     try:
         album = models.Album.objects.get(pk=id)
-        album.delete()
-        return 204, None
     except models.Album.DoesNotExist:
         return 404, {"error": f"Album with id = {id} does not exist."}
+    else:
+        album.delete()
+        return 204, None
 
 
 # TODO: Need to figure out how to order albums by first artist added to
