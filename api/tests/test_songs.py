@@ -827,20 +827,20 @@ class RetrieveAllSongArtistsTestCase(TestCase):
             content_type="application/json",
         )
 
-    def test_retrieve_all_song_artists_status_code(self):
+    def test_retrieve_song_artists_status_code(self):
         response = self.client.get(
             reverse(
-                "api-1.0:retrieve_all_song_artists",
+                "api-1.0:retrieve_song_artists",
                 kwargs={"id": self.make_em_say_uhh["id"]},
             )
         )
 
         self.assertEqual(response.status_code, 200)
 
-    def test_retrieve_all_song_artists_json_response(self):
+    def test_retrieve_song_artists_json_response(self):
         response = self.client.get(
             reverse(
-                "api-1.0:retrieve_all_song_artists",
+                "api-1.0:retrieve_song_artists",
                 kwargs={"id": self.make_em_say_uhh["id"]},
             )
         ).json()
@@ -857,7 +857,7 @@ class RetrieveAllSongArtistsTestCase(TestCase):
         self.assertTrue(response["artists"][1]["url"].endswith(f"/api/v1/artists/{self.tru["id"]}"))
         self.assertTrue(response["url"].endswith(f"/api/v1/songs/{self.make_em_say_uhh["id"]}"))
 
-    def test_retrieve_all_song_artists_song_has_no_artists(self):
+    def test_retrieve_song_artists_song_has_no_artists(self):
         i_miss_my_homies = self.client.post(
             reverse("api-1.0:create_song"),
             {
@@ -871,7 +871,7 @@ class RetrieveAllSongArtistsTestCase(TestCase):
         ).json()
         response = self.client.get(
             reverse(
-                "api-1.0:retrieve_all_song_artists",
+                "api-1.0:retrieve_song_artists",
                 kwargs={"id": i_miss_my_homies["id"]},
             )
         )
@@ -879,10 +879,10 @@ class RetrieveAllSongArtistsTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()["artists"]), 0)
 
-    def test_retrieve_all_song_artists_unknown_song(self):
+    def test_retrieve_song_artists_unknown_song(self):
         song_id = self.make_em_say_uhh["id"] + 100
         response = self.client.get(
-            reverse("api-1.0:retrieve_all_song_artists", kwargs={"id": song_id})
+            reverse("api-1.0:retrieve_song_artists", kwargs={"id": song_id})
         )
 
         self.assertEqual(response.status_code, 404)
@@ -957,7 +957,7 @@ class DeleteSongArtistTestCase(TestCase):
     def test_deleted_song_artist_is_not_linked_to_song(self):
         song_artists = self.client.get(
             reverse(
-                "api-1.0:retrieve_all_song_artists",
+                "api-1.0:retrieve_song_artists",
                 kwargs={"id": self.back_that_azz_up["id"]},
             )
         ).json()
@@ -976,7 +976,7 @@ class DeleteSongArtistTestCase(TestCase):
 
         song_artists = self.client.get(
             reverse(
-                "api-1.0:retrieve_all_song_artists",
+                "api-1.0:retrieve_song_artists",
                 kwargs={"id": self.back_that_azz_up["id"]},
             )
         ).json()
@@ -1233,20 +1233,20 @@ class RetrieveAllSongProducersTestCase(TestCase):
             content_type="application/json",
         )
 
-    def test_retrieve_all_song_producers_status_code(self):
+    def test_retrieve_song_producers_status_code(self):
         response = self.client.get(
             reverse(
-                "api-1.0:retrieve_all_song_producers",
+                "api-1.0:retrieve_song_producers",
                 kwargs={"id": self.stand_up["id"]},
             )
         )
 
         self.assertEqual(response.status_code, 200)
 
-    def test_retrieve_all_song_producers_json_response(self):
+    def test_retrieve_song_producers_json_response(self):
         response = self.client.get(
             reverse(
-                "api-1.0:retrieve_all_song_producers",
+                "api-1.0:retrieve_song_producers",
                 kwargs={"id": self.stand_up["id"]},
             )
         ).json()
@@ -1263,7 +1263,7 @@ class RetrieveAllSongProducersTestCase(TestCase):
         self.assertTrue(response["producers"][1]["url"].endswith(f"/api/v1/artists/{self.ludacris["id"]}"))
         self.assertTrue(response["url"].endswith(f"/api/v1/songs/{self.stand_up["id"]}"))
 
-    def test_retrieve_all_song_producers_song_has_no_producers(self):
+    def test_retrieve_song_producers_song_has_no_producers(self):
         we_got = self.client.post(
             reverse("api-1.0:create_song"),
             {
@@ -1277,7 +1277,7 @@ class RetrieveAllSongProducersTestCase(TestCase):
         ).json()
         response = self.client.get(
             reverse(
-                "api-1.0:retrieve_all_song_producers",
+                "api-1.0:retrieve_song_producers",
                 kwargs={"id": we_got["id"]},
             )
         )
@@ -1285,10 +1285,10 @@ class RetrieveAllSongProducersTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()["producers"]), 0)
 
-    def test_retrieve_all_song_producers_unknown_song(self):
+    def test_retrieve_song_producers_unknown_song(self):
         song_id = self.stand_up["id"] + 100
         response = self.client.get(
-            reverse("api-1.0:retrieve_all_song_producers", kwargs={"id": song_id})
+            reverse("api-1.0:retrieve_song_producers", kwargs={"id": song_id})
         )
 
         self.assertEqual(response.status_code, 404)
@@ -1366,7 +1366,7 @@ class DeleteSongProducerTestCase(TestCase):
     def test_deleted_song_producer_is_not_linked_to_song(self):
         song_producers = self.client.get(
             reverse(
-                "api-1.0:retrieve_all_song_producers",
+                "api-1.0:retrieve_song_producers",
                 kwargs={"id": self.go_dj["id"]},
             )
         ).json()
@@ -1385,7 +1385,7 @@ class DeleteSongProducerTestCase(TestCase):
 
         song_producers = self.client.get(
             reverse(
-                "api-1.0:retrieve_all_song_producers",
+                "api-1.0:retrieve_song_producers",
                 kwargs={"id": self.go_dj["id"]},
             )
         ).json()

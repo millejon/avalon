@@ -99,7 +99,7 @@ def create_song_artist(request, id: int, data: schema.SongArtistIn):
     response={200: schema.SongArtistsOut, 404: schema.Error},
     tags=["songs"],
 )
-def retrieve_all_song_artists(request, id: int):
+def retrieve_song_artists(request, id: int):
     try:
         song = models.Song.objects.get(pk=id)
     except models.Song.DoesNotExist:
@@ -158,7 +158,7 @@ def create_song_producer(request, id: int, data: schema.SongProducerIn):
     response={200: schema.SongProducersOut, 404: schema.Error},
     tags=["songs"],
 )
-def retrieve_all_song_producers(request, id: int):
+def retrieve_song_producers(request, id: int):
     try:
         song = models.Song.objects.get(pk=id)
     except models.Song.DoesNotExist:
