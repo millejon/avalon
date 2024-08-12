@@ -38,12 +38,22 @@ class Album(models.Model):
     def get_url(self):
         return reverse("api-1.0:retrieve_album", args=[str(self.id)])
 
+    def get_songs_url(self):
+        return reverse("api-1.0:retrieve_album_songs", args=[str(self.id)])
+
+    def get_discs_url(self):
+        return reverse("api-1.0:retrieve_album_discs", args=[str(self.id)])
+
     class Meta:
         ordering = ["artists__name", "release_date"]
         constraints = [
             models.UniqueConstraint(
                 fields=["title", "release_date"], name="unique_album"
-            )
+            ),
+            models.CheckConstraint(
+                check=~(models.Q(single=True) & models.Q(multidisc=True)),
+                name="singles_can_not_be_multidisc",
+            ),
         ]
 
 

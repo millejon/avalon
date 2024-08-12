@@ -82,6 +82,15 @@ class AlbumModelTestCase(TestCase):
                 release_date=datetime.date(1992, 12, 15),
             )
 
+    def test_album_creation_multidisc_single(self):
+        with self.assertRaises(IntegrityError):
+            models.Album.objects.create(
+                title="Deep Cover",
+                release_date=datetime.date(1992, 4, 9),
+                single=True,
+                multidisc=True,
+            )
+
     def test_album_ordering(self):
         self.the_chronic.artists.create(name="Dr. Dre")
         snoop_dogg = models.Artist.objects.create(name="Snoop Dogg")
