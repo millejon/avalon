@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from typing import List
 
+from django.db import IntegrityError
 from ninja import Router
 
 from api import models
@@ -9,12 +10,21 @@ from api import schema, utilities as util
 router = Router()
 
 
-@router.post("", response={201: schema.AlbumOut}, tags=["albums"])
+@router.post("", response={201: schema.AlbumOut, 400: schema.Error}, tags=["albums"])
 def create_album(request, data: schema.AlbumIn):
     data = util.strip_whitespace(data.dict())
-    album = models.Album.objects.create(**data)
-    album.save()
-    return 201, album
+    try:
+        album = models.Album.objects.create(**data)
+    except IntegrityError as error:
+        error = str(error.__cause__)
+        if "unique constraint" in error:
+            return 400, {"error": "Album already exists in database."}
+        elif "check constraint" in error:
+            return 400, {"error": "Singles can not be multidisc."}
+        else:
+            return 400, {"error": error}
+    else:
+        return 201, album
 
 
 @router.get(
@@ -78,11 +88,11 @@ def retrieve_all_albums(request):
     return 200, unique_albums
 
 
-@router.get("{int:id}/discs/")
+@router.get("{int:id}/discs")
 def retrieve_album_discs(request, id: int):
     pass
 
 
-@router.get("{int:id}/songs/")
+@router.get("{int:id}/songs")
 def retrieve_album_songs(request, id: int):
     pass
