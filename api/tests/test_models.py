@@ -70,12 +70,12 @@ class AlbumModelTestCase(TestCase):
     def test_album_str_method(self):
         self.assertEqual(str(self.the_chronic), "The Chronic")
 
-    def test_album_get_url(self):
+    def test_album_get_url_method(self):
         self.assertTrue(
             self.the_chronic.get_url().endswith(f"/api/v1/albums/{self.the_chronic.id}")
         )
 
-    def test_nonunique_album_creation(self):
+    def test_album_creation_duplicate_album(self):
         with self.assertRaises(IntegrityError):
             models.Album.objects.create(
                 title="The Chronic",
