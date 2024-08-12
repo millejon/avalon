@@ -47,62 +47,60 @@ class ArtistModelTestCase(TestCase):
 class AlbumModelTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.artist = models.Artist.objects.create(name="2Pac")
-        cls.album = models.Album.objects.create(
-            title="Me Against The World",
-            release_date=datetime.date(1995, 3, 14),
+        cls.the_chronic = models.Album.objects.create(
+            title="The Chronic",
+            release_date=datetime.date(1992, 12, 15),
         )
-        cls.album.artists.add(cls.artist)
 
     def test_album_creation(self):
-        self.assertTrue(self.album.artists.contains(self.artist))
-        self.assertEqual(self.album.title, "Me Against The World")
-        self.assertEqual(self.album.release_date, datetime.date(1995, 3, 14))
+        self.assertEqual(self.the_chronic.title, "The Chronic")
+        self.assertEqual(self.the_chronic.release_date, datetime.date(1992, 12, 15))
 
     def test_album_creation_single_false_by_default(self):
-        self.assertFalse(self.album.single)
+        self.assertFalse(self.the_chronic.single)
 
     def test_album_creation_multidisc_false_by_default(self):
-        self.assertFalse(self.album.multidisc)
+        self.assertFalse(self.the_chronic.multidisc)
 
     def test_title_max_length(self):
-        max_length = self.album._meta.get_field("title").max_length
+        max_length = self.the_chronic._meta.get_field("title").max_length
 
         self.assertEqual(max_length, 600)
 
     def test_album_str_method(self):
-        self.assertEqual(str(self.album), "Me Against The World")
+        self.assertEqual(str(self.the_chronic), "The Chronic")
 
-    def test_album_get_absolute_url(self):
-        # TODO: Add test after coding front-end views
-        pass
+    def test_album_get_url(self):
+        self.assertTrue(
+            self.the_chronic.get_url().endswith(f"/api/v1/albums/{self.the_chronic.id}")
+        )
 
     def test_nonunique_album_creation(self):
         with self.assertRaises(IntegrityError):
             models.Album.objects.create(
-                title="Me Against The World",
-                release_date=datetime.date(1995, 3, 14),
+                title="The Chronic",
+                release_date=datetime.date(1992, 12, 15),
             )
 
     def test_album_ordering(self):
-        artist2 = models.Artist.objects.create(name="Kurupt")
-        album2 = models.Album.objects.create(
-            title="Tha Streetz Iz A Mutha",
-            release_date=datetime.date(1999, 11, 16),
+        self.the_chronic.artists.create(name="Dr. Dre")
+        snoop_dogg = models.Artist.objects.create(name="Snoop Dogg")
+        tha_doggfather = models.Album.objects.create(
+            title="Tha Doggfather",
+            release_date=datetime.date(1996, 11, 12),
         )
-        album2.artists.add(artist2)
-        album3 = models.Album.objects.create(
-            title="All Eyez On Me",
-            release_date=datetime.date(1996, 2, 13),
-            multidisc=True,
+        tha_doggfather.artists.add(snoop_dogg)
+        doggystyle = models.Album.objects.create(
+            title="Doggystyle",
+            release_date=datetime.date(1993, 11, 23),
         )
-        album3.artists.add(self.artist)
+        doggystyle.artists.add(snoop_dogg)
 
         albums = [str(album) for album in models.Album.objects.all()]
         expected_album_order = [
-            "Me Against The World",
-            "All Eyez On Me",
-            "Tha Streetz Iz A Mutha",
+            "The Chronic",
+            "Doggystyle",
+            "Tha Doggfather",
         ]
 
         self.assertEqual(albums, expected_album_order)
