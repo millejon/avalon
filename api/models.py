@@ -60,16 +60,19 @@ class AlbumArtist(models.Model):
 
 class Disc(models.Model):
     album = models.ForeignKey(Album, on_delete=models.CASCADE)
-    title = models.CharField(max_length=100)
     number = models.PositiveSmallIntegerField(
         validators=[validators.MinValueValidator(1)]
     )
+    title = models.CharField(max_length=100)
 
     def __str__(self):
         return f"{self.album.title} ({self.title})"
 
+    def get_url(self):
+        return reverse("api-1.0:retrieve_disc", args=[str(self.id)])
+
     class Meta:
-        ordering = ["album__artists__name", "album__release_date", "number"]
+        ordering = ["number"]
         constraints = [
             models.UniqueConstraint(fields=["album", "number"], name="unique_disc"),
             models.CheckConstraint(
