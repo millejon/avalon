@@ -17,12 +17,12 @@ def create_song(request, data: schema.SongIn):
         return 404, {"error": f"Album with id = {data["album"]} does not exist."}
     except IntegrityError as error:
         error = str(error.__cause__)
-        if "check constraint" in error:
+        if "unique constraint" in error:
+            return 400, {"error": "Song already exists in database."}
+        elif "check constraint" in error:
             message = ("There is something wrong with the data submitted. "
                        "Please consult the API documentation and try again.")
             return 400, {"error": message}
-        elif "unique constraint" in error:
-            return 400, {"error": "Song already exists in database."}
         else:
             return 400, {"error": error}
     else:
