@@ -6,12 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0002_alter_disc_options'),
+        ("api", "0002_alter_disc_options"),
     ]
 
     operations = [
         migrations.AddConstraint(
-            model_name='album',
-            constraint=models.CheckConstraint(check=models.Q(('single', True), ('multidisc', True), _negated=True), name='singles_can_not_be_multidisc'),
+            model_name="album",
+            constraint=models.CheckConstraint(
+                check=models.Q(("single", True), ("multidisc", True), _negated=True),
+                name="singles_can_not_be_multidisc",
+            ),
         ),
     ]
