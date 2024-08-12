@@ -151,8 +151,8 @@ class CreateAlbumTestCase(TestCase):
         response = self.client.post(
             reverse("api-1.0:create_album"),
             {
-                "title": 456,
-                "release_date": "1995-09-26",
+                "title": "The Low End Theory",
+                "release_date": 19910924,
             },
             content_type="application/json",
         )
@@ -207,37 +207,25 @@ class RetrieveAlbumTestCase(TestCase):
         )
 
 
-class UpdateAlbum(TestCase):
+class UpdateAlbumTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.client = Client()
-        cls.freddie_gibbs = cls.client.post(
-            reverse("api-1.0:create_artist"),
-            {"name": "Freddie Gibbs"},
-            content_type="application/json",
-        ).json()
-        cls.alfredo = cls.client.post(
+        cls.illmatic = cls.client.post(
             reverse("api-1.0:create_album"),
             {
-                "artists": [cls.freddie_gibbs["id"]],
-                "title": "Alfredo",
-                "release_date": "2020-05-29",
+                "title": "Illmatic",
+                "release_date": "1994-04-19",
             },
             content_type="application/json",
         ).json()
 
     def test_update_album_status_code(self):
-        the_alchemist = self.client.post(
-            reverse("api-1.0:create_artist"),
-            {"name": "The Alchemist"},
-            content_type="application/json",
-        ).json()
         response = self.client.put(
-            reverse("api-1.0:update_album", kwargs={"id": self.alfredo["id"]}),
+            reverse("api-1.0:update_album", kwargs={"id": self.illmatic["id"]}),
             {
-                "artists": [self.freddie_gibbs["id"], the_alchemist["id"]],
-                "title": "Alfredo",
-                "release_date": "2020-05-29",
+                "title": "ILLmatic",
+                "release_date": "1994-04-19",
             },
             content_type="application/json",
         )
@@ -245,95 +233,62 @@ class UpdateAlbum(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_update_album_json_response(self):
-        the_alchemist = self.client.post(
-            reverse("api-1.0:create_artist"),
-            {"name": "The Alchemist"},
-            content_type="application/json",
-        ).json()
         response = self.client.put(
-            reverse("api-1.0:update_album", kwargs={"id": self.alfredo["id"]}),
+            reverse("api-1.0:update_album", kwargs={"id": self.illmatic["id"]}),
             {
-                "artists": [self.freddie_gibbs["id"], the_alchemist["id"]],
-                "title": "Alfredo",
-                "release_date": "2020-05-29",
+                "title": "ILLmatic",
+                "release_date": "1994-04-19",
+                "multidisc": True,
             },
             content_type="application/json",
         ).json()
 
-        self.assertEqual(len(response["artists"]), 2)
-        self.assertEqual(response["artists"][0]["name"], "Freddie Gibbs")
-        self.assertEqual(response["artists"][1]["name"], "The Alchemist")
-        self.assertEqual(response["title"], "Alfredo")
-        self.assertEqual(response["release_date"], "2020-05-29")
-        self.assertFalse(response["single"])
-        self.assertFalse(response["multidisc"])
-        self.assertTrue(response["url"].endswith(f"/api/v1/albums/{self.alfredo["id"]}"))
+        self.assertEqual(response["id"], self.illmatic["id"])
+        self.assertEqual(response["title"], "ILLmatic")
+        self.assertEqual(len(response["artists"]), 0)
         self.assertIsNone(response["tracklist"])
-        self.assertIsNone(response["discs"])
+        self.assertEqual(response["release_date"], "1994-04-19")
+        self.assertFalse(response["single"])
+        self.assertTrue(response["multidisc"])
+        self.assertEqual(response["discs"]["count"], 0)
+        self.assertTrue(response["discs"]["url"].endswith(f"/api/v1/albums/{self.illmatic["id"]}/discs"))
+        self.assertTrue(response["url"].endswith(f"/api/v1/albums/{self.illmatic["id"]}"))
 
     def test_update_album_with_extraneous_whitespace(self):
         response = self.client.put(
-            reverse("api-1.0:update_album", kwargs={"id": self.alfredo["id"]}),
+            reverse("api-1.0:update_album", kwargs={"id": self.illmatic["id"]}),
             {
-                "artists": [self.freddie_gibbs["id"]],
-                "title": "    AlFredo    ",
-                "release_date": "2020-05-29",
+                "title": "           ILLmatic",
+                "release_date": "1994-04-19",
             },
             content_type="application/json",
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["title"], "AlFredo")
+        self.assertEqual(response.json()["title"], "ILLmatic")
 
     def test_update_album_with_extraneous_fields(self):
         response = self.client.put(
-            reverse("api-1.0:update_album", kwargs={"id": self.alfredo["id"]}),
+            reverse("api-1.0:update_album", kwargs={"id": self.illmatic["id"]}),
             {
-                "artists": [self.freddie_gibbs["id"]],
-                "title": "AlFredo",
-                "release_date": "2020-05-29",
-                "label": "ALC Records",
+                "title": "ILLmatic",
+                "release_date": "1994-04-19",
+                "label": "Columbia Records",
             },
             content_type="application/json",
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["title"], "AlFredo")
+        self.assertEqual(response.json()["title"], "ILLmatic")
         self.assertFalse("label" in response.json().keys())
 
-    def test_update_album_with_missing_required_fields(self):
-        response = self.client.put(
-            reverse("api-1.0:update_album", kwargs={"id": self.alfredo["id"]}),
-            {
-                "title": "AlFredo",
-                "label": "ALC Records",
-            },
-            content_type="application/json",
-        )
-
-        self.assertEqual(response.status_code, 422)
-
-    def test_update_album_with_invalid_values(self):
-        response = self.client.put(
-            reverse("api-1.0:update_album", kwargs={"id": self.alfredo["id"]}),
-            {
-                "artists": ["Freddie Gibbs", "The Alchemist"],
-                "title": "AlFredo",
-                "release_date": "2020-05-29",
-            },
-            content_type="application/json",
-        )
-
-        self.assertEqual(response.status_code, 422)
-
     def test_update_unknown_album(self):
-        album_id = self.alfredo["id"] + 1
+        album_id = self.illmatic["id"] + 100
         response = self.client.put(
             reverse("api-1.0:update_album", kwargs={"id": album_id}),
             {
-                "artists": [self.freddie_gibbs["id"]],
-                "title": "You Only Live 2wice",
-                "release_date": "2017-03-31",
+                "title": "ILLmatic",
+                "release_date": "1994-04-19",
             },
             content_type="application/json",
         )
@@ -342,6 +297,27 @@ class UpdateAlbum(TestCase):
         self.assertEqual(
             response.json()["error"], f"Album with id = {album_id} does not exist."
         )
+
+    def test_update_album_with_missing_required_fields(self):
+        response = self.client.put(
+            reverse("api-1.0:update_album", kwargs={"id": self.illmatic["id"]}),
+            {"title": "ILLmatic"},
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 422)
+
+    def test_update_album_with_invalid_values(self):
+        response = self.client.put(
+            reverse("api-1.0:update_album", kwargs={"id": self.illmatic["id"]}),
+            {
+                "title": "ILLmatic",
+                "release_date": 19940419,
+            },
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 422)
 
 
 class DeleteAlbum(TestCase):

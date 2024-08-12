@@ -40,24 +40,19 @@ def retrieve_album(request, id: int):
 
 
 @router.put(
-    "{int:id}",
-    response={200: schema.AlbumOut, 404: schema.Error},
-    tags=["albums"],
+    "{int:id}", response={200: schema.AlbumOut, 404: schema.Error}, tags=["albums"]
 )
 def update_album(request, id: int, data: schema.AlbumIn):
+    data = util.strip_whitespace(data.dict())
     try:
         album = models.Album.objects.get(pk=id)
-        data = util.strip_whitespace(data.dict())
-        artists = data.pop("artists")
-
-        for attr, value in data.items():
-            setattr(album, attr, value)
-        for artist in artists:
-            album.artists.add(artist)
-        album.save()
-        return 200, album
     except models.Album.DoesNotExist:
         return 404, {"error": f"Album with id = {id} does not exist."}
+    else:
+        for attr, value in data.items():
+            setattr(album, attr, value)
+        album.save()
+        return 200, album
 
 
 @router.delete("{int:id}", response={204: None, 404: schema.Error}, tags=["albums"])
