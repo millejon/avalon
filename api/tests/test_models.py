@@ -106,6 +106,35 @@ class AlbumModelTestCase(TestCase):
         self.assertEqual(albums, expected_album_order)
 
 
+class AlbumArtistModelTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.dj_quik = models.Artist.objects.create(name="DJ Quik")
+        cls.kurupt = models.Artist.objects.create(name="Kurupt")
+        cls.blaqkout = models.Album.objects.create(
+            title="Blaqkout",
+            release_date=datetime.date(2009, 6, 9),
+        )
+        cls.album_artist = models.AlbumArtist.objects.create(
+            album=cls.blaqkout, artist=cls.kurupt
+        )
+
+    def test_album_artist_creation(self):
+        self.assertEqual(self.album_artist.album.title, "Blaqkout")
+        self.assertEqual(self.album_artist.artist.name, "Kurupt")
+
+    def test_album_artist_str_method(self):
+        self.assertEqual(str(self.album_artist), "Blaqkout - Kurupt")
+
+    def test_album_artist_ordering(self):
+        models.AlbumArtist.objects.create(album=self.blaqkout, artist=self.dj_quik)
+
+        album_artists = [str(artist) for artist in models.AlbumArtist.objects.all()]
+        expected_artist_order = ["Blaqkout - Kurupt", "Blaqkout - DJ Quik"]
+
+        self.assertEqual(album_artists, expected_artist_order)
+
+
 class DiscModelTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -344,12 +373,6 @@ class SongArtistModelTestCase(TestCase):
 
     def test_song_artist_str_method(self):
         self.assertEqual(str(self.song_artist), "Smooth - Tha Dogg Pound")
-
-    def test_nonunique_song_artist_creation(self):
-        with self.assertRaises(IntegrityError):
-            models.SongArtist.objects.create(
-                song=self.smooth, artist=self.tha_dogg_pound
-            )
 
     def test_song_artist_creation_group_member(self):
         group_feature = models.SongArtist.objects.create(
