@@ -24,7 +24,9 @@ class Artist(models.Model):
 
 
 class Album(models.Model):
-    artists = models.ManyToManyField(Artist)
+    artists = models.ManyToManyField(
+        Artist, through="AlbumArtist", related_name="album_artists"
+    )
     title = models.CharField(max_length=600)
     release_date = models.DateField()
     single = models.BooleanField(default=False, blank=True)
@@ -33,8 +35,8 @@ class Album(models.Model):
     def __str__(self):
         return self.title
 
-    def get_absolute_url(self):
-        return reverse("view-album", args=[str(self.id)])
+    def get_url(self):
+        return reverse("api-1.0:retrieve_album", args=[str(self.id)])
 
     class Meta:
         ordering = ["artists__name", "release_date"]
@@ -43,6 +45,17 @@ class Album(models.Model):
                 fields=["title", "release_date"], name="unique_album"
             )
         ]
+
+
+class AlbumArtist(models.Model):
+    album = models.ForeignKey(Album, on_delete=models.CASCADE)
+    artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.album.title} - {self.artist.name}"
+
+    class Meta:
+        ordering = ["id"]
 
 
 class Disc(models.Model):
@@ -68,7 +81,7 @@ class Disc(models.Model):
 class Song(models.Model):
     title = models.CharField(max_length=600)
     artists = models.ManyToManyField(
-        Artist, through="SongArtist", related_name="artists"
+        Artist, through="SongArtist", related_name="song_artists"
     )
     producers = models.ManyToManyField(
         Artist, through="SongProducer", related_name="producers"
