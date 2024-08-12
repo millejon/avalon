@@ -160,49 +160,43 @@ class CreateAlbumTestCase(TestCase):
         self.assertEqual(response.status_code, 422)
 
 
-class RetrieveAlbum(TestCase):
+class RetrieveAlbumTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.client = Client()
-        cls.schoolboy_q = cls.client.post(
-            reverse("api-1.0:create_artist"),
-            {"name": "Schoolboy Q"},
-            content_type="application/json",
-        ).json()
-        cls.oxymoron = cls.client.post(
+        cls.venni_vetti_vecci = cls.client.post(
             reverse("api-1.0:create_album"),
             {
-                "artists": [cls.schoolboy_q["id"]],
-                "title": "Oxymoron",
-                "release_date": "2014-02-25",
+                "title": "Venni Vetti Vecci",
+                "release_date": "1999-06-01",
             },
             content_type="application/json",
         ).json()
 
     def test_retrieve_album_status_code(self):
         response = self.client.get(
-            reverse("api-1.0:retrieve_album", kwargs={"id": self.oxymoron["id"]})
+            reverse("api-1.0:retrieve_album", kwargs={"id": self.venni_vetti_vecci["id"]})
         )
 
         self.assertEqual(response.status_code, 200)
 
     def test_retrieve_album_json_response(self):
         response = self.client.get(
-            reverse("api-1.0:retrieve_album", kwargs={"id": self.oxymoron["id"]})
+            reverse("api-1.0:retrieve_album", kwargs={"id": self.venni_vetti_vecci["id"]})
         ).json()
 
-        self.assertEqual(len(response["artists"]), 1)
-        self.assertEqual(response["artists"][0]["name"], "Schoolboy Q")
-        self.assertEqual(response["title"], "Oxymoron")
-        self.assertEqual(response["release_date"], "2014-02-25")
+        self.assertEqual(response["id"], self.venni_vetti_vecci["id"])
+        self.assertEqual(response["title"], "Venni Vetti Vecci")
+        self.assertEqual(len(response["artists"]), 0)
+        self.assertIsNone(response["tracklist"])
+        self.assertEqual(response["release_date"], "1999-06-01")
         self.assertFalse(response["single"])
         self.assertFalse(response["multidisc"])
-        self.assertTrue(response["url"].endswith(f"/api/v1/albums/{self.oxymoron["id"]}"))
-        self.assertIsNone(response["tracklist"])
         self.assertIsNone(response["discs"])
+        self.assertTrue(response["url"].endswith(f"/api/v1/albums/{self.venni_vetti_vecci["id"]}"))
 
     def test_retrieve_unknown_album(self):
-        album_id = self.oxymoron["id"] + 1
+        album_id = self.venni_vetti_vecci["id"] + 100
         response = self.client.get(
             reverse("api-1.0:retrieve_album", kwargs={"id": album_id})
         )

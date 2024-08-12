@@ -28,16 +28,15 @@ def create_album(request, data: schema.AlbumIn):
 
 
 @router.get(
-    "{int:id}",
-    response={200: schema.AlbumOut, 404: schema.Error},
-    tags=["albums"],
+    "{int:id}", response={200: schema.AlbumOut, 404: schema.Error}, tags=["albums"]
 )
 def retrieve_album(request, id: int):
     try:
         album = models.Album.objects.get(pk=id)
-        return 200, album
     except models.Album.DoesNotExist:
         return 404, {"error": f"Album with id = {id} does not exist."}
+    else:
+        return 200, album
 
 
 @router.put(
