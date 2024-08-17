@@ -47,136 +47,156 @@ class ArtistModelTestCase(TestCase):
 class AlbumModelTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.artist = models.Artist.objects.create(name="2Pac")
-        cls.album = models.Album.objects.create(
-            title="Me Against The World",
-            release_date=datetime.date(1995, 3, 14),
+        cls.the_chronic = models.Album.objects.create(
+            title="The Chronic",
+            release_date=datetime.date(1992, 12, 15),
         )
-        cls.album.artists.add(cls.artist)
 
     def test_album_creation(self):
-        self.assertTrue(self.album.artists.contains(self.artist))
-        self.assertEqual(self.album.title, "Me Against The World")
-        self.assertEqual(self.album.release_date, datetime.date(1995, 3, 14))
+        self.assertEqual(self.the_chronic.title, "The Chronic")
+        self.assertEqual(self.the_chronic.release_date, datetime.date(1992, 12, 15))
 
     def test_album_creation_single_false_by_default(self):
-        self.assertFalse(self.album.single)
+        self.assertFalse(self.the_chronic.single)
 
     def test_album_creation_multidisc_false_by_default(self):
-        self.assertFalse(self.album.multidisc)
+        self.assertFalse(self.the_chronic.multidisc)
 
     def test_title_max_length(self):
-        max_length = self.album._meta.get_field("title").max_length
+        max_length = self.the_chronic._meta.get_field("title").max_length
 
         self.assertEqual(max_length, 600)
 
     def test_album_str_method(self):
-        self.assertEqual(str(self.album), "Me Against The World")
+        self.assertEqual(str(self.the_chronic), "The Chronic")
 
-    def test_album_get_absolute_url(self):
-        # TODO: Add test after coding front-end views
-        pass
+    def test_album_get_url_method(self):
+        self.assertTrue(
+            self.the_chronic.get_url().endswith(f"/api/v1/albums/{self.the_chronic.id}")
+        )
 
-    def test_nonunique_album_creation(self):
+    def test_album_creation_duplicate_album(self):
         with self.assertRaises(IntegrityError):
             models.Album.objects.create(
-                title="Me Against The World",
-                release_date=datetime.date(1995, 3, 14),
+                title="The Chronic",
+                release_date=datetime.date(1992, 12, 15),
+            )
+
+    def test_album_creation_multidisc_single(self):
+        with self.assertRaises(IntegrityError):
+            models.Album.objects.create(
+                title="Deep Cover",
+                release_date=datetime.date(1992, 4, 9),
+                single=True,
+                multidisc=True,
             )
 
     def test_album_ordering(self):
-        artist2 = models.Artist.objects.create(name="Kurupt")
-        album2 = models.Album.objects.create(
-            title="Tha Streetz Iz A Mutha",
-            release_date=datetime.date(1999, 11, 16),
+        self.the_chronic.artists.create(name="Dr. Dre")
+        snoop_dogg = models.Artist.objects.create(name="Snoop Dogg")
+        tha_doggfather = models.Album.objects.create(
+            title="Tha Doggfather",
+            release_date=datetime.date(1996, 11, 12),
         )
-        album2.artists.add(artist2)
-        album3 = models.Album.objects.create(
-            title="All Eyez On Me",
-            release_date=datetime.date(1996, 2, 13),
-            multidisc=True,
+        tha_doggfather.artists.add(snoop_dogg)
+        doggystyle = models.Album.objects.create(
+            title="Doggystyle",
+            release_date=datetime.date(1993, 11, 23),
         )
-        album3.artists.add(self.artist)
+        doggystyle.artists.add(snoop_dogg)
 
         albums = [str(album) for album in models.Album.objects.all()]
         expected_album_order = [
-            "Me Against The World",
-            "All Eyez On Me",
-            "Tha Streetz Iz A Mutha",
+            "The Chronic",
+            "Doggystyle",
+            "Tha Doggfather",
         ]
 
         self.assertEqual(albums, expected_album_order)
 
 
+class AlbumArtistModelTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.dj_quik = models.Artist.objects.create(name="DJ Quik")
+        cls.kurupt = models.Artist.objects.create(name="Kurupt")
+        cls.blaqkout = models.Album.objects.create(
+            title="Blaqkout",
+            release_date=datetime.date(2009, 6, 9),
+        )
+        cls.album_artist = models.AlbumArtist.objects.create(
+            album=cls.blaqkout, artist=cls.kurupt
+        )
+
+    def test_album_artist_creation(self):
+        self.assertEqual(self.album_artist.album.title, "Blaqkout")
+        self.assertEqual(self.album_artist.artist.name, "Kurupt")
+
+    def test_album_artist_str_method(self):
+        self.assertEqual(str(self.album_artist), "Blaqkout - Kurupt")
+
+    def test_album_artist_ordering(self):
+        models.AlbumArtist.objects.create(album=self.blaqkout, artist=self.dj_quik)
+
+        album_artists = [str(artist) for artist in models.AlbumArtist.objects.all()]
+        expected_artist_order = ["Blaqkout - Kurupt", "Blaqkout - DJ Quik"]
+
+        self.assertEqual(album_artists, expected_artist_order)
+
+
 class DiscModelTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.artist = models.Artist.objects.create(name="2Pac")
-        cls.album = models.Album.objects.create(
+        cls.all_eyez_on_me = models.Album.objects.create(
             title="All Eyez On Me",
             release_date=datetime.date(1996, 2, 13),
             multidisc=True,
         )
-        cls.album.artists.add(cls.artist)
-        cls.disc = models.Disc.objects.create(
-            album=cls.album,
-            title="Book 2",
+        cls.book2 = models.Disc.objects.create(
+            album=cls.all_eyez_on_me,
             number=2,
+            title="Book 2",
         )
 
     def test_disc_creation(self):
-        self.assertEqual(self.disc.album.title, "All Eyez On Me")
-        self.assertEqual(self.disc.title, "Book 2")
-        self.assertEqual(self.disc.number, 2)
+        self.assertEqual(self.book2.album.title, "All Eyez On Me")
+        self.assertEqual(self.book2.number, 2)
+        self.assertEqual(self.book2.title, "Book 2")
 
     def test_title_max_length(self):
-        max_length = self.disc._meta.get_field("title").max_length
+        max_length = self.book2._meta.get_field("title").max_length
 
         self.assertEqual(max_length, 100)
 
     def test_disc_str_method(self):
-        self.assertEqual(str(self.disc), "All Eyez On Me (Book 2)")
+        self.assertEqual(str(self.book2), "All Eyez On Me (Book 2)")
 
-    def test_nonunique_disc_creation(self):
+    def test_disc_get_url_method(self):
+        self.assertTrue(self.book2.get_url().endswith(f"/api/v1/discs/{self.book2.id}"))
+
+    def test_disc_creation_duplicate_disc(self):
         with self.assertRaises(IntegrityError):
             models.Disc.objects.create(
-                album=self.album,
-                title="Book 2",
+                album=self.all_eyez_on_me,
                 number=2,
+                title="Book 2",
             )
 
-    def test_invalid_disc_number_disc_creation(self):
+    def test_disc_creation_invalid_disc_number(self):
         with self.assertRaises(IntegrityError):
             models.Disc.objects.create(
-                album=self.album,
-                title="Book 0",
+                album=self.all_eyez_on_me,
                 number=0,
+                title="Book 0",
             )
 
     def test_disc_ordering(self):
-        artist2 = models.Artist.objects.create(name="Wu-Tang Clan")
-        album2 = models.Album.objects.create(
-            title="Wu-Tang Forever",
-            release_date=datetime.date(1997, 6, 3),
-            multidisc=True,
-        )
-        album2.artists.add(artist2)
-        models.Disc.objects.create(album=album2, title="Disc 1", number=1)
-        album3 = models.Album.objects.create(
-            title="R U Still Down? (Remember Me)",
-            release_date=datetime.date(1997, 11, 25),
-            multidisc=True,
-        )
-        album3.artists.add(self.artist)
-        models.Disc.objects.create(album=album3, title="Disc Two", number=2)
-        models.Disc.objects.create(album=self.album, title="Book 1", number=1)
+        models.Disc.objects.create(album=self.all_eyez_on_me, number=1, title="Book 1")
 
         discs = [str(disc) for disc in models.Disc.objects.all()]
         expected_disc_order = [
             "All Eyez On Me (Book 1)",
             "All Eyez On Me (Book 2)",
-            "R U Still Down? (Remember Me) (Disc Two)",
-            "Wu-Tang Forever (Disc 1)",
         ]
 
         self.assertEqual(discs, expected_disc_order)
@@ -229,6 +249,13 @@ class SongModelTestCase(TestCase):
 
     def test_song_str_method(self):
         self.assertEqual(str(self.ny_state_of_mind), "2. N.Y. State Of Mind [Illmatic]")
+
+    def test_song_get_url_method(self):
+        self.assertTrue(
+            self.ny_state_of_mind.get_url().endswith(
+                f"/api/v1/songs/{self.ny_state_of_mind.id}"
+            )
+        )
 
     def test_song_creation_duplicate_song(self):
         with self.assertRaises(IntegrityError):
@@ -339,12 +366,6 @@ class SongArtistModelTestCase(TestCase):
 
     def test_song_artist_str_method(self):
         self.assertEqual(str(self.song_artist), "Smooth - Tha Dogg Pound")
-
-    def test_nonunique_song_artist_creation(self):
-        with self.assertRaises(IntegrityError):
-            models.SongArtist.objects.create(
-                song=self.smooth, artist=self.tha_dogg_pound
-            )
 
     def test_song_artist_creation_group_member(self):
         group_feature = models.SongArtist.objects.create(

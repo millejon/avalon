@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from typing import List
 
+from django.db import IntegrityError
 from ninja import Router
 
 from api import models
@@ -9,56 +10,60 @@ from api import schema, utilities as util
 router = Router()
 
 
-@router.post("", response={201: schema.AlbumOut}, tags=["albums"])
+@router.post("", response={201: schema.AlbumOut, 400: schema.Error}, tags=["albums"])
 def create_album(request, data: schema.AlbumIn):
     data = util.strip_whitespace(data.dict())
-    album = models.Album.objects.create(**data)
-    album.save()
-    return 201, album
+    try:
+        album = models.Album.objects.create(**data)
+    except IntegrityError as error:
+        error = str(error.__cause__)
+        if "unique constraint" in error:
+            return 400, {"error": "Album already exists in database."}
+        elif "check constraint" in error:
+            return 400, {"error": "Singles can not be multidisc."}
+        else:
+            return 400, {"error": error}
+    else:
+        return 201, album
 
 
 @router.get(
-    "{int:id}",
-    response={200: schema.AlbumOut, 404: schema.Error},
-    tags=["albums"],
+    "{int:id}", response={200: schema.AlbumOut, 404: schema.Error}, tags=["albums"]
 )
 def retrieve_album(request, id: int):
     try:
         album = models.Album.objects.get(pk=id)
-        return 200, album
     except models.Album.DoesNotExist:
         return 404, {"error": f"Album with id = {id} does not exist."}
+    else:
+        return 200, album
 
 
 @router.put(
-    "{int:id}",
-    response={200: schema.AlbumOut, 404: schema.Error},
-    tags=["albums"],
+    "{int:id}", response={200: schema.AlbumOut, 404: schema.Error}, tags=["albums"]
 )
 def update_album(request, id: int, data: schema.AlbumIn):
+    data = util.strip_whitespace(data.dict())
     try:
         album = models.Album.objects.get(pk=id)
-        data = util.strip_whitespace(data.dict())
-        artists = data.pop("artists")
-
-        for attr, value in data.items():
-            setattr(album, attr, value)
-        for artist in artists:
-            album.artists.add(artist)
-        album.save()
-        return 200, album
     except models.Album.DoesNotExist:
         return 404, {"error": f"Album with id = {id} does not exist."}
+    else:
+        for attr, value in data.items():
+            setattr(album, attr, value)
+        album.save()
+        return 200, album
 
 
 @router.delete("{int:id}", response={204: None, 404: schema.Error}, tags=["albums"])
 def delete_album(request, id: int):
     try:
         album = models.Album.objects.get(pk=id)
-        album.delete()
-        return 204, None
     except models.Album.DoesNotExist:
         return 404, {"error": f"Album with id = {id} does not exist."}
+    else:
+        album.delete()
+        return 204, None
 
 
 # TODO: Need to figure out how to order albums by first artist added to
@@ -78,11 +83,11 @@ def retrieve_all_albums(request):
     return 200, unique_albums
 
 
-@router.get("{int:id}/discs/")
+@router.get("{int:id}/discs")
 def retrieve_album_discs(request, id: int):
     pass
 
 
-@router.get("{int:id}/songs/")
+@router.get("{int:id}/songs")
 def retrieve_album_songs(request, id: int):
     pass
