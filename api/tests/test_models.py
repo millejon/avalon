@@ -190,20 +190,18 @@ class AlbumArtistModelTestCase(TestCase):
             album=cls.blaqkout, artist=cls.kurupt
         )
 
-    def test_album_artist_creation(self):
+    def test_album_artist_creation_successful(self):
         self.assertEqual(self.album_artist.album.title, "Blaqkout")
         self.assertEqual(self.album_artist.artist.name, "Kurupt")
 
-    def test_album_artist_str_method(self):
+    def test_str_method_returns_album_title_artist_name(self):
         self.assertEqual(str(self.album_artist), "Blaqkout - Kurupt")
 
-    def test_album_artist_ordering(self):
+    def test_album_artists_ordered_by_id(self):
         models.AlbumArtist.objects.create(album=self.blaqkout, artist=self.dj_quik)
-
         album_artists = [str(artist) for artist in models.AlbumArtist.objects.all()]
-        expected_artist_order = ["Blaqkout - Kurupt", "Blaqkout - DJ Quik"]
 
-        self.assertEqual(album_artists, expected_artist_order)
+        self.assertEqual(album_artists, ["Blaqkout - Kurupt", "Blaqkout - DJ Quik"])
 
 
 class DiscModelTestCase(TestCase):
