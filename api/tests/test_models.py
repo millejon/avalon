@@ -10,45 +10,50 @@ from api import models
 class ArtistModelTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.artist = models.Artist.objects.create(name="Nate Dogg")
+        cls.nate_dogg = models.Artist.objects.create(name="Nate Dogg")
 
     def test_artist_creation_successful(self):
-        self.assertEqual(self.artist.name, "Nate Dogg")
+        self.assertEqual(self.nate_dogg.name, "Nate Dogg")
 
     def test_artist_name_max_length_is_100(self):
-        max_length = self.artist._meta.get_field("name").max_length
+        max_length = self.nate_dogg._meta.get_field("name").max_length
 
         self.assertEqual(max_length, 100)
 
     def test_artist_name_unique_constraint_is_true(self):
-        unique_constraint = self.artist._meta.get_field("name").unique
+        unique_constraint = self.nate_dogg._meta.get_field("name").unique
 
         self.assertTrue(unique_constraint)
 
     def test_str_method_returns_artist_name(self):
-        self.assertEqual(str(self.artist), "Nate Dogg")
+        self.assertEqual(str(self.nate_dogg), "Nate Dogg")
 
     def test_get_url_method_returns_artist_api_url(self):
-        self.assertEqual(self.artist.get_url(), f"/api/v1/artists/{self.artist.id}")
+        self.assertEqual(
+            self.nate_dogg.get_url(), f"/api/v1/artists/{self.nate_dogg.id}"
+        )
 
     def test_get_albums_url_method_returns_artist_albums_api_url(self):
         self.assertEqual(
-            self.artist.get_albums_url(), f"/api/v1/artists/{self.artist.id}/albums"
+            self.nate_dogg.get_albums_url(),
+            f"/api/v1/artists/{self.nate_dogg.id}/albums",
         )
 
     def test_get_singles_url_method_returns_artist_singles_api_url(self):
         self.assertEqual(
-            self.artist.get_singles_url(), f"/api/v1/artists/{self.artist.id}/singles"
+            self.nate_dogg.get_singles_url(),
+            f"/api/v1/artists/{self.nate_dogg.id}/singles",
         )
 
     def test_get_songs_url_method_returns_artist_songs_api_url(self):
         self.assertEqual(
-            self.artist.get_songs_url(), f"/api/v1/artists/{self.artist.id}/songs"
+            self.nate_dogg.get_songs_url(), f"/api/v1/artists/{self.nate_dogg.id}/songs"
         )
 
     def test_get_credits_url_method_returns_artist_production_credits_api_url(self):
         self.assertEqual(
-            self.artist.get_credits_url(), f"/api/v1/artists/{self.artist.id}/produced"
+            self.nate_dogg.get_credits_url(),
+            f"/api/v1/artists/{self.nate_dogg.id}/produced",
         )
 
     def test_duplicate_artist_creation_unsuccessful(self):
