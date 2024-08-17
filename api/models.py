@@ -53,23 +53,24 @@ class Album(models.Model):
     def __str__(self):
         return self.title
 
-    def get_url(self):
+    def get_url(self) -> str:
+        """Return the URL of the album API resource."""
         return reverse("api-1.0:retrieve_album", args=[str(self.id)])
 
-    def get_songs_url(self):
+    def get_songs_url(self) -> str:
+        """Return the URL of the album's songs API resource."""
         return reverse("api-1.0:retrieve_album_songs", args=[str(self.id)])
-
-    def get_discs_url(self):
-        return reverse("api-1.0:retrieve_album_discs", args=[str(self.id)])
 
     class Meta:
         ordering = ["artists__name", "release_date"]
         constraints = [
             models.UniqueConstraint(
-                fields=["title", "release_date"], name="unique_album"
+                models.functions.Lower("title"),
+                "release_date",
+                name="duplicate_album",
             ),
             models.CheckConstraint(
-                check=~(models.Q(single=True) & models.Q(multidisc=True)),
+                condition=~(models.Q(single=True) & models.Q(multidisc=True)),
                 name="singles_can_not_be_multidisc",
             ),
         ]
@@ -104,7 +105,7 @@ class Disc(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["album", "number"], name="unique_disc"),
             models.CheckConstraint(
-                check=models.Q(number__gte=1), name="disc_number_greater_than_0"
+                condition=models.Q(number__gte=1), name="disc_number_greater_than_0"
             ),
         ]
 
@@ -136,11 +137,11 @@ class Song(models.Model):
         ordering = ["-play_count", "-album__release_date", "disc", "track_number"]
         constraints = [
             models.CheckConstraint(
-                check=(models.Q(disc__gte=1) | models.Q(disc__isnull=True)),
+                condition=(models.Q(disc__gte=1) | models.Q(disc__isnull=True)),
                 name="disc_number_greater_than_0_or_null",
             ),
             models.CheckConstraint(
-                check=models.Q(track_number__gte=1),
+                condition=models.Q(track_number__gte=1),
                 name="track_number_greater_than_0",
             ),
         ]

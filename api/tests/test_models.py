@@ -80,7 +80,7 @@ class AlbumModelTestCase(TestCase):
             release_date=datetime.date(1992, 12, 15),
         )
 
-    def test_album_creation(self):
+    def test_album_creation_successful(self):
         self.assertEqual(self.the_chronic.title, "The Chronic")
         self.assertEqual(self.the_chronic.release_date, datetime.date(1992, 12, 15))
 
@@ -90,27 +90,67 @@ class AlbumModelTestCase(TestCase):
     def test_album_creation_multidisc_false_by_default(self):
         self.assertFalse(self.the_chronic.multidisc)
 
-    def test_title_max_length(self):
+    def test_single_creation_successful(self):
+        how_do_u_want_it = models.Album.objects.create(
+            title="How Do U Want It",
+            release_date=datetime.date(1996, 6, 4),
+            single=True,
+        )
+
+        self.assertEqual(how_do_u_want_it.title, "How Do U Want It")
+        self.assertEqual(how_do_u_want_it.release_date, datetime.date(1996, 6, 4))
+        self.assertTrue(how_do_u_want_it.single)
+
+    def test_multidisc_album_creation_successful(self):
+        chronic_2000 = models.Album.objects.create(
+            title="Chronic 2000: Still Smokin'",
+            release_date=datetime.date(1999, 5, 4),
+            multidisc=True,
+        )
+
+        self.assertEqual(chronic_2000.title, "Chronic 2000: Still Smokin'")
+        self.assertEqual(chronic_2000.release_date, datetime.date(1999, 5, 4))
+        self.assertTrue(chronic_2000.multidisc)
+
+    def test_album_title_max_length_is_600(self):
         max_length = self.the_chronic._meta.get_field("title").max_length
 
         self.assertEqual(max_length, 600)
 
-    def test_album_str_method(self):
+    def test_artists_related_name_is_album_artists(self):
+        related_name = self.the_chronic._meta.get_field("artists")._related_name
+
+        self.assertEqual(related_name, "album_artists")
+
+    def test_str_method_returns_album_title(self):
         self.assertEqual(str(self.the_chronic), "The Chronic")
 
-    def test_album_get_url_method(self):
-        self.assertTrue(
-            self.the_chronic.get_url().endswith(f"/api/v1/albums/{self.the_chronic.id}")
+    def test_get_url_method_returns_album_api_url(self):
+        self.assertEqual(
+            self.the_chronic.get_url(), f"/api/v1/albums/{self.the_chronic.id}"
         )
 
-    def test_album_creation_duplicate_album(self):
+    def test_get_songs_url_method_returns_album_songs_api_url(self):
+        self.assertEqual(
+            self.the_chronic.get_songs_url(),
+            f"/api/v1/albums/{self.the_chronic.id}/songs",
+        )
+
+    def test_duplicate_album_creation_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.Album.objects.create(
                 title="The Chronic",
                 release_date=datetime.date(1992, 12, 15),
             )
 
-    def test_album_creation_multidisc_single(self):
+    def test_duplicate_album_creation_case_insensitive_unsuccessful(self):
+        with self.assertRaises(IntegrityError):
+            models.Album.objects.create(
+                title="the chronic",
+                release_date=datetime.date(1992, 12, 15),
+            )
+
+    def test_multidisc_single_creation_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.Album.objects.create(
                 title="Deep Cover",
@@ -119,7 +159,7 @@ class AlbumModelTestCase(TestCase):
                 multidisc=True,
             )
 
-    def test_album_ordering(self):
+    def test_albums_ordered_by_artist_name_then_release_date(self):
         self.the_chronic.artists.create(name="Dr. Dre")
         snoop_dogg = models.Artist.objects.create(name="Snoop Dogg")
         tha_doggfather = models.Album.objects.create(
@@ -132,15 +172,9 @@ class AlbumModelTestCase(TestCase):
             release_date=datetime.date(1993, 11, 23),
         )
         doggystyle.artists.add(snoop_dogg)
-
         albums = [str(album) for album in models.Album.objects.all()]
-        expected_album_order = [
-            "The Chronic",
-            "Doggystyle",
-            "Tha Doggfather",
-        ]
 
-        self.assertEqual(albums, expected_album_order)
+        self.assertEqual(albums, ["The Chronic", "Doggystyle", "Tha Doggfather"])
 
 
 class AlbumArtistModelTestCase(TestCase):
