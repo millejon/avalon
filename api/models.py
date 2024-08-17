@@ -113,7 +113,8 @@ class Disc(models.Model):
                 name="duplicate_disc_title",
             ),
             models.CheckConstraint(
-                condition=models.Q(number__gte=1), name="disc_number_less_than_1"
+                condition=models.Q(number__gte=1),
+                name="disc_number_must_be_greater_than_0",
             ),
         ]
 
@@ -124,7 +125,7 @@ class Song(models.Model):
         Artist, through="SongArtist", related_name="song_artists"
     )
     producers = models.ManyToManyField(
-        Artist, through="SongProducer", related_name="producers"
+        Artist, through="SongProducer", related_name="song_producers"
     )
     album = models.ForeignKey(Album, on_delete=models.CASCADE)
     disc = models.PositiveSmallIntegerField(null=True, blank=True)
@@ -138,19 +139,27 @@ class Song(models.Model):
     def __str__(self):
         return f"{self.track_number}. {self.title} [{self.album.title}]"
 
-    def get_url(self):
+    def get_url(self) -> str:
+        """Return the URL of the song API resource."""
         return reverse("api-1.0:retrieve_song", args=[str(self.id)])
 
     class Meta:
         ordering = ["-play_count", "-album__release_date", "disc", "track_number"]
         constraints = [
+            models.UniqueConstraint(
+                fields=["album", "track_number"], name="duplicate_track_number"
+            ),
+            models.UniqueConstraint(
+                models.functions.Lower("path"),
+                name="duplicate_song_case_insensitive_match",
+            ),
             models.CheckConstraint(
                 condition=(models.Q(disc__gte=1) | models.Q(disc__isnull=True)),
-                name="disc_number_greater_than_0_or_null",
+                name="disc_number_must_be_greater_than_0_or_null",
             ),
             models.CheckConstraint(
                 condition=models.Q(track_number__gte=1),
-                name="track_number_greater_than_0",
+                name="track_number_must_be_greater_than_0",
             ),
         ]
 
