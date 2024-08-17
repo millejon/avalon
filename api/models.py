@@ -9,16 +9,34 @@ class Artist(models.Model):
     def __str__(self):
         return self.name
 
-    def get_url(self):
+    def get_url(self) -> str:
+        """Return the URL of the artist API resource."""
         return reverse("api-1.0:retrieve_artist", args=[str(self.id)])
+
+    def get_albums_url(self) -> str:
+        """Return the URL of the artist's albums API resource."""
+        return reverse("api-1.0:retrieve_artist_albums", args=[str(self.id)])
+
+    def get_singles_url(self) -> str:
+        """Return the URL of the artist's singles API resource."""
+        return reverse("api-1.0:retrieve_artist_singles", args=[str(self.id)])
+
+    def get_songs_url(self) -> str:
+        """Return the URL of the artist's songs API resource."""
+        return reverse("api-1.0:retrieve_artist_songs", args=[str(self.id)])
+
+    def get_credits_url(self) -> str:
+        """Return the URL of the artist's production credits API resource."""
+        return reverse(
+            "api-1.0:retrieve_artist_production_credits", args=[str(self.id)]
+        )
 
     class Meta:
         ordering = ["name"]
         constraints = [
             models.UniqueConstraint(
                 models.functions.Lower("name"),
-                name="artist_name_case_insensitive_unique",
-                violation_error_message="Artist already exists (case insensitive match)",
+                name="duplicate_artist_case_insensitive_match",
             ),
         ]
 
