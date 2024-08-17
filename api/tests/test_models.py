@@ -218,23 +218,23 @@ class DiscModelTestCase(TestCase):
             title="Book 2",
         )
 
-    def test_disc_creation(self):
+    def test_disc_creation_successful(self):
         self.assertEqual(self.book2.album.title, "All Eyez On Me")
         self.assertEqual(self.book2.number, 2)
         self.assertEqual(self.book2.title, "Book 2")
 
-    def test_title_max_length(self):
+    def test_disc_title_max_length(self):
         max_length = self.book2._meta.get_field("title").max_length
 
         self.assertEqual(max_length, 100)
 
-    def test_disc_str_method(self):
+    def test_str_method_returns_album_title_disc_title(self):
         self.assertEqual(str(self.book2), "All Eyez On Me (Book 2)")
 
-    def test_disc_get_url_method(self):
-        self.assertTrue(self.book2.get_url().endswith(f"/api/v1/discs/{self.book2.id}"))
+    def test_get_url_method_returns_disc_api_url(self):
+        self.assertEqual(self.book2.get_url(), f"/api/v1/discs/{self.book2.id}")
 
-    def test_disc_creation_duplicate_disc(self):
+    def test_duplicate_disc_creation_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.Disc.objects.create(
                 album=self.all_eyez_on_me,
@@ -242,7 +242,31 @@ class DiscModelTestCase(TestCase):
                 title="Book 2",
             )
 
-    def test_disc_creation_invalid_disc_number(self):
+    def test_disc_creation_with_duplicate_number_unsuccessful(self):
+        with self.assertRaises(IntegrityError):
+            models.Disc.objects.create(
+                album=self.all_eyez_on_me,
+                number=2,
+                title="Book 1",
+            )
+
+    def test_disc_creation_with_duplicate_title_unsuccessful(self):
+        with self.assertRaises(IntegrityError):
+            models.Disc.objects.create(
+                album=self.all_eyez_on_me,
+                number=1,
+                title="Book 2",
+            )
+
+    def test_duplicate_disc_creation_case_insensitive_unsuccessful(self):
+        with self.assertRaises(IntegrityError):
+            models.Disc.objects.create(
+                album=self.all_eyez_on_me,
+                number=2,
+                title="BOOK 2",
+            )
+
+    def test_disc_creation_with_invalid_number_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.Disc.objects.create(
                 album=self.all_eyez_on_me,
@@ -250,16 +274,11 @@ class DiscModelTestCase(TestCase):
                 title="Book 0",
             )
 
-    def test_disc_ordering(self):
+    def test_discs_ordered_by_number(self):
         models.Disc.objects.create(album=self.all_eyez_on_me, number=1, title="Book 1")
-
         discs = [str(disc) for disc in models.Disc.objects.all()]
-        expected_disc_order = [
-            "All Eyez On Me (Book 1)",
-            "All Eyez On Me (Book 2)",
-        ]
 
-        self.assertEqual(discs, expected_disc_order)
+        self.assertEqual(discs, ["All Eyez On Me (Book 1)", "All Eyez On Me (Book 2)"])
 
 
 class SongModelTestCase(TestCase):

@@ -97,15 +97,23 @@ class Disc(models.Model):
     def __str__(self):
         return f"{self.album.title} ({self.title})"
 
-    def get_url(self):
+    def get_url(self) -> str:
+        """Return the URL of the disc API resource."""
         return reverse("api-1.0:retrieve_disc", args=[str(self.id)])
 
     class Meta:
         ordering = ["number"]
         constraints = [
-            models.UniqueConstraint(fields=["album", "number"], name="unique_disc"),
+            models.UniqueConstraint(
+                fields=["album", "number"], name="duplicate_disc_number"
+            ),
+            models.UniqueConstraint(
+                "album",
+                models.functions.Lower("title"),
+                name="duplicate_disc_title",
+            ),
             models.CheckConstraint(
-                condition=models.Q(number__gte=1), name="disc_number_greater_than_0"
+                condition=models.Q(number__gte=1), name="disc_number_less_than_1"
             ),
         ]
 
