@@ -7,7 +7,7 @@ from api import schema, utilities as util
 router = Router()
 
 
-@router.post("", response={201: schema.SongOut, 400: schema.Error, 404: schema.Error}, tags=["songs"])
+@router.post("", response={201: schema.Song, 400: schema.Error, 404: schema.Error}, tags=["songs"])
 def create_song(request, data: schema.SongIn):
     data = util.strip_whitespace(data.dict())
     try:
@@ -29,7 +29,7 @@ def create_song(request, data: schema.SongIn):
         return 201, song
 
 
-@router.get("{int:id}", response={200: schema.SongOut, 404: schema.Error}, tags=["songs"])
+@router.get("{int:id}", response={200: schema.Song, 404: schema.Error}, tags=["songs"])
 def retrieve_song(request, id: int):
     try:
         song = models.Song.objects.get(pk=id)
@@ -39,7 +39,7 @@ def retrieve_song(request, id: int):
         return 200, song
 
 
-@router.put("{int:id}", response={200: schema.SongOut, 404: schema.Error}, tags=["songs"])
+@router.put("{int:id}", response={200: schema.Song, 404: schema.Error}, tags=["songs"])
 def update_song(request, id: int, data: schema.SongIn):
     data = util.strip_whitespace(data.dict())
     try:
@@ -69,7 +69,7 @@ def delete_song(request, id: int):
 
 @router.post(
     "{int:id}/artists",
-    response={201: schema.SongArtistOut, 400: schema.Error, 404: schema.Error},
+    response={201: schema.SongArtist, 400: schema.Error, 404: schema.Error},
     tags=["songs"],
 )
 def create_song_artist(request, id: int, data: schema.SongArtistIn):
@@ -96,7 +96,7 @@ def create_song_artist(request, id: int, data: schema.SongArtistIn):
 
 @router.get(
     "{int:id}/artists",
-    response={200: schema.SongArtistsOut, 404: schema.Error},
+    response={200: schema.SongArtists, 404: schema.Error},
     tags=["songs"],
 )
 def retrieve_song_artists(request, id: int):
@@ -128,7 +128,7 @@ def delete_song_artist(request, song_id: int, artist_id: int):
 
 @router.post(
     "{int:id}/producers",
-    response={201: schema.SongProducerOut, 400: schema.Error, 404: schema.Error},
+    response={201: schema.SongProducer, 400: schema.Error, 404: schema.Error},
     tags=["songs"],
 )
 def create_song_producer(request, id: int, data: schema.SongProducerIn):
@@ -155,7 +155,7 @@ def create_song_producer(request, id: int, data: schema.SongProducerIn):
 
 @router.get(
     "{int:id}/producers",
-    response={200: schema.SongProducersOut, 404: schema.Error},
+    response={200: schema.SongProducers, 404: schema.Error},
     tags=["songs"],
 )
 def retrieve_song_producers(request, id: int):

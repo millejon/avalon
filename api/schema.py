@@ -1,111 +1,140 @@
 from datetime import date
 from typing import TypedDict, List, Optional
 
-from django.urls import reverse
-from ninja import Schema
+from ninja import Schema, ModelSchema
+
+from api import models
 
 
 class Error(Schema):
     error: str
 
 
-class DiscogPreview(TypedDict):
+class CatalogPreview(TypedDict):
     count: int
     url: str
 
 
-class ArtistIn(Schema):
-    name: str
+class ArtistIn(ModelSchema):
+    class Meta:
+        model = models.Artist
+        fields = ["name"]
 
 
-class ArtistOut(Schema):
+class Artist(Schema):
     id: int
     name: str
+    albums: Optional[CatalogPreview]
+    singles: Optional[CatalogPreview]
+    songs: Optional[CatalogPreview]
+    production_credits: Optional[CatalogPreview]
     url: str
-    # albums: Optional[DiscogPreview]
-    # singles: Optional[DiscogPreview]
-    # songs: Optional[DiscogPreview]
-    # songs_produced: Optional[DiscogPreview]
-
-    @staticmethod
-    def resolve_url(obj, context):
-        artist_url = reverse("api-1.0:retrieve_artist", kwargs={"id": obj.id})
-        return context["request"].build_absolute_uri(artist_url)
 
     @staticmethod
     def resolve_albums(obj, context):
-        albums = obj.album_set.filter(single=False)
+        albums = obj.albumartist_set.filter(album__single=False)
         if albums:
-            albums_url = reverse(
-                "api-1.0:retrieve_artist_albums", kwargs={"id": obj.id}
-            )
             return {
                 "count": albums.count(),
-                "url": context["request"].build_absolute_uri(albums_url),
+                "url": context["request"].build_absolute_uri(obj.get_albums_url()),
             }
 
     @staticmethod
     def resolve_singles(obj, context):
-        singles = obj.album_set.filter(single=True)
+        singles = obj.albumartist_set.filter(album__single=True)
         if singles:
-            singles_url = reverse(
-                "api-1.0:retrieve_artist_singles", kwargs={"id": obj.id}
-            )
             return {
                 "count": singles.count(),
-                "url": context["request"].build_absolute_uri(singles_url),
+                "url": context["request"].build_absolute_uri(obj.get_singles_url()),
             }
 
     @staticmethod
     def resolve_songs(obj, context):
-        songs = obj.feature_set.filter(producer=False)
-        if songs:
-            songs_url = reverse("api-1.0:retrieve_artist_songs", kwargs={"id": obj.id})
+        if obj.songartist_set.all():
             return {
-                "count": songs.count(),
-                "url": context["request"].build_absolute_uri(songs_url),
+                "count": obj.songartist_set.count(),
+                "url": context["request"].build_absolute_uri(obj.get_songs_url()),
             }
 
     @staticmethod
-    def resolve_songs_produced(obj, context):
-        produced = obj.feature_set.filter(producer=True)
-        if produced:
-            produced_url = reverse(
-                "api-1.0:retrieve_artist_production_credits", kwargs={"id": obj.id}
-            )
+    def resolve_production_credits(obj, context):
+        if obj.songproducer_set.all():
             return {
-                "count": produced.count(),
-                "url": context["request"].build_absolute_uri(produced_url),
+                "count": obj.songproducer_set.count(),
+                "url": context["request"].build_absolute_uri(obj.get_credits_url()),
             }
 
+    @staticmethod
+    def resolve_url(obj, context):
+        return context["request"].build_absolute_uri(obj.get_url())
 
-class ArtistSummaryOut(Schema):
+
+class ArtistBasics(Schema):
     id: int
     name: str
     url: str
 
     @staticmethod
     def resolve_url(obj, context):
-        artist_url = reverse("api-1.0:retrieve_artist", kwargs={"id": obj.id})
-        return context["request"].build_absolute_uri(artist_url)
+        return context["request"].build_absolute_uri(obj.get_url())
 
 
-class AlbumIn(Schema):
-    title: str
-    release_date: date
-    single: bool = False
-    multidisc: bool = False
+class AlbumIn(ModelSchema):
+    class Meta:
+        model = models.Album
+        fields = ["title", "release_date", "single", "multidisc"]
+        fields_optional = ["single", "multidisc"]
 
 
-class AlbumOut(Schema):
+class AlbumBasics(Schema):
     id: int
     title: str
-    artists: List[ArtistSummaryOut]
-    tracklist: Optional[DiscogPreview]
+    url: str
+
+    @staticmethod
+    def resolve_url(obj, context):
+        return context["request"].build_absolute_uri(obj.get_url())
+
+
+class DiscIn(ModelSchema):
+    class Meta:
+        model = models.Disc
+        fields = ["album", "number", "title"]
+        fields_optional = ["album"]
+
+
+class Disc(Schema):
+    id: int
+    album: AlbumBasics
+    number: int
+    title: str
+    url: str
+
+    @staticmethod
+    def resolve_url(obj, context):
+        return context["request"].build_absolute_uri(obj.get_url())
+
+
+class DiscBasics(Schema):
+    id: int
+    number: int
+    title: str
+    url: str
+
+    @staticmethod
+    def resolve_url(obj, context):
+        return context["request"].build_absolute_uri(obj.get_url())
+
+
+class Album(Schema):
+    id: int
+    title: str
+    artists: List[ArtistBasics]
+    tracklist: Optional[CatalogPreview]
     release_date: date
     single: bool
     multidisc: bool
-    discs: Optional[DiscogPreview]
+    discs: Optional[List[DiscBasics]]
     url: str
 
     @staticmethod
@@ -117,88 +146,39 @@ class AlbumOut(Schema):
             }
 
     @staticmethod
-    def resolve_discs(obj, context):
+    def resolve_discs(obj):
         if obj.multidisc:
-            return {
-                "count": obj.disc_set.count(),
-                "url": context["request"].build_absolute_uri(obj.get_discs_url()),
-            }
+            return obj.disc_set.all()
 
     @staticmethod
     def resolve_url(obj, context):
         return context["request"].build_absolute_uri(obj.get_url())
 
 
-class AlbumSummaryOut(Schema):
-    id: int
-    artists: List[ArtistSummaryOut]
-    title: str
-    url: str
-
-    @staticmethod
-    def resolve_url(obj, context):
-        album_url = reverse("api-1.0:retrieve_album", kwargs={"id": obj.id})
-        return context["request"].build_absolute_uri(album_url)
+class AlbumArtistIn(ModelSchema):
+    class Meta:
+        model = models.AlbumArtist
+        fields = ["artist"]
 
 
-class MiniAlbumSummaryOut(Schema):
-    id: int
-    title: str
-    url: str
-
-    @staticmethod
-    def resolve_url(obj, context):
-        album_url = reverse("api-1.0:retrieve_album", kwargs={"id": obj.id})
-        return context["request"].build_absolute_uri(album_url)
+class AlbumArtist(Schema):
+    album: AlbumBasics
+    artist: ArtistBasics
 
 
-class DiscIn(Schema):
-    album: int
-    title: str
-    number: int
+class SongIn(ModelSchema):
+    class Meta:
+        model = models.Song
+        fields = ["title", "album", "disc", "track_number", "length", "path"]
+        fields_optional = ["disc"]
 
 
-class DiscOut(Schema):
-    id: int
-    album: MiniAlbumSummaryOut
-    title: str
-    number: int
-    url: str
-    tracklist: Optional[DiscogPreview]
-
-    @staticmethod
-    def resolve_url(obj, context):
-        disc_url = reverse("api-1.0:retrieve_disc", kwargs={"id": obj.id})
-        return context["request"].build_absolute_uri(disc_url)
-
-    @staticmethod
-    def resolve_tracklist(obj, context):
-        tracklist = obj.song_set.all()
-        if tracklist:
-            tracklist_url = reverse(
-                "api-1.0:retrieve_disc_songs", kwargs={"id": obj.id}
-            )
-            return {
-                "count": tracklist.count(),
-                "url": context["request"].build_absolute_uri(tracklist_url),
-            }
-
-
-class SongIn(Schema):
-    title: str
-    album: int
-    disc: int = None
-    track_number: int
-    length: int
-    path: str
-
-
-class SongOut(Schema):
+class Song(Schema):
     id: int
     title: str
-    artists: List[ArtistSummaryOut]
-    producers: List[ArtistSummaryOut]
-    album: MiniAlbumSummaryOut
+    artists: List[ArtistBasics]
+    producers: List[ArtistBasics]
+    album: AlbumBasics
     disc: Optional[int]
     track_number: int
     length: int
@@ -221,7 +201,7 @@ class SongOut(Schema):
         return context["request"].build_absolute_uri(obj.get_url())
 
 
-class SongSummaryOut(Schema):
+class SongBasics(Schema):
     id: int
     title: str
     url: str
@@ -231,18 +211,20 @@ class SongSummaryOut(Schema):
         return context["request"].build_absolute_uri(obj.get_url())
 
 
-class SongArtistIn(Schema):
-    artist: int
-    group: bool = False
+class SongArtistIn(ModelSchema):
+    class Meta:
+        model = models.SongArtist
+        fields = ["artist", "group"]
+        fields_optional = ["group"]
 
 
-class SongArtistOut(Schema):
-    song: SongSummaryOut
-    artist: ArtistSummaryOut
+class SongArtist(Schema):
+    song: SongBasics
+    artist: ArtistBasics
     group: bool
 
 
-class SongArtistSummaryOut(Schema):
+class SongArtistDetails(Schema):
     id: int
     name: str
     group: bool
@@ -261,10 +243,10 @@ class SongArtistSummaryOut(Schema):
         return context["request"].build_absolute_uri(obj.artist.get_url())
 
 
-class SongArtistsOut(Schema):
+class SongArtists(Schema):
     id: int
     title: str
-    artists: List[SongArtistSummaryOut]
+    artists: List[SongArtistDetails]
     url: str
 
     @staticmethod
@@ -276,18 +258,19 @@ class SongArtistsOut(Schema):
         return context["request"].build_absolute_uri(obj.get_url())
 
 
-class SongProducerIn(Schema):
-    producer: int
+class SongProducerIn(ModelSchema):
+    class Meta:
+        model = models.SongProducer
+        fields = ["producer", "role"]
+
+
+class SongProducer(Schema):
+    song: SongBasics
+    producer: ArtistBasics
     role: str
 
 
-class SongProducerOut(Schema):
-    song: SongSummaryOut
-    producer: ArtistSummaryOut
-    role: str
-
-
-class SongProducerSummaryOut(Schema):
+class SongProducerDetails(Schema):
     id: int
     name: str
     role: str
@@ -306,10 +289,10 @@ class SongProducerSummaryOut(Schema):
         return context["request"].build_absolute_uri(obj.producer.get_url())
 
 
-class SongProducersOut(Schema):
+class SongProducers(Schema):
     id: int
     title: str
-    producers: List[SongProducerSummaryOut]
+    producers: List[SongProducerDetails]
     url: str
 
     @staticmethod

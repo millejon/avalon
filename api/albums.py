@@ -10,7 +10,7 @@ from api import schema, utilities as util
 router = Router()
 
 
-@router.post("", response={201: schema.AlbumOut, 400: schema.Error}, tags=["albums"])
+@router.post("", response={201: schema.Album, 400: schema.Error}, tags=["albums"])
 def create_album(request, data: schema.AlbumIn):
     data = util.strip_whitespace(data.dict())
     try:
@@ -28,7 +28,7 @@ def create_album(request, data: schema.AlbumIn):
 
 
 @router.get(
-    "{int:id}", response={200: schema.AlbumOut, 404: schema.Error}, tags=["albums"]
+    "{int:id}", response={200: schema.Album, 404: schema.Error}, tags=["albums"]
 )
 def retrieve_album(request, id: int):
     try:
@@ -40,7 +40,7 @@ def retrieve_album(request, id: int):
 
 
 @router.put(
-    "{int:id}", response={200: schema.AlbumOut, 404: schema.Error}, tags=["albums"]
+    "{int:id}", response={200: schema.Album, 404: schema.Error}, tags=["albums"]
 )
 def update_album(request, id: int, data: schema.AlbumIn):
     data = util.strip_whitespace(data.dict())
@@ -69,7 +69,7 @@ def delete_album(request, id: int):
 # TODO: Need to figure out how to order albums by first artist added to
 # TODO: album, not just first alphabetical album artist, then write
 # TODO: tests for this endpoint.
-@router.get("", response={200: List[schema.AlbumSummaryOut]}, tags=["albums"])
+@router.get("", response={200: List[schema.AlbumBasics]}, tags=["albums"])
 def retrieve_all_albums(request):
     albums = models.Album.objects.filter(single=False)
 

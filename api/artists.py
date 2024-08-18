@@ -8,7 +8,7 @@ from api import schema, utilities as util
 router = Router()
 
 
-@router.post("", response={201: schema.ArtistOut}, tags=["artists"])
+@router.post("", response={201: schema.Artist}, tags=["artists"])
 def create_artist(request, data: schema.ArtistIn):
     data = util.strip_whitespace(data.dict())
     artist = models.Artist.objects.create(**data)
@@ -17,7 +17,7 @@ def create_artist(request, data: schema.ArtistIn):
 
 @router.get(
     "{int:id}",
-    response={200: schema.ArtistOut, 404: schema.Error},
+    response={200: schema.Artist, 404: schema.Error},
     tags=["artists"],
 )
 def retrieve_artist(request, id: int):
@@ -30,7 +30,7 @@ def retrieve_artist(request, id: int):
 
 @router.put(
     "{int:id}",
-    response={200: schema.ArtistOut, 404: schema.Error},
+    response={200: schema.Artist, 404: schema.Error},
     tags=["artists"],
 )
 def update_artist(request, id: int, data: schema.ArtistIn):
@@ -56,7 +56,7 @@ def delete_artist(request, id: int):
 
 
 # TODO: Write tests for this endpoint after finishing album endpoints
-@router.get("", response={200: List[schema.ArtistSummaryOut]}, tags=["artists"])
+@router.get("", response={200: List[schema.ArtistBasics]}, tags=["artists"])
 def retrieve_all_artists(request):
     artists = models.Artist.objects.filter(album__isnull=False).distinct("name")
     return 200, artists
