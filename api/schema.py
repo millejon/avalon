@@ -16,8 +16,10 @@ class DiscogPreview(TypedDict):
     url: str
 
 
-class ArtistIn(Schema):
-    name: str
+class ArtistIn(ModelSchema):
+    class Meta:
+        model = models.Artist
+        fields = ["name"]
 
 
 class ArtistOut(Schema):
