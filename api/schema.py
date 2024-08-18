@@ -2,7 +2,9 @@ from datetime import date
 from typing import TypedDict, List, Optional
 
 from django.urls import reverse
-from ninja import Schema
+from ninja import Schema, ModelSchema
+
+from api import models
 
 
 class Error(Schema):
@@ -184,13 +186,11 @@ class DiscOut(Schema):
             }
 
 
-class SongIn(Schema):
-    title: str
-    album: int
-    disc: int = None
-    track_number: int
-    length: int
-    path: str
+class SongIn(ModelSchema):
+    class Meta:
+        model = models.Song
+        fields = ["title", "album", "disc", "track_number", "length", "path"]
+        fields_optional = ["disc"]
 
 
 class SongOut(Schema):
