@@ -265,9 +265,10 @@ class SongArtists(Schema):
         return context["request"].build_absolute_uri(obj.get_url())
 
 
-class SongProducerIn(Schema):
-    producer: int
-    role: str
+class SongProducerIn(ModelSchema):
+    class Meta:
+        model = models.SongProducer
+        fields = ["producer", "role"]
 
 
 class SongProducerOut(Schema):
