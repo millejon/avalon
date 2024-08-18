@@ -225,7 +225,7 @@ class SongArtistIn(ModelSchema):
         fields_optional = ["group"]
 
 
-class SongArtistOut(Schema):
+class SongArtist(Schema):
     song: SongBasics
     artist: ArtistBasics
     group: bool
