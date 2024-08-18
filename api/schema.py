@@ -50,19 +50,17 @@ class Artist(Schema):
 
     @staticmethod
     def resolve_songs(obj, context):
-        songs = obj.songartist_set.all()
-        if songs:
+        if obj.songartist_set.all():
             return {
-                "count": songs.count(),
+                "count": obj.songartist_set.count(),
                 "url": context["request"].build_absolute_uri(obj.get_songs_url()),
             }
 
     @staticmethod
     def resolve_production_credits(obj, context):
-        credits = obj.songproducer_set.all()
-        if credits:
+        if obj.songproducer_set.all():
             return {
-                "count": credits.count(),
+                "count": obj.songproducer_set.count(),
                 "url": context["request"].build_absolute_uri(obj.get_credits_url()),
             }
 
