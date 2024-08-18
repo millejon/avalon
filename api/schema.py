@@ -271,13 +271,13 @@ class SongProducerIn(ModelSchema):
         fields = ["producer", "role"]
 
 
-class SongProducerOut(Schema):
+class SongProducer(Schema):
     song: SongBasics
     producer: ArtistBasics
     role: str
 
 
-class SongProducerSummaryOut(Schema):
+class SongProducerDetails(Schema):
     id: int
     name: str
     role: str
@@ -296,10 +296,10 @@ class SongProducerSummaryOut(Schema):
         return context["request"].build_absolute_uri(obj.producer.get_url())
 
 
-class SongProducersOut(Schema):
+class SongProducers(Schema):
     id: int
     title: str
-    producers: List[SongProducerSummaryOut]
+    producers: List[SongProducerDetails]
     url: str
 
     @staticmethod
