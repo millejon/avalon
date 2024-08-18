@@ -481,17 +481,14 @@ class SongArtistModelTestCase(TestCase):
             song=cls.smooth, artist=cls.tha_dogg_pound
         )
 
-    def test_song_artist_creation(self):
+    def test_song_artist_creation_successful(self):
         self.assertEqual(self.song_artist.song.title, "Smooth")
         self.assertEqual(self.song_artist.artist.name, "Tha Dogg Pound")
 
     def test_song_artist_creation_group_false_by_default(self):
         self.assertFalse(self.song_artist.group)
 
-    def test_song_artist_str_method(self):
-        self.assertEqual(str(self.song_artist), "Smooth - Tha Dogg Pound")
-
-    def test_song_artist_creation_group_member(self):
+    def test_group_member_song_artist_creation_successful(self):
         group_feature = models.SongArtist.objects.create(
             song=self.smooth, artist=self.kurupt, group=True
         )
@@ -500,28 +497,36 @@ class SongArtistModelTestCase(TestCase):
         self.assertEqual(group_feature.artist.name, "Kurupt")
         self.assertTrue(group_feature.group)
 
-    def test_song_artist_creation_nonunique_group_member(self):
+    def test_str_method_returns_song_title_artist_name(self):
+        self.assertEqual(str(self.song_artist), "Smooth - Tha Dogg Pound")
+
+    def test_duplicate_song_artist_creation_unsuccessful(self):
+        with self.assertRaises(IntegrityError):
+            models.SongArtist.objects.create(
+                song=self.smooth, artist=self.tha_dogg_pound
+            )
+
+    def test_duplicate_song_artist_as_group_member_creation_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.SongArtist.objects.create(
                 song=self.smooth, artist=self.tha_dogg_pound, group=True
             )
 
-    def test_song_artist_ordering(self):
+    def test_song_artists_ordered_by_id(self):
         models.SongArtist.objects.create(song=self.smooth, artist=self.snoop_dogg)
         models.SongArtist.objects.create(
             song=self.smooth, artist=self.kurupt, group=True
         )
         models.SongArtist.objects.create(song=self.smooth, artist=self.val_young)
-
         song_artists = [str(artist) for artist in models.SongArtist.objects.all()]
-        expected_artist_order = [
+        expected_song_artist_order = [
             "Smooth - Tha Dogg Pound",
             "Smooth - Snoop Dogg",
             "Smooth - Kurupt",
             "Smooth - Val Young",
         ]
 
-        self.assertEqual(song_artists, expected_artist_order)
+        self.assertEqual(song_artists, expected_song_artist_order)
 
 
 class SongProducerModelTestCase(TestCase):
