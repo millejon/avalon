@@ -90,7 +90,6 @@ class AlbumIn(ModelSchema):
 
 class AlbumBasics(Schema):
     id: int
-    artists: List[ArtistBasics]
     title: str
     url: str
 
