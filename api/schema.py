@@ -147,30 +147,16 @@ class DiscIn(ModelSchema):
         fields = ["number", "title"]
 
 
-class DiscOut(Schema):
+class Disc(Schema):
     id: int
     album: AlbumBasics
-    title: str
     number: int
+    title: str
     url: str
-    tracklist: Optional[DiscogPreview]
 
     @staticmethod
     def resolve_url(obj, context):
-        disc_url = reverse("api-1.0:retrieve_disc", kwargs={"id": obj.id})
-        return context["request"].build_absolute_uri(disc_url)
-
-    @staticmethod
-    def resolve_tracklist(obj, context):
-        tracklist = obj.song_set.all()
-        if tracklist:
-            tracklist_url = reverse(
-                "api-1.0:retrieve_disc_songs", kwargs={"id": obj.id}
-            )
-            return {
-                "count": tracklist.count(),
-                "url": context["request"].build_absolute_uri(tracklist_url),
-            }
+        return context["request"].build_absolute_uri(obj.get_url())
 
 
 class SongIn(ModelSchema):
