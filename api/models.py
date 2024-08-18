@@ -197,7 +197,9 @@ class SongProducer(models.Model):
     class Meta:
         ordering = ["id"]
         constraints = [
-            models.UniqueConstraint(fields=["song", "producer"], name="unique_producer")
+            models.UniqueConstraint(
+                fields=["song", "producer"], name="duplicate_producer"
+            )
         ]
 
 
