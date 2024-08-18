@@ -192,7 +192,7 @@ class SongIn(ModelSchema):
         fields_optional = ["disc"]
 
 
-class SongOut(Schema):
+class Song(Schema):
     id: int
     title: str
     artists: List[ArtistBasics]
