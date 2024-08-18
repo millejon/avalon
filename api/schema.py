@@ -141,10 +141,10 @@ class AlbumBasics(Schema):
         return context["request"].build_absolute_uri(obj.get_url())
 
 
-class DiscIn(Schema):
-    album: int
-    title: str
-    number: int
+class DiscIn(ModelSchema):
+    class Meta:
+        model = models.Disc
+        fields = ["number", "title"]
 
 
 class DiscOut(Schema):
