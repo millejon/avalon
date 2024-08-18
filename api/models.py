@@ -9,16 +9,34 @@ class Artist(models.Model):
     def __str__(self):
         return self.name
 
-    def get_url(self):
+    def get_url(self) -> str:
+        """Return the URL of the artist API resource."""
         return reverse("api-1.0:retrieve_artist", args=[str(self.id)])
+
+    def get_albums_url(self) -> str:
+        """Return the URL of the artist's albums API resource."""
+        return reverse("api-1.0:retrieve_artist_albums", args=[str(self.id)])
+
+    def get_singles_url(self) -> str:
+        """Return the URL of the artist's singles API resource."""
+        return reverse("api-1.0:retrieve_artist_singles", args=[str(self.id)])
+
+    def get_songs_url(self) -> str:
+        """Return the URL of the artist's songs API resource."""
+        return reverse("api-1.0:retrieve_artist_songs", args=[str(self.id)])
+
+    def get_credits_url(self) -> str:
+        """Return the URL of the artist's production credits API resource."""
+        return reverse(
+            "api-1.0:retrieve_artist_production_credits", args=[str(self.id)]
+        )
 
     class Meta:
         ordering = ["name"]
         constraints = [
             models.UniqueConstraint(
                 models.functions.Lower("name"),
-                name="artist_name_case_insensitive_unique",
-                violation_error_message="Artist already exists (case insensitive match)",
+                name="duplicate_artist_case_insensitive_match",
             ),
         ]
 
@@ -35,23 +53,24 @@ class Album(models.Model):
     def __str__(self):
         return self.title
 
-    def get_url(self):
+    def get_url(self) -> str:
+        """Return the URL of the album API resource."""
         return reverse("api-1.0:retrieve_album", args=[str(self.id)])
 
-    def get_songs_url(self):
+    def get_songs_url(self) -> str:
+        """Return the URL of the album's songs API resource."""
         return reverse("api-1.0:retrieve_album_songs", args=[str(self.id)])
-
-    def get_discs_url(self):
-        return reverse("api-1.0:retrieve_album_discs", args=[str(self.id)])
 
     class Meta:
         ordering = ["artists__name", "release_date"]
         constraints = [
             models.UniqueConstraint(
-                fields=["title", "release_date"], name="unique_album"
+                models.functions.Lower("title"),
+                "release_date",
+                name="duplicate_album",
             ),
             models.CheckConstraint(
-                check=~(models.Q(single=True) & models.Q(multidisc=True)),
+                condition=~(models.Q(single=True) & models.Q(multidisc=True)),
                 name="singles_can_not_be_multidisc",
             ),
         ]
@@ -66,6 +85,11 @@ class AlbumArtist(models.Model):
 
     class Meta:
         ordering = ["id"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["album", "artist"], name="duplicate_album_artist"
+            )
+        ]
 
 
 class Disc(models.Model):
@@ -78,15 +102,24 @@ class Disc(models.Model):
     def __str__(self):
         return f"{self.album.title} ({self.title})"
 
-    def get_url(self):
+    def get_url(self) -> str:
+        """Return the URL of the disc API resource."""
         return reverse("api-1.0:retrieve_disc", args=[str(self.id)])
 
     class Meta:
         ordering = ["number"]
         constraints = [
-            models.UniqueConstraint(fields=["album", "number"], name="unique_disc"),
+            models.UniqueConstraint(
+                fields=["album", "number"], name="duplicate_disc_number"
+            ),
+            models.UniqueConstraint(
+                "album",
+                models.functions.Lower("title"),
+                name="duplicate_disc_title",
+            ),
             models.CheckConstraint(
-                check=models.Q(number__gte=1), name="disc_number_greater_than_0"
+                condition=models.Q(number__gte=1),
+                name="disc_number_must_be_greater_than_0",
             ),
         ]
 
@@ -97,7 +130,7 @@ class Song(models.Model):
         Artist, through="SongArtist", related_name="song_artists"
     )
     producers = models.ManyToManyField(
-        Artist, through="SongProducer", related_name="producers"
+        Artist, through="SongProducer", related_name="song_producers"
     )
     album = models.ForeignKey(Album, on_delete=models.CASCADE)
     disc = models.PositiveSmallIntegerField(null=True, blank=True)
@@ -111,19 +144,27 @@ class Song(models.Model):
     def __str__(self):
         return f"{self.track_number}. {self.title} [{self.album.title}]"
 
-    def get_url(self):
+    def get_url(self) -> str:
+        """Return the URL of the song API resource."""
         return reverse("api-1.0:retrieve_song", args=[str(self.id)])
 
     class Meta:
         ordering = ["-play_count", "-album__release_date", "disc", "track_number"]
         constraints = [
-            models.CheckConstraint(
-                check=(models.Q(disc__gte=1) | models.Q(disc__isnull=True)),
-                name="disc_number_greater_than_0_or_null",
+            models.UniqueConstraint(
+                fields=["album", "track_number"], name="duplicate_track_number"
+            ),
+            models.UniqueConstraint(
+                models.functions.Lower("path"),
+                name="duplicate_song_case_insensitive_match",
             ),
             models.CheckConstraint(
-                check=models.Q(track_number__gte=1),
-                name="track_number_greater_than_0",
+                condition=(models.Q(disc__gte=1) | models.Q(disc__isnull=True)),
+                name="disc_number_must_be_greater_than_0_or_null",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(track_number__gte=1),
+                name="track_number_must_be_greater_than_0",
             ),
         ]
 
@@ -139,7 +180,9 @@ class SongArtist(models.Model):
     class Meta:
         ordering = ["id"]
         constraints = [
-            models.UniqueConstraint(fields=["song", "artist"], name="unique_vocalist")
+            models.UniqueConstraint(
+                fields=["song", "artist"], name="duplicate_song_artist"
+            )
         ]
 
 
@@ -154,59 +197,7 @@ class SongProducer(models.Model):
     class Meta:
         ordering = ["id"]
         constraints = [
-            models.UniqueConstraint(fields=["song", "producer"], name="unique_producer")
-        ]
-
-
-class Playlist(models.Model):
-    title = models.CharField(max_length=300, unique=True)
-    songs = models.ManyToManyField(Song, through="PlaylistSong", blank=True)
-    created = models.DateTimeField(auto_now_add=True)
-    last_modified = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.title
-
-    def get_absolute_url(self):
-        return reverse("view-playlist", args=[str(self.id)])
-
-    class Meta:
-        ordering = ["-last_modified"]
-        constraints = [
             models.UniqueConstraint(
-                models.functions.Lower("title"),
-                name="playlist_title_case_insensitive_unique",
-                violation_error_message="Playlist already exists (case insensitive match)",
-            ),
-        ]
-
-
-class PlaylistSong(models.Model):
-    playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE)
-    song = models.ForeignKey(Song, on_delete=models.CASCADE)
-    date_added = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.song.title} [{self.playlist.title}]"
-
-
-class Hub(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    artists = models.ManyToManyField(Artist, blank=True)
-    albums = models.ManyToManyField(Album, blank=True)
-
-    def __str__(self):
-        return self.name
-
-    def get_absolute_url(self):
-        return reverse("view-hub", args=[str(self.id)])
-
-    class Meta:
-        ordering = ["name"]
-        constraints = [
-            models.UniqueConstraint(
-                models.functions.Lower("name"),
-                name="hub_name_case_insensitive_unique",
-                violation_error_message="Hub already exists (case insensitive match)",
-            ),
+                fields=["song", "producer"], name="duplicate_producer"
+            )
         ]
