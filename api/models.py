@@ -181,7 +181,7 @@ class SongArtist(models.Model):
         ordering = ["id"]
         constraints = [
             models.UniqueConstraint(
-                fields=["song", "artist"], name="duplicate_vocalist"
+                fields=["song", "artist"], name="duplicate_song_artist"
             )
         ]
 
