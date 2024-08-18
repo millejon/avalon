@@ -231,7 +231,7 @@ class SongArtist(Schema):
     group: bool
 
 
-class SongArtistSummaryOut(Schema):
+class SongArtistDetails(Schema):
     id: int
     name: str
     group: bool
@@ -250,10 +250,10 @@ class SongArtistSummaryOut(Schema):
         return context["request"].build_absolute_uri(obj.artist.get_url())
 
 
-class SongArtistsOut(Schema):
+class SongArtists(Schema):
     id: int
     title: str
-    artists: List[SongArtistSummaryOut]
+    artists: List[SongArtistDetails]
     url: str
 
     @staticmethod
