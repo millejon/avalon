@@ -98,38 +98,6 @@ class AlbumIn(ModelSchema):
         fields_optional = ["single", "multidisc"]
 
 
-class AlbumOut(Schema):
-    id: int
-    title: str
-    artists: List[ArtistBasics]
-    tracklist: Optional[DiscogPreview]
-    release_date: date
-    single: bool
-    multidisc: bool
-    discs: Optional[DiscogPreview]
-    url: str
-
-    @staticmethod
-    def resolve_tracklist(obj, context):
-        if obj.song_set.all():
-            return {
-                "count": obj.song_set.count(),
-                "url": context["request"].build_absolute_uri(obj.get_songs_url()),
-            }
-
-    @staticmethod
-    def resolve_discs(obj, context):
-        if obj.multidisc:
-            return {
-                "count": obj.disc_set.count(),
-                "url": context["request"].build_absolute_uri(obj.get_discs_url()),
-            }
-
-    @staticmethod
-    def resolve_url(obj, context):
-        return context["request"].build_absolute_uri(obj.get_url())
-
-
 class AlbumBasics(Schema):
     id: int
     artists: List[ArtistBasics]
@@ -165,6 +133,35 @@ class DiscBasics(Schema):
     number: int
     title: str
     url: str
+
+    @staticmethod
+    def resolve_url(obj, context):
+        return context["request"].build_absolute_uri(obj.get_url())
+
+
+class Album(Schema):
+    id: int
+    title: str
+    artists: List[ArtistBasics]
+    tracklist: Optional[DiscogPreview]
+    release_date: date
+    single: bool
+    multidisc: bool
+    discs: Optional[List[DiscBasics]]
+    url: str
+
+    @staticmethod
+    def resolve_tracklist(obj, context):
+        if obj.song_set.all():
+            return {
+                "count": obj.song_set.count(),
+                "url": context["request"].build_absolute_uri(obj.get_songs_url()),
+            }
+
+    @staticmethod
+    def resolve_discs(obj):
+        if obj.multidisc:
+            return obj.disc_set.all()
 
     @staticmethod
     def resolve_url(obj, context):
