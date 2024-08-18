@@ -197,6 +197,10 @@ class AlbumArtistModelTestCase(TestCase):
     def test_str_method_returns_album_title_artist_name(self):
         self.assertEqual(str(self.album_artist), "Blaqkout - Kurupt")
 
+    def test_duplicate_album_artist_creation_unsuccessful(self):
+        with self.assertRaises(IntegrityError):
+            models.AlbumArtist.objects.create(album=self.blaqkout, artist=self.kurupt)
+
     def test_album_artists_ordered_by_id(self):
         models.AlbumArtist.objects.create(album=self.blaqkout, artist=self.dj_quik)
         album_artists = [str(artist) for artist in models.AlbumArtist.objects.all()]

@@ -85,6 +85,11 @@ class AlbumArtist(models.Model):
 
     class Meta:
         ordering = ["id"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["album", "artist"], name="duplicate_album_artist"
+            )
+        ]
 
 
 class Disc(models.Model):
