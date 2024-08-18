@@ -144,7 +144,8 @@ class AlbumBasics(Schema):
 class DiscIn(ModelSchema):
     class Meta:
         model = models.Disc
-        fields = ["number", "title"]
+        fields = ["album", "number", "title"]
+        fields_optional = ["album"]
 
 
 class Disc(Schema):
