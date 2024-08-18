@@ -24,15 +24,11 @@ class ArtistIn(ModelSchema):
 class Artist(Schema):
     id: int
     name: str
-    url: str
     albums: Optional[CatalogPreview]
     singles: Optional[CatalogPreview]
     songs: Optional[CatalogPreview]
     production_credits: Optional[CatalogPreview]
-
-    @staticmethod
-    def resolve_url(obj, context):
-        return context["request"].build_absolute_uri(obj.get_url())
+    url: str
 
     @staticmethod
     def resolve_albums(obj, context):
@@ -69,6 +65,10 @@ class Artist(Schema):
                 "count": credits.count(),
                 "url": context["request"].build_absolute_uri(obj.get_credits_url()),
             }
+
+    @staticmethod
+    def resolve_url(obj, context):
+        return context["request"].build_absolute_uri(obj.get_url())
 
 
 class ArtistBasics(Schema):
