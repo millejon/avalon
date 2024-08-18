@@ -6,7 +6,7 @@ from api import schema, utilities as util
 router = Router()
 
 
-@router.post("", response={201: schema.DiscOut}, tags=["discs"])
+@router.post("", response={201: schema.Disc}, tags=["discs"])
 def create_disc(request, data: schema.DiscIn):
     data = util.strip_whitespace(data.dict())
     data["album"] = models.Album.objects.get(pk=data["album"])
@@ -14,9 +14,7 @@ def create_disc(request, data: schema.DiscIn):
     return 201, disc
 
 
-@router.get(
-    "{int:id}", response={200: schema.DiscOut, 404: schema.Error}, tags=["discs"]
-)
+@router.get("{int:id}", response={200: schema.Disc, 404: schema.Error}, tags=["discs"])
 def retrieve_disc(request, id: int):
     try:
         disc = models.Disc.objects.get(pk=id)
@@ -25,9 +23,7 @@ def retrieve_disc(request, id: int):
         return 404, {"error": f"Disc with id = {id} does not exist."}
 
 
-@router.put(
-    "{int:id}", response={200: schema.DiscOut, 404: schema.Error}, tags=["discs"]
-)
+@router.put("{int:id}", response={200: schema.Disc, 404: schema.Error}, tags=["discs"])
 def update_disc(request, id: int, data: schema.DiscIn):
     try:
         disc = models.Disc.objects.get(pk=id)
