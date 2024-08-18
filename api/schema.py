@@ -160,6 +160,17 @@ class Disc(Schema):
         return context["request"].build_absolute_uri(obj.get_url())
 
 
+class DiscBasics(Schema):
+    id: int
+    number: int
+    title: str
+    url: str
+
+    @staticmethod
+    def resolve_url(obj, context):
+        return context["request"].build_absolute_uri(obj.get_url())
+
+
 class SongIn(ModelSchema):
     class Meta:
         model = models.Song
