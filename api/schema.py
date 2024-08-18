@@ -218,9 +218,11 @@ class SongSummaryOut(Schema):
         return context["request"].build_absolute_uri(obj.get_url())
 
 
-class SongArtistIn(Schema):
-    artist: int
-    group: bool = False
+class SongArtistIn(ModelSchema):
+    class Meta:
+        model = models.SongArtist
+        fields = ["artist", "group"]
+        fields_optional = ["group"]
 
 
 class SongArtistOut(Schema):
