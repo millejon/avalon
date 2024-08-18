@@ -91,11 +91,11 @@ class ArtistBasics(Schema):
         return context["request"].build_absolute_uri(obj.get_url())
 
 
-class AlbumIn(Schema):
-    title: str
-    release_date: date
-    single: bool = False
-    multidisc: bool = False
+class AlbumIn(ModelSchema):
+    class Meta:
+        model = models.Album
+        fields = ["title", "release_date", "single", "multidisc"]
+        fields_optional = ["single", "multidisc"]
 
 
 class AlbumOut(Schema):
