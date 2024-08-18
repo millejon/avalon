@@ -208,7 +208,7 @@ class Song(Schema):
         return context["request"].build_absolute_uri(obj.get_url())
 
 
-class SongSummaryOut(Schema):
+class SongBasics(Schema):
     id: int
     title: str
     url: str
@@ -226,7 +226,7 @@ class SongArtistIn(ModelSchema):
 
 
 class SongArtistOut(Schema):
-    song: SongSummaryOut
+    song: SongBasics
     artist: ArtistBasics
     group: bool
 
@@ -271,7 +271,7 @@ class SongProducerIn(Schema):
 
 
 class SongProducerOut(Schema):
-    song: SongSummaryOut
+    song: SongBasics
     producer: ArtistBasics
     role: str
 
