@@ -164,6 +164,11 @@ class AlbumArtistIn(ModelSchema):
         fields = ["artist"]
 
 
+class AlbumArtist(Schema):
+    album: AlbumBasics
+    artist: ArtistBasics
+
+
 class SongIn(ModelSchema):
     class Meta:
         model = models.Song
