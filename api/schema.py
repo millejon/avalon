@@ -158,6 +158,12 @@ class Album(Schema):
         return context["request"].build_absolute_uri(obj.get_url())
 
 
+class AlbumArtistIn(ModelSchema):
+    class Meta:
+        model = models.AlbumArtist
+        fields = ["artist"]
+
+
 class SongIn(ModelSchema):
     class Meta:
         model = models.Song
