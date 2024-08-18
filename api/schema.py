@@ -11,7 +11,7 @@ class Error(Schema):
     error: str
 
 
-class DiscogPreview(TypedDict):
+class CatalogPreview(TypedDict):
     count: int
     url: str
 
@@ -145,7 +145,7 @@ class Album(Schema):
     id: int
     title: str
     artists: List[ArtistBasics]
-    tracklist: Optional[DiscogPreview]
+    tracklist: Optional[CatalogPreview]
     release_date: date
     single: bool
     multidisc: bool
