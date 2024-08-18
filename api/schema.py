@@ -130,7 +130,7 @@ class AlbumOut(Schema):
         return context["request"].build_absolute_uri(obj.get_url())
 
 
-class AlbumSummaryOut(Schema):
+class AlbumBasics(Schema):
     id: int
     artists: List[ArtistBasics]
     title: str
@@ -138,19 +138,7 @@ class AlbumSummaryOut(Schema):
 
     @staticmethod
     def resolve_url(obj, context):
-        album_url = reverse("api-1.0:retrieve_album", kwargs={"id": obj.id})
-        return context["request"].build_absolute_uri(album_url)
-
-
-class MiniAlbumSummaryOut(Schema):
-    id: int
-    title: str
-    url: str
-
-    @staticmethod
-    def resolve_url(obj, context):
-        album_url = reverse("api-1.0:retrieve_album", kwargs={"id": obj.id})
-        return context["request"].build_absolute_uri(album_url)
+        return context["request"].build_absolute_uri(obj.get_url())
 
 
 class DiscIn(Schema):
@@ -161,7 +149,7 @@ class DiscIn(Schema):
 
 class DiscOut(Schema):
     id: int
-    album: MiniAlbumSummaryOut
+    album: AlbumBasics
     title: str
     number: int
     url: str
@@ -197,7 +185,7 @@ class Song(Schema):
     title: str
     artists: List[ArtistBasics]
     producers: List[ArtistBasics]
-    album: MiniAlbumSummaryOut
+    album: AlbumBasics
     disc: Optional[int]
     track_number: int
     length: int
