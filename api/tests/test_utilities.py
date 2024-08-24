@@ -4,7 +4,20 @@ from api import utilities as util
 
 
 class StripWhitespaceTestCase(TestCase):
-    def test_strip_whitespace_no_whitespace(self):
+
+    def test_extraneous_whitespace_is_stripped(self):
+        data = {
+            "name": " Boldy James ",
+            "album": "Mr. Ten08   ",
+            "producer": "   Futurewave",
+        }
+        stripped_data = util.strip_whitespace(data)
+
+        self.assertEqual(stripped_data["name"], "Boldy James")
+        self.assertEqual(stripped_data["album"], "Mr. Ten08")
+        self.assertEqual(stripped_data["producer"], "Futurewave")
+
+    def test_fields_with_no_whitespace_are_unaffected(self):
         data = {
             "name": "Rome Streetz",
             "album": "Death & The Magician",
@@ -16,23 +29,11 @@ class StripWhitespaceTestCase(TestCase):
         self.assertEqual(stripped_data["album"], "Death & The Magician")
         self.assertEqual(stripped_data["producer"], "DJ Muggs")
 
-    def test_strip_whitespace_with_whitespace(self):
+    def test_nonstring_fields_are_unaffected(self):
         data = {
-            "name": " Boldy James   ",
-            "album": "Mr. Ten08   ",
-            "producer": "   Futurewave",
-        }
-        stripped_data = util.strip_whitespace(data)
-
-        self.assertEqual(stripped_data["name"], "Boldy James")
-        self.assertEqual(stripped_data["album"], "Mr. Ten08")
-        self.assertEqual(stripped_data["producer"], "Futurewave")
-
-    def test_strip_whitespace_with_nonstring_fields(self):
-        data = {
-            "name": "Conway The Machine   ",
-            "album": "   Speshal Machinery: The Ghronic Edition    ",
-            "producer": "   Big Ghost Ltd.",
+            "name": "Conway The Machine    ",
+            "album": "    Speshal Machinery: The Ghronic Edition  ",
+            "producer": "  Big Ghost Ltd.",
             "track_count": 9,
             "single": False,
         }
