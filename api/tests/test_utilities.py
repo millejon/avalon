@@ -46,3 +46,20 @@ class StripWhitespaceTestCase(TestCase):
         self.assertEqual(stripped_data["producer"], "Big Ghost Ltd.")
         self.assertEqual(stripped_data["track_count"], 9)
         self.assertFalse(stripped_data["single"])
+
+
+class NormalizeTextTestCase(TestCase):
+    def test_remove_punctuation_from_string(self):
+        text = util.normalize_text("!\"$G%'(r)*,I-.s/:;E<>?@[l\\]^D_`{A|}~")
+
+        self.assertEqual(text, "griselda")
+
+    def test_replace_punctuation_in_string(self):
+        text = util.normalize_text("Hall & Nash + Alchemist = # 2")
+
+        self.assertEqual(text, "hall and nash and alchemist equal number 2")
+
+    def test_remove_capitalization_with_no_punctuation(self):
+        text = util.normalize_text("Pray For PARIS")
+
+        self.assertEqual(text, "pray for paris")

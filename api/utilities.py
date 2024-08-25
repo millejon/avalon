@@ -1,3 +1,6 @@
+import string
+
+
 def strip_whitespace(data: dict) -> dict:
     """Remove extraneous whitespace from string values in dictionary
     passed as data.
@@ -10,3 +13,21 @@ def strip_whitespace(data: dict) -> dict:
             data[key] = value
 
     return data
+
+
+def normalize_text(text: str) -> str:
+    """Remove punctuation and capitalization from string passed as text."""
+    replacements = {
+        "+": "and",
+        "&": "and",
+        "#": "number",
+        "=": "equal",
+    }
+
+    for mark in list(string.punctuation):
+        if mark in replacements.keys():
+            text = text.replace(mark, replacements[mark])
+        else:
+            text = text.replace(mark, "")
+
+    return text.lower()
