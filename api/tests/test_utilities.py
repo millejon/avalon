@@ -7,7 +7,7 @@ class StripWhitespaceTestCase(TestCase):
 
     def test_extraneous_whitespace_is_stripped(self):
         data = {
-            "name": " Boldy James ",
+            "name": " Boldy   James ",
             "album": "Mr. Ten08   ",
             "producer": "   Futurewave",
         }
@@ -17,7 +17,7 @@ class StripWhitespaceTestCase(TestCase):
         self.assertEqual(stripped_data["album"], "Mr. Ten08")
         self.assertEqual(stripped_data["producer"], "Futurewave")
 
-    def test_fields_with_no_whitespace_are_unaffected(self):
+    def test_fields_with_no_extraneous_whitespace_are_unaffected(self):
         data = {
             "name": "Rome Streetz",
             "album": "Death & The Magician",
@@ -31,8 +31,8 @@ class StripWhitespaceTestCase(TestCase):
 
     def test_nonstring_fields_are_unaffected(self):
         data = {
-            "name": "Conway The Machine    ",
-            "album": "    Speshal Machinery: The Ghronic Edition  ",
+            "name": "Conway  The      Machine    ",
+            "album": "    Speshal Machinery:      The Ghronic Edition  ",
             "producer": "  Big Ghost Ltd.",
             "track_count": 9,
             "single": False,
