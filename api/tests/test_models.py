@@ -167,32 +167,39 @@ class AlbumModelTestCase(TestCase):
 class AlbumArtistModelTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.dj_quik = models.Artist.objects.create(name="DJ Quik")
-        cls.kurupt = models.Artist.objects.create(name="Kurupt")
-        cls.blaqkout = models.Album.objects.create(
-            title="Blaqkout",
-            release_date=datetime.date(2009, 6, 9),
+        cls.the_alchemist = models.Artist.objects.create(name="The Alchemist")
+        cls.prodigy = models.Artist.objects.create(name="Prodigy")
+        cls.albert_einstein = models.Album.objects.create(
+            title="Albert Einstein",
+            release_date=datetime.date(2013, 6, 11),
         )
-        cls.album_artist = models.AlbumArtist.objects.create(
-            album=cls.blaqkout, artist=cls.kurupt
+        cls.album_artist_link = models.AlbumArtist.objects.create(
+            album=cls.albert_einstein, artist=cls.prodigy
         )
 
     def test_album_artist_creation_successful(self):
-        self.assertEqual(self.album_artist.album.title, "Blaqkout")
-        self.assertEqual(self.album_artist.artist.name, "Kurupt")
+        self.assertEqual(self.album_artist_link.album.title, "Albert Einstein")
+        self.assertEqual(self.album_artist_link.artist.name, "Prodigy")
 
     def test_str_method_returns_album_title_artist_name(self):
-        self.assertEqual(str(self.album_artist), "Blaqkout - Kurupt")
+        self.assertEqual(str(self.album_artist_link), "Albert Einstein - Prodigy")
 
     def test_duplicate_album_artist_creation_unsuccessful(self):
         with self.assertRaises(IntegrityError):
-            models.AlbumArtist.objects.create(album=self.blaqkout, artist=self.kurupt)
+            models.AlbumArtist.objects.create(
+                album=self.albert_einstein, artist=self.prodigy
+            )
 
-    def test_album_artists_ordered_by_id(self):
-        models.AlbumArtist.objects.create(album=self.blaqkout, artist=self.dj_quik)
+    def test_album_artists_ordered_by_albumartist_id(self):
+        models.AlbumArtist.objects.create(
+            album=self.albert_einstein, artist=self.the_alchemist
+        )
         album_artists = [str(artist) for artist in models.AlbumArtist.objects.all()]
 
-        self.assertEqual(album_artists, ["Blaqkout - Kurupt", "Blaqkout - DJ Quik"])
+        self.assertEqual(
+            album_artists,
+            ["Albert Einstein - Prodigy", "Albert Einstein - The Alchemist"],
+        )
 
 
 class DiscModelTestCase(TestCase):
