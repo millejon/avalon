@@ -107,7 +107,7 @@ class Disc(models.Model):
         return f"{self.album.title} ({self.title})"
 
     def get_url(self) -> str:
-        """Return the URL of the disc API resource."""
+        """Return URL of disc API resource."""
         return reverse("api-1.0:retrieve_disc", args=[str(self.id)])
 
     class Meta:
