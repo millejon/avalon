@@ -9,66 +9,64 @@ from api import models
 class ArtistModelTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.nate_dogg = models.Artist.objects.create(name="Nate Dogg")
+        cls.raekwon = models.Artist.objects.create(name="Raekwon")
 
     def test_artist_creation_successful(self):
-        self.assertEqual(self.nate_dogg.name, "Nate Dogg")
+        self.assertEqual(self.raekwon.name, "Raekwon")
 
     def test_artist_name_max_length_is_100(self):
-        max_length = self.nate_dogg._meta.get_field("name").max_length
+        max_length = self.raekwon._meta.get_field("name").max_length
 
         self.assertEqual(max_length, 100)
 
     def test_artist_name_unique_constraint_is_true(self):
-        unique_constraint = self.nate_dogg._meta.get_field("name").unique
+        unique_constraint = self.raekwon._meta.get_field("name").unique
 
         self.assertTrue(unique_constraint)
 
     def test_str_method_returns_artist_name(self):
-        self.assertEqual(str(self.nate_dogg), "Nate Dogg")
+        self.assertEqual(str(self.raekwon), "Raekwon")
 
     def test_get_url_method_returns_artist_api_url(self):
-        self.assertEqual(
-            self.nate_dogg.get_url(), f"/api/v1/artists/{self.nate_dogg.id}"
-        )
+        self.assertEqual(self.raekwon.get_url(), f"/api/v1/artists/{self.raekwon.id}")
 
     def test_get_albums_url_method_returns_artist_albums_api_url(self):
         self.assertEqual(
-            self.nate_dogg.get_albums_url(),
-            f"/api/v1/artists/{self.nate_dogg.id}/albums",
+            self.raekwon.get_albums_url(),
+            f"/api/v1/artists/{self.raekwon.id}/albums",
         )
 
     def test_get_singles_url_method_returns_artist_singles_api_url(self):
         self.assertEqual(
-            self.nate_dogg.get_singles_url(),
-            f"/api/v1/artists/{self.nate_dogg.id}/singles",
+            self.raekwon.get_singles_url(),
+            f"/api/v1/artists/{self.raekwon.id}/singles",
         )
 
     def test_get_songs_url_method_returns_artist_songs_api_url(self):
         self.assertEqual(
-            self.nate_dogg.get_songs_url(), f"/api/v1/artists/{self.nate_dogg.id}/songs"
+            self.raekwon.get_songs_url(), f"/api/v1/artists/{self.raekwon.id}/songs"
         )
 
     def test_get_credits_url_method_returns_artist_production_credits_api_url(self):
         self.assertEqual(
-            self.nate_dogg.get_credits_url(),
-            f"/api/v1/artists/{self.nate_dogg.id}/produced",
+            self.raekwon.get_credits_url(),
+            f"/api/v1/artists/{self.raekwon.id}/produced",
         )
 
     def test_duplicate_artist_creation_unsuccessful(self):
         with self.assertRaises(IntegrityError):
-            models.Artist.objects.create(name="Nate Dogg")
+            models.Artist.objects.create(name="Raekwon")
 
     def test_duplicate_artist_creation_case_insensitive_unsuccessful(self):
         with self.assertRaises(IntegrityError):
-            models.Artist.objects.create(name="nate dogg")
+            models.Artist.objects.create(name="RaeKwon")
 
     def test_artists_ordered_by_name(self):
-        models.Artist.objects.create(name="Warren G")
-        models.Artist.objects.create(name="Luniz")
+        models.Artist.objects.create(name="Ghostface Killah")
+        models.Artist.objects.create(name="RZA")
         artists = [str(artist) for artist in models.Artist.objects.all()]
 
-        self.assertEqual(artists, ["Luniz", "Nate Dogg", "Warren G"])
+        self.assertEqual(artists, ["Ghostface Killah", "Raekwon", "RZA"])
 
 
 class AlbumModelTestCase(TestCase):

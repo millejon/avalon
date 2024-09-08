@@ -10,23 +10,23 @@ class Artist(models.Model):
         return self.name
 
     def get_url(self) -> str:
-        """Return the URL of the artist API resource."""
+        """Return URL of artist API resource."""
         return reverse("api-1.0:retrieve_artist", args=[str(self.id)])
 
     def get_albums_url(self) -> str:
-        """Return the URL of the artist's albums API resource."""
+        """Return URL of artist's albums API resource."""
         return reverse("api-1.0:retrieve_artist_albums", args=[str(self.id)])
 
     def get_singles_url(self) -> str:
-        """Return the URL of the artist's singles API resource."""
+        """Return URL of artist's singles API resource."""
         return reverse("api-1.0:retrieve_artist_singles", args=[str(self.id)])
 
     def get_songs_url(self) -> str:
-        """Return the URL of the artist's songs API resource."""
+        """Return URL of artist's songs API resource."""
         return reverse("api-1.0:retrieve_artist_songs", args=[str(self.id)])
 
     def get_credits_url(self) -> str:
-        """Return the URL of the artist's production credits API resource."""
+        """Return URL of artist's production credits API resource."""
         return reverse(
             "api-1.0:retrieve_artist_production_credits", args=[str(self.id)]
         )
