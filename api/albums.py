@@ -83,6 +83,11 @@ def retrieve_all_albums(request):
     return 200, unique_albums
 
 
+@router.get("{int:id}/artists")
+def retrieve_album_artists(request, id: int):
+    pass
+
+
 @router.get("{int:id}/discs")
 def retrieve_album_discs(request, id: int):
     pass
