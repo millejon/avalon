@@ -274,177 +274,183 @@ class DiscModelTestCase(TestCase):
 class SongModelTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.the_don_killuminati = models.Album.objects.create(
-            title="The Don Killuminati: The 7 Day Theory",
-            release_date=datetime.date(1996, 11, 5),
+        cls.me_against_the_world = models.Album.objects.create(
+            title="Me Against The World",
+            release_date=datetime.date(1995, 3, 14),
         )
-        cls.r_u_still_down = models.Album.objects.create(
-            title="R U Still Down? (Remember Me)",
-            release_date=datetime.date(1997, 11, 25),
-            multidisc=True,
+        cls.all_eyez_on_me = models.Album.objects.create(
+            title="All Eyez On Me",
+            release_date=datetime.date(1996, 2, 13),
+            album_type="multidisc",
         )
-        cls.toss_it_up = models.Song.objects.create(
-            title="Toss It Up",
-            album=cls.the_don_killuminati,
-            track_number=3,
-            length=306,
-            path="/2pac/the-don-killuminati-the-7-day-theory/03_toss_it_up.flac",
+        cls.temptations = models.Song.objects.create(
+            title="Temptations",
+            album=cls.me_against_the_world,
+            track_number=5,
+            length=301,
+            path="/2pac/me-against-the-world/05_temptations.flac",
         )
 
     def test_song_creation_successful(self):
-        self.assertEqual(self.toss_it_up.title, "Toss It Up")
+        self.assertEqual(self.temptations.title, "Temptations")
+        self.assertEqual(self.temptations.album.title, "Me Against The World")
+        self.assertEqual(self.temptations.track_number, 5)
+        self.assertEqual(self.temptations.length, 301)
         self.assertEqual(
-            self.toss_it_up.album.title, "The Don Killuminati: The 7 Day Theory"
-        )
-        self.assertEqual(self.toss_it_up.track_number, 3)
-        self.assertEqual(self.toss_it_up.length, 306)
-        self.assertEqual(
-            self.toss_it_up.path,
-            "/2pac/the-don-killuminati-the-7-day-theory/03_toss_it_up.flac",
+            self.temptations.path, "/2pac/me-against-the-world/05_temptations.flac"
         )
 
-    def test_song_creation_disc_null_by_default(self):
-        self.assertIsNone(self.toss_it_up.disc)
+    def test_song_creation_disc_one_by_default(self):
+        self.assertEqual(self.temptations.disc, 1)
 
     def test_song_creation_play_count_zero_by_default(self):
-        self.assertEqual(self.toss_it_up.play_count, 0)
+        self.assertEqual(self.temptations.play_count, 0)
 
     def test_song_title_max_length_is_600(self):
-        max_length = self.toss_it_up._meta.get_field("title").max_length
+        max_length = self.temptations._meta.get_field("title").max_length
 
         self.assertEqual(max_length, 600)
 
     def test_artists_related_name_is_song_artists(self):
-        related_name = self.toss_it_up._meta.get_field("artists")._related_name
+        related_name = self.temptations._meta.get_field("artists")._related_name
 
         self.assertEqual(related_name, "song_artists")
 
     def test_producers_related_name_is_song_artists(self):
-        related_name = self.toss_it_up._meta.get_field("producers")._related_name
+        related_name = self.temptations._meta.get_field("producers")._related_name
 
         self.assertEqual(related_name, "song_producers")
 
     def test_song_path_max_length_is_1000(self):
-        max_length = self.toss_it_up._meta.get_field("path").max_length
+        max_length = self.temptations._meta.get_field("path").max_length
 
         self.assertEqual(max_length, 1000)
 
     def test_song_path_unique_constraint_is_true(self):
-        unique_constraint = self.toss_it_up._meta.get_field("path").unique
+        unique_constraint = self.temptations._meta.get_field("path").unique
 
         self.assertTrue(unique_constraint)
 
     def test_str_method_returns_track_number_song_title_album_title(self):
-        self.assertEqual(
-            str(self.toss_it_up),
-            "3. Toss It Up [The Don Killuminati: The 7 Day Theory]",
-        )
+        self.assertEqual(str(self.temptations), "5. Temptations [Me Against The World]")
 
     def test_get_url_method_returns_song_api_url(self):
         self.assertEqual(
-            self.toss_it_up.get_url(), f"/api/v1/songs/{self.toss_it_up.id}"
+            self.temptations.get_url(), f"/api/v1/songs/{self.temptations.id}"
+        )
+
+    def test_get_artists_url_method_returns_song_artists_api_url(self):
+        self.assertEqual(
+            self.temptations.get_artists_url(),
+            f"/api/v1/songs/{self.temptations.id}/artists",
+        )
+
+    def test_get_producers_url_method_returns_song_producers_api_url(self):
+        self.assertEqual(
+            self.temptations.get_producers_url(),
+            f"/api/v1/songs/{self.temptations.id}/producers",
         )
 
     def test_duplicate_song_creation_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.Song.objects.create(
-                title="Toss It Up",
-                album=self.the_don_killuminati,
-                track_number=3,
-                length=306,
-                path="/2pac/the-don-killuminati-the-7-day-theory/03_toss_it_up.flac",
+                title="Temptations",
+                album=self.me_against_the_world,
+                track_number=5,
+                length=303,
+                path="/2pac/me-against-the-world/05_temptations.flac",
             )
 
-    def test_song_creation_with_duplicate_track_number_unsuccessful(self):
+    def test_song_creation_duplicate_track_number_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.Song.objects.create(
-                title="Hail Mary",
-                album=self.the_don_killuminati,
-                track_number=3,
-                length=310,
-                path="/2pac/the-don-killuminati-the-7-day-theory/03_hail_mary.flac",
+                title="So Many Tears",
+                album=self.me_against_the_world,
+                track_number=5,
+                length=239,
+                path="/2pac/me-against-the-world/05_so_many_tears.flac",
             )
 
     def test_duplicate_song_creation_case_insensitive_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.Song.objects.create(
-                title="Toss It Up",
-                album=self.the_don_killuminati,
-                track_number=4,
-                length=306,
-                path="/2Pac/The-Don-Killuminati-The-7-Day-Theory/03_Toss_It_Up.flac",
+                title="TEMPTATIONS",
+                album=self.me_against_the_world,
+                track_number=5,
+                length=303,
+                path="/2Pac/Me-Against-The-World/05_Temptations.flac",
             )
 
-    def test_song_creation_with_invalid_disc_number_unsuccessful(self):
+    def test_song_creation_invalid_disc_number_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.Song.objects.create(
-                title="Hellrazor",
-                album=self.r_u_still_down,
+                title="Heavy In The Game",
+                album=self.me_against_the_world,
                 disc=0,
-                track_number=4,
-                length=255,
-                path="/2pac/r-u-still-down-remember-me/disc-one/04_hellrazor.flac",
+                track_number=7,
+                length=265,
+                path="/2pac/me-against-the-world/07_heavy_in_the_game.flac",
             )
 
-    def test_song_creation_with_invalid_track_number_unsuccessful(self):
+    def test_song_creation_invalid_track_number_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.Song.objects.create(
                 title="Lost Souls",
-                album=self.the_don_killuminati,
+                album=self.me_against_the_world,
                 track_number=0,
                 length=283,
-                path="/2pac/the-don-killuminati-the-7-day-theory/00_lost_souls.flac",
+                path="/2pac/me-against-the-world/00_lost_souls.flac",
             )
 
     def test_songs_ordered_by_play_count_release_date_disc_number_track_number(self):
         models.Song.objects.create(
-            title="Life Of An Outlaw",
-            album=self.the_don_killuminati,
-            track_number=6,
-            length=296,
-            path="/2pac/the-don-killuminati-the-7-day-theory/06_life_of_an_outlaw.flac",
+            title="If I Die 2Nite",
+            album=self.me_against_the_world,
+            track_number=2,
+            length=242,
+            path="/2pac/me-against-the-world/02_if_i_die_2nite.flac",
             play_count=2,
         )
         models.Song.objects.create(
-            title="Me and My Girlfriend",
-            album=self.the_don_killuminati,
-            track_number=10,
-            length=308,
-            path="/2pac/the-don-killuminati-the-7-day-theory/10_me_and_my_girlfriend.flac",
+            title="Death Around The Corner",
+            album=self.me_against_the_world,
+            track_number=14,
+            length=247,
+            path="/2pac/me-against-the-world/14_death_around_the_corner.flac",
             play_count=3,
         )
         models.Song.objects.create(
-            title="Do For Love",
-            album=self.r_u_still_down,
+            title="Holla At Me",
+            album=self.all_eyez_on_me,
             disc=2,
-            track_number=6,
-            length=282,
-            path="/2pac/r-u-still-down-remember-me/disc-two/06_do_for_love.flac",
+            track_number=3,
+            length=295,
+            path="/2pac/all-eyez-on-me/book-2/03_holla_at_me.flac",
         )
         models.Song.objects.create(
-            title="I'm Gettin' Money",
-            album=self.r_u_still_down,
+            title="California Love (Remix)",
+            album=self.all_eyez_on_me,
             disc=1,
-            track_number=9,
-            length=212,
-            path="/2pac/r-u-still-down-remember-me/disc-one/09_im_gettin_money.flac",
+            track_number=12,
+            length=385,
+            path="/2pac/all-eyez-on-me/book-1/12_california_love_remix.flac",
         )
         models.Song.objects.create(
-            title="Open Fire",
-            album=self.r_u_still_down,
+            title="Ambitionz Az A Ridah",
+            album=self.all_eyez_on_me,
             disc=1,
-            track_number=2,
-            length=172,
-            path="/2pac/r-u-still-down-remember-me/disc-one/02_open_fire.flac",
+            track_number=1,
+            length=279,
+            path="/2pac/all-eyez-on-me/book-1/01_ambitionz_az_a_ridah.flac",
         )
         songs = [str(song) for song in models.Song.objects.all()]
         expected_song_order = [
-            "10. Me and My Girlfriend [The Don Killuminati: The 7 Day Theory]",
-            "6. Life Of An Outlaw [The Don Killuminati: The 7 Day Theory]",
-            "2. Open Fire [R U Still Down? (Remember Me)]",
-            "9. I'm Gettin' Money [R U Still Down? (Remember Me)]",
-            "6. Do For Love [R U Still Down? (Remember Me)]",
-            "3. Toss It Up [The Don Killuminati: The 7 Day Theory]",
+            "14. Death Around The Corner [Me Against The World]",
+            "2. If I Die 2Nite [Me Against The World]",
+            "1. Ambitionz Az A Ridah [All Eyez On Me]",
+            "12. California Love (Remix) [All Eyez On Me]",
+            "3. Holla At Me [All Eyez On Me]",
+            "5. Temptations [Me Against The World]",
         ]
 
         self.assertEqual(songs, expected_song_order)

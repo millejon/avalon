@@ -137,7 +137,7 @@ class Song(models.Model):
         Artist, through="SongProducer", related_name="song_producers"
     )
     album = models.ForeignKey(Album, on_delete=models.CASCADE)
-    disc = models.PositiveSmallIntegerField(null=True, blank=True)
+    disc = models.PositiveSmallIntegerField(default=1, blank=True)
     track_number = models.PositiveSmallIntegerField(
         validators=[validators.MinValueValidator(1)]
     )
@@ -149,8 +149,16 @@ class Song(models.Model):
         return f"{self.track_number}. {self.title} [{self.album.title}]"
 
     def get_url(self) -> str:
-        """Return the URL of the song API resource."""
+        """Return URL of song API resource."""
         return reverse("api-1.0:retrieve_song", args=[str(self.id)])
+
+    def get_artists_url(self) -> str:
+        """Return URL of song's artists API resource."""
+        return reverse("api-1.0:retrieve_song_artists", args=[str(self.id)])
+
+    def get_producers_url(self) -> str:
+        """Return URL of song's producers API resource."""
+        return reverse("api-1.0:retrieve_song_producers", args=[str(self.id)])
 
     class Meta:
         ordering = ["-play_count", "-album__release_date", "disc", "track_number"]
