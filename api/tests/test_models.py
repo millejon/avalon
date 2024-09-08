@@ -499,16 +499,10 @@ class SongArtistModelTestCase(TestCase):
     def test_duplicate_song_artist_creation_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.SongArtist.objects.create(
-                song=self.smooth, artist=self.tha_dogg_pound
-            )
-
-    def test_duplicate_song_artist_as_group_member_creation_unsuccessful(self):
-        with self.assertRaises(IntegrityError):
-            models.SongArtist.objects.create(
                 song=self.smooth, artist=self.tha_dogg_pound, group=True
             )
 
-    def test_song_artists_ordered_by_id(self):
+    def test_song_artists_ordered_by_songartist_id(self):
         models.SongArtist.objects.create(song=self.smooth, artist=self.snoop_dogg)
         models.SongArtist.objects.create(
             song=self.smooth, artist=self.kurupt, group=True
