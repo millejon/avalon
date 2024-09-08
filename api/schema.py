@@ -32,7 +32,7 @@ class Artist(Schema):
 
     @staticmethod
     def resolve_albums(obj, context):
-        albums = obj.albumartist_set.filter(album__single=False)
+        albums = obj.albumartist_set.filter(album=False)
         if albums:
             return {
                 "count": albums.count(),
@@ -41,7 +41,7 @@ class Artist(Schema):
 
     @staticmethod
     def resolve_singles(obj, context):
-        singles = obj.albumartist_set.filter(album__single=True)
+        singles = obj.albumartist_set.filter(album=True)
         if singles:
             return {
                 "count": singles.count(),
@@ -82,8 +82,7 @@ class ArtistBasics(Schema):
 class AlbumIn(ModelSchema):
     class Meta:
         model = models.Album
-        fields = ["title", "release_date", "single", "multidisc"]
-        fields_optional = ["single", "multidisc"]
+        fields = ["title", "release_date"]
 
 
 class AlbumBasics(Schema):
@@ -132,8 +131,6 @@ class Album(Schema):
     artists: List[ArtistBasics]
     tracklist: Optional[CatalogPreview]
     release_date: date
-    single: bool
-    multidisc: bool
     discs: Optional[List[DiscBasics]]
     url: str
 
@@ -147,8 +144,7 @@ class Album(Schema):
 
     @staticmethod
     def resolve_discs(obj):
-        if obj.multidisc:
-            return obj.disc_set.all()
+        return obj.disc_set.all()
 
     @staticmethod
     def resolve_url(obj, context):

@@ -9,66 +9,64 @@ from api import models
 class ArtistModelTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.nate_dogg = models.Artist.objects.create(name="Nate Dogg")
+        cls.raekwon = models.Artist.objects.create(name="Raekwon")
 
     def test_artist_creation_successful(self):
-        self.assertEqual(self.nate_dogg.name, "Nate Dogg")
+        self.assertEqual(self.raekwon.name, "Raekwon")
 
     def test_artist_name_max_length_is_100(self):
-        max_length = self.nate_dogg._meta.get_field("name").max_length
+        max_length = self.raekwon._meta.get_field("name").max_length
 
         self.assertEqual(max_length, 100)
 
     def test_artist_name_unique_constraint_is_true(self):
-        unique_constraint = self.nate_dogg._meta.get_field("name").unique
+        unique_constraint = self.raekwon._meta.get_field("name").unique
 
         self.assertTrue(unique_constraint)
 
     def test_str_method_returns_artist_name(self):
-        self.assertEqual(str(self.nate_dogg), "Nate Dogg")
+        self.assertEqual(str(self.raekwon), "Raekwon")
 
     def test_get_url_method_returns_artist_api_url(self):
-        self.assertEqual(
-            self.nate_dogg.get_url(), f"/api/v1/artists/{self.nate_dogg.id}"
-        )
+        self.assertEqual(self.raekwon.get_url(), f"/api/v1/artists/{self.raekwon.id}")
 
     def test_get_albums_url_method_returns_artist_albums_api_url(self):
         self.assertEqual(
-            self.nate_dogg.get_albums_url(),
-            f"/api/v1/artists/{self.nate_dogg.id}/albums",
+            self.raekwon.get_albums_url(),
+            f"/api/v1/artists/{self.raekwon.id}/albums",
         )
 
     def test_get_singles_url_method_returns_artist_singles_api_url(self):
         self.assertEqual(
-            self.nate_dogg.get_singles_url(),
-            f"/api/v1/artists/{self.nate_dogg.id}/singles",
+            self.raekwon.get_singles_url(),
+            f"/api/v1/artists/{self.raekwon.id}/singles",
         )
 
     def test_get_songs_url_method_returns_artist_songs_api_url(self):
         self.assertEqual(
-            self.nate_dogg.get_songs_url(), f"/api/v1/artists/{self.nate_dogg.id}/songs"
+            self.raekwon.get_songs_url(), f"/api/v1/artists/{self.raekwon.id}/songs"
         )
 
     def test_get_credits_url_method_returns_artist_production_credits_api_url(self):
         self.assertEqual(
-            self.nate_dogg.get_credits_url(),
-            f"/api/v1/artists/{self.nate_dogg.id}/produced",
+            self.raekwon.get_credits_url(),
+            f"/api/v1/artists/{self.raekwon.id}/produced",
         )
 
     def test_duplicate_artist_creation_unsuccessful(self):
         with self.assertRaises(IntegrityError):
-            models.Artist.objects.create(name="Nate Dogg")
+            models.Artist.objects.create(name="Raekwon")
 
     def test_duplicate_artist_creation_case_insensitive_unsuccessful(self):
         with self.assertRaises(IntegrityError):
-            models.Artist.objects.create(name="nate dogg")
+            models.Artist.objects.create(name="RaeKwon")
 
     def test_artists_ordered_by_name(self):
-        models.Artist.objects.create(name="Warren G")
-        models.Artist.objects.create(name="Luniz")
+        models.Artist.objects.create(name="Ghostface Killah")
+        models.Artist.objects.create(name="RZA")
         artists = [str(artist) for artist in models.Artist.objects.all()]
 
-        self.assertEqual(artists, ["Luniz", "Nate Dogg", "Warren G"])
+        self.assertEqual(artists, ["Ghostface Killah", "Raekwon", "RZA"])
 
 
 class AlbumModelTestCase(TestCase):
@@ -83,43 +81,29 @@ class AlbumModelTestCase(TestCase):
         self.assertEqual(self.the_chronic.title, "The Chronic")
         self.assertEqual(self.the_chronic.release_date, datetime.date(1992, 12, 15))
 
-    def test_album_creation_single_false_by_default(self):
-        self.assertFalse(self.the_chronic.single)
+    def test_album_creation_album_type_album_by_default(self):
+        self.assertEqual(self.the_chronic.album_type, "album")
 
-    def test_album_creation_multidisc_false_by_default(self):
-        self.assertFalse(self.the_chronic.multidisc)
+    def test_artists_related_name_is_album_artists(self):
+        related_name = self.the_chronic._meta.get_field("artists")._related_name
 
-    def test_single_creation_successful(self):
-        how_do_u_want_it = models.Album.objects.create(
-            title="How Do U Want It",
-            release_date=datetime.date(1996, 6, 4),
-            single=True,
-        )
-
-        self.assertEqual(how_do_u_want_it.title, "How Do U Want It")
-        self.assertEqual(how_do_u_want_it.release_date, datetime.date(1996, 6, 4))
-        self.assertTrue(how_do_u_want_it.single)
-
-    def test_multidisc_album_creation_successful(self):
-        chronic_2000 = models.Album.objects.create(
-            title="Chronic 2000: Still Smokin'",
-            release_date=datetime.date(1999, 5, 4),
-            multidisc=True,
-        )
-
-        self.assertEqual(chronic_2000.title, "Chronic 2000: Still Smokin'")
-        self.assertEqual(chronic_2000.release_date, datetime.date(1999, 5, 4))
-        self.assertTrue(chronic_2000.multidisc)
+        self.assertEqual(related_name, "album_artists")
 
     def test_album_title_max_length_is_600(self):
         max_length = self.the_chronic._meta.get_field("title").max_length
 
         self.assertEqual(max_length, 600)
 
-    def test_artists_related_name_is_album_artists(self):
-        related_name = self.the_chronic._meta.get_field("artists")._related_name
+    def test_album_type_max_length_is_10(self):
+        max_length = self.the_chronic._meta.get_field("album_type").max_length
 
-        self.assertEqual(related_name, "album_artists")
+        self.assertEqual(max_length, 10)
+
+    def test_album_type_has_three_choices(self):
+        types = [("album", "album"), ("multidisc", "multidisc"), ("single", "single")]
+        type_choices = self.the_chronic._meta.get_field("album_type").choices
+
+        self.assertEqual(types, type_choices)
 
     def test_str_method_returns_album_title(self):
         self.assertEqual(str(self.the_chronic), "The Chronic")
@@ -129,10 +113,22 @@ class AlbumModelTestCase(TestCase):
             self.the_chronic.get_url(), f"/api/v1/albums/{self.the_chronic.id}"
         )
 
+    def test_get_artists_url_method_returns_album_artists_api_url(self):
+        self.assertEqual(
+            self.the_chronic.get_artists_url(),
+            f"/api/v1/albums/{self.the_chronic.id}/artists",
+        )
+
     def test_get_songs_url_method_returns_album_songs_api_url(self):
         self.assertEqual(
             self.the_chronic.get_songs_url(),
             f"/api/v1/albums/{self.the_chronic.id}/songs",
+        )
+
+    def test_get_discs_url_method_returns_album_discs_api_url(self):
+        self.assertEqual(
+            self.the_chronic.get_discs_url(),
+            f"/api/v1/albums/{self.the_chronic.id}/discs",
         )
 
     def test_duplicate_album_creation_unsuccessful(self):
@@ -140,6 +136,7 @@ class AlbumModelTestCase(TestCase):
             models.Album.objects.create(
                 title="The Chronic",
                 release_date=datetime.date(1992, 12, 15),
+                album_type="multidisc",
             )
 
     def test_duplicate_album_creation_case_insensitive_unsuccessful(self):
@@ -147,15 +144,6 @@ class AlbumModelTestCase(TestCase):
             models.Album.objects.create(
                 title="the chronic",
                 release_date=datetime.date(1992, 12, 15),
-            )
-
-    def test_multidisc_single_creation_unsuccessful(self):
-        with self.assertRaises(IntegrityError):
-            models.Album.objects.create(
-                title="Deep Cover",
-                release_date=datetime.date(1992, 4, 9),
-                single=True,
-                multidisc=True,
             )
 
     def test_albums_ordered_by_artist_name_then_release_date(self):
@@ -179,285 +167,290 @@ class AlbumModelTestCase(TestCase):
 class AlbumArtistModelTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.dj_quik = models.Artist.objects.create(name="DJ Quik")
-        cls.kurupt = models.Artist.objects.create(name="Kurupt")
-        cls.blaqkout = models.Album.objects.create(
-            title="Blaqkout",
-            release_date=datetime.date(2009, 6, 9),
+        cls.the_alchemist = models.Artist.objects.create(name="The Alchemist")
+        cls.prodigy = models.Artist.objects.create(name="Prodigy")
+        cls.albert_einstein = models.Album.objects.create(
+            title="Albert Einstein",
+            release_date=datetime.date(2013, 6, 11),
         )
-        cls.album_artist = models.AlbumArtist.objects.create(
-            album=cls.blaqkout, artist=cls.kurupt
+        cls.album_artist_link = models.AlbumArtist.objects.create(
+            album=cls.albert_einstein, artist=cls.prodigy
         )
 
     def test_album_artist_creation_successful(self):
-        self.assertEqual(self.album_artist.album.title, "Blaqkout")
-        self.assertEqual(self.album_artist.artist.name, "Kurupt")
+        self.assertEqual(self.album_artist_link.album.title, "Albert Einstein")
+        self.assertEqual(self.album_artist_link.artist.name, "Prodigy")
 
     def test_str_method_returns_album_title_artist_name(self):
-        self.assertEqual(str(self.album_artist), "Blaqkout - Kurupt")
+        self.assertEqual(str(self.album_artist_link), "Albert Einstein - Prodigy")
 
     def test_duplicate_album_artist_creation_unsuccessful(self):
         with self.assertRaises(IntegrityError):
-            models.AlbumArtist.objects.create(album=self.blaqkout, artist=self.kurupt)
+            models.AlbumArtist.objects.create(
+                album=self.albert_einstein, artist=self.prodigy
+            )
 
-    def test_album_artists_ordered_by_id(self):
-        models.AlbumArtist.objects.create(album=self.blaqkout, artist=self.dj_quik)
+    def test_album_artists_ordered_by_albumartist_id(self):
+        models.AlbumArtist.objects.create(
+            album=self.albert_einstein, artist=self.the_alchemist
+        )
         album_artists = [str(artist) for artist in models.AlbumArtist.objects.all()]
 
-        self.assertEqual(album_artists, ["Blaqkout - Kurupt", "Blaqkout - DJ Quik"])
+        self.assertEqual(
+            album_artists,
+            ["Albert Einstein - Prodigy", "Albert Einstein - The Alchemist"],
+        )
 
 
 class DiscModelTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.all_eyez_on_me = models.Album.objects.create(
-            title="All Eyez On Me",
-            release_date=datetime.date(1996, 2, 13),
-            multidisc=True,
+        cls.life_after_death = models.Album.objects.create(
+            title="Life After Death",
+            release_date=datetime.date(1997, 3, 25),
+            album_type="multidisc",
         )
-        cls.book2 = models.Disc.objects.create(
-            album=cls.all_eyez_on_me,
-            number=2,
-            title="Book 2",
+        cls.disc_two = models.Disc.objects.create(
+            album=cls.life_after_death, number=2, title="Disc Two"
         )
 
     def test_disc_creation_successful(self):
-        self.assertEqual(self.book2.album.title, "All Eyez On Me")
-        self.assertEqual(self.book2.number, 2)
-        self.assertEqual(self.book2.title, "Book 2")
+        self.assertEqual(self.disc_two.album.title, "Life After Death")
+        self.assertEqual(self.disc_two.number, 2)
+        self.assertEqual(self.disc_two.title, "Disc Two")
 
-    def test_disc_title_max_length(self):
-        max_length = self.book2._meta.get_field("title").max_length
+    def test_disc_title_max_length_is_100(self):
+        max_length = self.disc_two._meta.get_field("title").max_length
 
         self.assertEqual(max_length, 100)
 
     def test_str_method_returns_album_title_disc_title(self):
-        self.assertEqual(str(self.book2), "All Eyez On Me (Book 2)")
+        self.assertEqual(str(self.disc_two), "Life After Death (Disc Two)")
 
     def test_get_url_method_returns_disc_api_url(self):
-        self.assertEqual(self.book2.get_url(), f"/api/v1/discs/{self.book2.id}")
+        self.assertEqual(self.disc_two.get_url(), f"/api/v1/discs/{self.disc_two.id}")
 
     def test_duplicate_disc_creation_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.Disc.objects.create(
-                album=self.all_eyez_on_me,
-                number=2,
-                title="Book 2",
-            )
-
-    def test_disc_creation_with_duplicate_number_unsuccessful(self):
-        with self.assertRaises(IntegrityError):
-            models.Disc.objects.create(
-                album=self.all_eyez_on_me,
-                number=2,
-                title="Book 1",
-            )
-
-    def test_disc_creation_with_duplicate_title_unsuccessful(self):
-        with self.assertRaises(IntegrityError):
-            models.Disc.objects.create(
-                album=self.all_eyez_on_me,
-                number=1,
-                title="Book 2",
+                album=self.life_after_death, number=2, title="Disc Two"
             )
 
     def test_duplicate_disc_creation_case_insensitive_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.Disc.objects.create(
-                album=self.all_eyez_on_me,
-                number=2,
-                title="BOOK 2",
+                album=self.life_after_death, number=2, title="DISC TWO"
             )
 
-    def test_disc_creation_with_invalid_number_unsuccessful(self):
+    def test_disc_creation_duplicate_number_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.Disc.objects.create(
-                album=self.all_eyez_on_me,
-                number=0,
-                title="Book 0",
+                album=self.life_after_death, number=2, title="Disc 2"
+            )
+
+    def test_disc_creation_duplicate_title_unsuccessful(self):
+        with self.assertRaises(IntegrityError):
+            models.Disc.objects.create(
+                album=self.life_after_death, number=1, title="Disc Two"
+            )
+
+    def test_disc_creation_number_less_than_one_unsuccessful(self):
+        with self.assertRaises(IntegrityError):
+            models.Disc.objects.create(
+                album=self.life_after_death, number=0, title="Disc Zero"
             )
 
     def test_discs_ordered_by_number(self):
-        models.Disc.objects.create(album=self.all_eyez_on_me, number=1, title="Book 1")
+        models.Disc.objects.create(
+            album=self.life_after_death, number=1, title="Disc One"
+        )
         discs = [str(disc) for disc in models.Disc.objects.all()]
 
-        self.assertEqual(discs, ["All Eyez On Me (Book 1)", "All Eyez On Me (Book 2)"])
+        self.assertEqual(
+            discs, ["Life After Death (Disc One)", "Life After Death (Disc Two)"]
+        )
 
 
 class SongModelTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.the_don_killuminati = models.Album.objects.create(
-            title="The Don Killuminati: The 7 Day Theory",
-            release_date=datetime.date(1996, 11, 5),
+        cls.me_against_the_world = models.Album.objects.create(
+            title="Me Against The World",
+            release_date=datetime.date(1995, 3, 14),
         )
-        cls.r_u_still_down = models.Album.objects.create(
-            title="R U Still Down? (Remember Me)",
-            release_date=datetime.date(1997, 11, 25),
-            multidisc=True,
+        cls.all_eyez_on_me = models.Album.objects.create(
+            title="All Eyez On Me",
+            release_date=datetime.date(1996, 2, 13),
+            album_type="multidisc",
         )
-        cls.toss_it_up = models.Song.objects.create(
-            title="Toss It Up",
-            album=cls.the_don_killuminati,
-            track_number=3,
-            length=306,
-            path="/2pac/the-don-killuminati-the-7-day-theory/03_toss_it_up.flac",
+        cls.temptations = models.Song.objects.create(
+            title="Temptations",
+            album=cls.me_against_the_world,
+            track_number=5,
+            length=301,
+            path="/2pac/me-against-the-world/05_temptations.flac",
         )
 
     def test_song_creation_successful(self):
-        self.assertEqual(self.toss_it_up.title, "Toss It Up")
+        self.assertEqual(self.temptations.title, "Temptations")
+        self.assertEqual(self.temptations.album.title, "Me Against The World")
+        self.assertEqual(self.temptations.track_number, 5)
+        self.assertEqual(self.temptations.length, 301)
         self.assertEqual(
-            self.toss_it_up.album.title, "The Don Killuminati: The 7 Day Theory"
-        )
-        self.assertEqual(self.toss_it_up.track_number, 3)
-        self.assertEqual(self.toss_it_up.length, 306)
-        self.assertEqual(
-            self.toss_it_up.path,
-            "/2pac/the-don-killuminati-the-7-day-theory/03_toss_it_up.flac",
+            self.temptations.path, "/2pac/me-against-the-world/05_temptations.flac"
         )
 
-    def test_song_creation_disc_null_by_default(self):
-        self.assertIsNone(self.toss_it_up.disc)
+    def test_song_creation_disc_one_by_default(self):
+        self.assertEqual(self.temptations.disc, 1)
 
     def test_song_creation_play_count_zero_by_default(self):
-        self.assertEqual(self.toss_it_up.play_count, 0)
+        self.assertEqual(self.temptations.play_count, 0)
 
     def test_song_title_max_length_is_600(self):
-        max_length = self.toss_it_up._meta.get_field("title").max_length
+        max_length = self.temptations._meta.get_field("title").max_length
 
         self.assertEqual(max_length, 600)
 
     def test_artists_related_name_is_song_artists(self):
-        related_name = self.toss_it_up._meta.get_field("artists")._related_name
+        related_name = self.temptations._meta.get_field("artists")._related_name
 
         self.assertEqual(related_name, "song_artists")
 
     def test_producers_related_name_is_song_artists(self):
-        related_name = self.toss_it_up._meta.get_field("producers")._related_name
+        related_name = self.temptations._meta.get_field("producers")._related_name
 
         self.assertEqual(related_name, "song_producers")
 
     def test_song_path_max_length_is_1000(self):
-        max_length = self.toss_it_up._meta.get_field("path").max_length
+        max_length = self.temptations._meta.get_field("path").max_length
 
         self.assertEqual(max_length, 1000)
 
     def test_song_path_unique_constraint_is_true(self):
-        unique_constraint = self.toss_it_up._meta.get_field("path").unique
+        unique_constraint = self.temptations._meta.get_field("path").unique
 
         self.assertTrue(unique_constraint)
 
     def test_str_method_returns_track_number_song_title_album_title(self):
-        self.assertEqual(
-            str(self.toss_it_up),
-            "3. Toss It Up [The Don Killuminati: The 7 Day Theory]",
-        )
+        self.assertEqual(str(self.temptations), "5. Temptations [Me Against The World]")
 
     def test_get_url_method_returns_song_api_url(self):
         self.assertEqual(
-            self.toss_it_up.get_url(), f"/api/v1/songs/{self.toss_it_up.id}"
+            self.temptations.get_url(), f"/api/v1/songs/{self.temptations.id}"
+        )
+
+    def test_get_artists_url_method_returns_song_artists_api_url(self):
+        self.assertEqual(
+            self.temptations.get_artists_url(),
+            f"/api/v1/songs/{self.temptations.id}/artists",
+        )
+
+    def test_get_producers_url_method_returns_song_producers_api_url(self):
+        self.assertEqual(
+            self.temptations.get_producers_url(),
+            f"/api/v1/songs/{self.temptations.id}/producers",
         )
 
     def test_duplicate_song_creation_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.Song.objects.create(
-                title="Toss It Up",
-                album=self.the_don_killuminati,
-                track_number=3,
-                length=306,
-                path="/2pac/the-don-killuminati-the-7-day-theory/03_toss_it_up.flac",
+                title="Temptations",
+                album=self.me_against_the_world,
+                track_number=5,
+                length=303,
+                path="/2pac/me-against-the-world/05_temptations.flac",
             )
 
-    def test_song_creation_with_duplicate_track_number_unsuccessful(self):
+    def test_song_creation_duplicate_track_number_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.Song.objects.create(
-                title="Hail Mary",
-                album=self.the_don_killuminati,
-                track_number=3,
-                length=310,
-                path="/2pac/the-don-killuminati-the-7-day-theory/03_hail_mary.flac",
+                title="So Many Tears",
+                album=self.me_against_the_world,
+                track_number=5,
+                length=239,
+                path="/2pac/me-against-the-world/05_so_many_tears.flac",
             )
 
     def test_duplicate_song_creation_case_insensitive_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.Song.objects.create(
-                title="Toss It Up",
-                album=self.the_don_killuminati,
-                track_number=4,
-                length=306,
-                path="/2Pac/The-Don-Killuminati-The-7-Day-Theory/03_Toss_It_Up.flac",
+                title="TEMPTATIONS",
+                album=self.me_against_the_world,
+                track_number=5,
+                length=303,
+                path="/2Pac/Me-Against-The-World/05_Temptations.flac",
             )
 
-    def test_song_creation_with_invalid_disc_number_unsuccessful(self):
+    def test_song_creation_invalid_disc_number_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.Song.objects.create(
-                title="Hellrazor",
-                album=self.r_u_still_down,
+                title="Heavy In The Game",
+                album=self.me_against_the_world,
                 disc=0,
-                track_number=4,
-                length=255,
-                path="/2pac/r-u-still-down-remember-me/disc-one/04_hellrazor.flac",
+                track_number=7,
+                length=265,
+                path="/2pac/me-against-the-world/07_heavy_in_the_game.flac",
             )
 
-    def test_song_creation_with_invalid_track_number_unsuccessful(self):
+    def test_song_creation_invalid_track_number_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.Song.objects.create(
                 title="Lost Souls",
-                album=self.the_don_killuminati,
+                album=self.me_against_the_world,
                 track_number=0,
                 length=283,
-                path="/2pac/the-don-killuminati-the-7-day-theory/00_lost_souls.flac",
+                path="/2pac/me-against-the-world/00_lost_souls.flac",
             )
 
     def test_songs_ordered_by_play_count_release_date_disc_number_track_number(self):
         models.Song.objects.create(
-            title="Life Of An Outlaw",
-            album=self.the_don_killuminati,
-            track_number=6,
-            length=296,
-            path="/2pac/the-don-killuminati-the-7-day-theory/06_life_of_an_outlaw.flac",
+            title="If I Die 2Nite",
+            album=self.me_against_the_world,
+            track_number=2,
+            length=242,
+            path="/2pac/me-against-the-world/02_if_i_die_2nite.flac",
             play_count=2,
         )
         models.Song.objects.create(
-            title="Me and My Girlfriend",
-            album=self.the_don_killuminati,
-            track_number=10,
-            length=308,
-            path="/2pac/the-don-killuminati-the-7-day-theory/10_me_and_my_girlfriend.flac",
+            title="Death Around The Corner",
+            album=self.me_against_the_world,
+            track_number=14,
+            length=247,
+            path="/2pac/me-against-the-world/14_death_around_the_corner.flac",
             play_count=3,
         )
         models.Song.objects.create(
-            title="Do For Love",
-            album=self.r_u_still_down,
+            title="Holla At Me",
+            album=self.all_eyez_on_me,
             disc=2,
-            track_number=6,
-            length=282,
-            path="/2pac/r-u-still-down-remember-me/disc-two/06_do_for_love.flac",
+            track_number=3,
+            length=295,
+            path="/2pac/all-eyez-on-me/book-2/03_holla_at_me.flac",
         )
         models.Song.objects.create(
-            title="I'm Gettin' Money",
-            album=self.r_u_still_down,
+            title="California Love (Remix)",
+            album=self.all_eyez_on_me,
             disc=1,
-            track_number=9,
-            length=212,
-            path="/2pac/r-u-still-down-remember-me/disc-one/09_im_gettin_money.flac",
+            track_number=12,
+            length=385,
+            path="/2pac/all-eyez-on-me/book-1/12_california_love_remix.flac",
         )
         models.Song.objects.create(
-            title="Open Fire",
-            album=self.r_u_still_down,
+            title="Ambitionz Az A Ridah",
+            album=self.all_eyez_on_me,
             disc=1,
-            track_number=2,
-            length=172,
-            path="/2pac/r-u-still-down-remember-me/disc-one/02_open_fire.flac",
+            track_number=1,
+            length=279,
+            path="/2pac/all-eyez-on-me/book-1/01_ambitionz_az_a_ridah.flac",
         )
         songs = [str(song) for song in models.Song.objects.all()]
         expected_song_order = [
-            "10. Me and My Girlfriend [The Don Killuminati: The 7 Day Theory]",
-            "6. Life Of An Outlaw [The Don Killuminati: The 7 Day Theory]",
-            "2. Open Fire [R U Still Down? (Remember Me)]",
-            "9. I'm Gettin' Money [R U Still Down? (Remember Me)]",
-            "6. Do For Love [R U Still Down? (Remember Me)]",
-            "3. Toss It Up [The Don Killuminati: The 7 Day Theory]",
+            "14. Death Around The Corner [Me Against The World]",
+            "2. If I Die 2Nite [Me Against The World]",
+            "1. Ambitionz Az A Ridah [All Eyez On Me]",
+            "12. California Love (Remix) [All Eyez On Me]",
+            "3. Holla At Me [All Eyez On Me]",
+            "5. Temptations [Me Against The World]",
         ]
 
         self.assertEqual(songs, expected_song_order)
@@ -506,16 +499,10 @@ class SongArtistModelTestCase(TestCase):
     def test_duplicate_song_artist_creation_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.SongArtist.objects.create(
-                song=self.smooth, artist=self.tha_dogg_pound
-            )
-
-    def test_duplicate_song_artist_as_group_member_creation_unsuccessful(self):
-        with self.assertRaises(IntegrityError):
-            models.SongArtist.objects.create(
                 song=self.smooth, artist=self.tha_dogg_pound, group=True
             )
 
-    def test_song_artists_ordered_by_id(self):
+    def test_song_artists_ordered_by_songartist_id(self):
         models.SongArtist.objects.create(song=self.smooth, artist=self.snoop_dogg)
         models.SongArtist.objects.create(
             song=self.smooth, artist=self.kurupt, group=True
@@ -535,28 +522,28 @@ class SongArtistModelTestCase(TestCase):
 class SongProducerModelTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.binky_mack = models.Artist.objects.create(name="Binky Mack")
-        cls.ice_cube = models.Artist.objects.create(name="Ice Cube")
-        cls.bow_down = models.Album.objects.create(
-            title="Bow Down",
-            release_date=datetime.date(1996, 10, 22),
+        cls.dj_clark_kent = models.Artist.objects.create(name="DJ Clark Kent")
+        cls.damon_dash = models.Artist.objects.create(name="Damon Dash")
+        cls.reasonable_doubt = models.Album.objects.create(
+            title="Reasonable Doubt",
+            release_date=datetime.date(1996, 6, 25),
         )
-        cls.all_the_critics_in_new_york = models.Song.objects.create(
-            title="All The Critics In New York",
-            album=cls.bow_down,
-            track_number=4,
-            length=335,
-            path="/westside-connection/bow-down/04_all_the_critics_in_new_york.flac",
+        cls.brooklyns_finest = models.Song.objects.create(
+            title="Brooklyn's Finest",
+            album=cls.reasonable_doubt,
+            track_number=3,
+            length=276,
+            path="/jay-z/reasonable-doubt/03_brooklyns_finest.flac",
         )
         cls.song_producer = models.SongProducer.objects.create(
-            song=cls.all_the_critics_in_new_york,
-            producer=cls.ice_cube,
+            song=cls.brooklyns_finest,
+            producer=cls.damon_dash,
             role="Co-Producer",
         )
 
     def test_song_producer_creation_successful(self):
-        self.assertEqual(self.song_producer.song.title, "All The Critics In New York")
-        self.assertEqual(self.song_producer.producer.name, "Ice Cube")
+        self.assertEqual(self.song_producer.song.title, "Brooklyn's Finest")
+        self.assertEqual(self.song_producer.producer.name, "Damon Dash")
         self.assertEqual(self.song_producer.role, "Co-Producer")
 
     def test_song_producer_role_max_length_is_100(self):
@@ -564,40 +551,32 @@ class SongProducerModelTestCase(TestCase):
 
         self.assertEqual(max_length, 100)
 
-    def test_str_method_returns_song_title_producer_name_role(self):
+    def test_str_method_returns_song_title_producer_name_producer_role(self):
         self.assertEqual(
             str(self.song_producer),
-            "All The Critics In New York - Ice Cube [Co-Producer]",
+            "Brooklyn's Finest - Damon Dash [Co-Producer]",
         )
 
     def test_duplicate_song_producer_creation_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.SongProducer.objects.create(
-                song=self.all_the_critics_in_new_york,
-                producer=self.ice_cube,
-                role="Co-Producer",
-            )
-
-    def test_duplicate_song_producer_with_different_role_creation_unsuccessful(self):
-        with self.assertRaises(IntegrityError):
-            models.SongProducer.objects.create(
-                song=self.all_the_critics_in_new_york,
-                producer=self.ice_cube,
+                song=self.brooklyns_finest,
+                producer=self.damon_dash,
                 role="Producer",
             )
 
-    def test_song_producers_ordered_by_id(self):
+    def test_song_producers_ordered_by_songproducer_id(self):
         models.SongProducer.objects.create(
-            song=self.all_the_critics_in_new_york,
-            producer=self.binky_mack,
+            song=self.brooklyns_finest,
+            producer=self.dj_clark_kent,
             role="Producer",
         )
         song_producers = [
             str(producer) for producer in models.SongProducer.objects.all()
         ]
         expected_song_producer_order = [
-            "All The Critics In New York - Ice Cube [Co-Producer]",
-            "All The Critics In New York - Binky Mack [Producer]",
+            "Brooklyn's Finest - Damon Dash [Co-Producer]",
+            "Brooklyn's Finest - DJ Clark Kent [Producer]",
         ]
 
         self.assertEqual(song_producers, expected_song_producer_order)

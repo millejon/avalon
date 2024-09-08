@@ -10,23 +10,23 @@ class Artist(models.Model):
         return self.name
 
     def get_url(self) -> str:
-        """Return the URL of the artist API resource."""
+        """Return URL of artist API resource."""
         return reverse("api-1.0:retrieve_artist", args=[str(self.id)])
 
     def get_albums_url(self) -> str:
-        """Return the URL of the artist's albums API resource."""
+        """Return URL of artist's albums API resource."""
         return reverse("api-1.0:retrieve_artist_albums", args=[str(self.id)])
 
     def get_singles_url(self) -> str:
-        """Return the URL of the artist's singles API resource."""
+        """Return URL of artist's singles API resource."""
         return reverse("api-1.0:retrieve_artist_singles", args=[str(self.id)])
 
     def get_songs_url(self) -> str:
-        """Return the URL of the artist's songs API resource."""
+        """Return URL of artist's songs API resource."""
         return reverse("api-1.0:retrieve_artist_songs", args=[str(self.id)])
 
     def get_credits_url(self) -> str:
-        """Return the URL of the artist's production credits API resource."""
+        """Return URL of artist's production credits API resource."""
         return reverse(
             "api-1.0:retrieve_artist_production_credits", args=[str(self.id)]
         )
@@ -42,24 +42,32 @@ class Artist(models.Model):
 
 
 class Album(models.Model):
-    title = models.CharField(max_length=600)
+    ALBUM_TYPES = {"album": "album", "multidisc": "multidisc", "single": "single"}
     artists = models.ManyToManyField(
         Artist, through="AlbumArtist", related_name="album_artists"
     )
+    title = models.CharField(max_length=600)
     release_date = models.DateField()
-    single = models.BooleanField(default=False, blank=True)
-    multidisc = models.BooleanField(default=False, blank=True)
+    album_type = models.CharField(max_length=10, choices=ALBUM_TYPES, default="album")
 
     def __str__(self):
         return self.title
 
     def get_url(self) -> str:
-        """Return the URL of the album API resource."""
+        """Return URL of album API resource."""
         return reverse("api-1.0:retrieve_album", args=[str(self.id)])
 
+    def get_artists_url(self) -> str:
+        """Return URL of album's artists API resource."""
+        return reverse("api-1.0:retrieve_album_artists", args=[str(self.id)])
+
     def get_songs_url(self) -> str:
-        """Return the URL of the album's songs API resource."""
+        """Return URL of album's songs API resource."""
         return reverse("api-1.0:retrieve_album_songs", args=[str(self.id)])
+
+    def get_discs_url(self) -> str:
+        """Return URL of album's discs API resource."""
+        return reverse("api-1.0:retrieve_album_discs", args=[str(self.id)])
 
     class Meta:
         ordering = ["artists__name", "release_date"]
@@ -68,10 +76,6 @@ class Album(models.Model):
                 models.functions.Lower("title"),
                 "release_date",
                 name="duplicate_album",
-            ),
-            models.CheckConstraint(
-                condition=~(models.Q(single=True) & models.Q(multidisc=True)),
-                name="singles_can_not_be_multidisc",
             ),
         ]
 
@@ -103,7 +107,7 @@ class Disc(models.Model):
         return f"{self.album.title} ({self.title})"
 
     def get_url(self) -> str:
-        """Return the URL of the disc API resource."""
+        """Return URL of disc API resource."""
         return reverse("api-1.0:retrieve_disc", args=[str(self.id)])
 
     class Meta:
@@ -133,7 +137,7 @@ class Song(models.Model):
         Artist, through="SongProducer", related_name="song_producers"
     )
     album = models.ForeignKey(Album, on_delete=models.CASCADE)
-    disc = models.PositiveSmallIntegerField(null=True, blank=True)
+    disc = models.PositiveSmallIntegerField(default=1, blank=True)
     track_number = models.PositiveSmallIntegerField(
         validators=[validators.MinValueValidator(1)]
     )
@@ -145,8 +149,16 @@ class Song(models.Model):
         return f"{self.track_number}. {self.title} [{self.album.title}]"
 
     def get_url(self) -> str:
-        """Return the URL of the song API resource."""
+        """Return URL of song API resource."""
         return reverse("api-1.0:retrieve_song", args=[str(self.id)])
+
+    def get_artists_url(self) -> str:
+        """Return URL of song's artists API resource."""
+        return reverse("api-1.0:retrieve_song_artists", args=[str(self.id)])
+
+    def get_producers_url(self) -> str:
+        """Return URL of song's producers API resource."""
+        return reverse("api-1.0:retrieve_song_producers", args=[str(self.id)])
 
     class Meta:
         ordering = ["-play_count", "-album__release_date", "disc", "track_number"]
