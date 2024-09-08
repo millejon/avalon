@@ -522,28 +522,28 @@ class SongArtistModelTestCase(TestCase):
 class SongProducerModelTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.binky_mack = models.Artist.objects.create(name="Binky Mack")
-        cls.ice_cube = models.Artist.objects.create(name="Ice Cube")
-        cls.bow_down = models.Album.objects.create(
-            title="Bow Down",
-            release_date=datetime.date(1996, 10, 22),
+        cls.dj_clark_kent = models.Artist.objects.create(name="DJ Clark Kent")
+        cls.damon_dash = models.Artist.objects.create(name="Damon Dash")
+        cls.reasonable_doubt = models.Album.objects.create(
+            title="Reasonable Doubt",
+            release_date=datetime.date(1996, 6, 25),
         )
-        cls.all_the_critics_in_new_york = models.Song.objects.create(
-            title="All The Critics In New York",
-            album=cls.bow_down,
-            track_number=4,
-            length=335,
-            path="/westside-connection/bow-down/04_all_the_critics_in_new_york.flac",
+        cls.brooklyns_finest = models.Song.objects.create(
+            title="Brooklyn's Finest",
+            album=cls.reasonable_doubt,
+            track_number=3,
+            length=276,
+            path="/jay-z/reasonable-doubt/03_brooklyns_finest.flac",
         )
         cls.song_producer = models.SongProducer.objects.create(
-            song=cls.all_the_critics_in_new_york,
-            producer=cls.ice_cube,
+            song=cls.brooklyns_finest,
+            producer=cls.damon_dash,
             role="Co-Producer",
         )
 
     def test_song_producer_creation_successful(self):
-        self.assertEqual(self.song_producer.song.title, "All The Critics In New York")
-        self.assertEqual(self.song_producer.producer.name, "Ice Cube")
+        self.assertEqual(self.song_producer.song.title, "Brooklyn's Finest")
+        self.assertEqual(self.song_producer.producer.name, "Damon Dash")
         self.assertEqual(self.song_producer.role, "Co-Producer")
 
     def test_song_producer_role_max_length_is_100(self):
@@ -551,40 +551,32 @@ class SongProducerModelTestCase(TestCase):
 
         self.assertEqual(max_length, 100)
 
-    def test_str_method_returns_song_title_producer_name_role(self):
+    def test_str_method_returns_song_title_producer_name_producer_role(self):
         self.assertEqual(
             str(self.song_producer),
-            "All The Critics In New York - Ice Cube [Co-Producer]",
+            "Brooklyn's Finest - Damon Dash [Co-Producer]",
         )
 
     def test_duplicate_song_producer_creation_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.SongProducer.objects.create(
-                song=self.all_the_critics_in_new_york,
-                producer=self.ice_cube,
-                role="Co-Producer",
-            )
-
-    def test_duplicate_song_producer_with_different_role_creation_unsuccessful(self):
-        with self.assertRaises(IntegrityError):
-            models.SongProducer.objects.create(
-                song=self.all_the_critics_in_new_york,
-                producer=self.ice_cube,
+                song=self.brooklyns_finest,
+                producer=self.damon_dash,
                 role="Producer",
             )
 
-    def test_song_producers_ordered_by_id(self):
+    def test_song_producers_ordered_by_songproducer_id(self):
         models.SongProducer.objects.create(
-            song=self.all_the_critics_in_new_york,
-            producer=self.binky_mack,
+            song=self.brooklyns_finest,
+            producer=self.dj_clark_kent,
             role="Producer",
         )
         song_producers = [
             str(producer) for producer in models.SongProducer.objects.all()
         ]
         expected_song_producer_order = [
-            "All The Critics In New York - Ice Cube [Co-Producer]",
-            "All The Critics In New York - Binky Mack [Producer]",
+            "Brooklyn's Finest - Damon Dash [Co-Producer]",
+            "Brooklyn's Finest - DJ Clark Kent [Producer]",
         ]
 
         self.assertEqual(song_producers, expected_song_producer_order)
