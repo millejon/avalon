@@ -81,43 +81,29 @@ class AlbumModelTestCase(TestCase):
         self.assertEqual(self.the_chronic.title, "The Chronic")
         self.assertEqual(self.the_chronic.release_date, datetime.date(1992, 12, 15))
 
-    def test_album_creation_single_false_by_default(self):
-        self.assertFalse(self.the_chronic.single)
+    def test_album_creation_album_type_album_by_default(self):
+        self.assertEqual(self.the_chronic.album_type, "album")
 
-    def test_album_creation_multidisc_false_by_default(self):
-        self.assertFalse(self.the_chronic.multidisc)
+    def test_artists_related_name_is_album_artists(self):
+        related_name = self.the_chronic._meta.get_field("artists")._related_name
 
-    def test_single_creation_successful(self):
-        how_do_u_want_it = models.Album.objects.create(
-            title="How Do U Want It",
-            release_date=datetime.date(1996, 6, 4),
-            single=True,
-        )
-
-        self.assertEqual(how_do_u_want_it.title, "How Do U Want It")
-        self.assertEqual(how_do_u_want_it.release_date, datetime.date(1996, 6, 4))
-        self.assertTrue(how_do_u_want_it.single)
-
-    def test_multidisc_album_creation_successful(self):
-        chronic_2000 = models.Album.objects.create(
-            title="Chronic 2000: Still Smokin'",
-            release_date=datetime.date(1999, 5, 4),
-            multidisc=True,
-        )
-
-        self.assertEqual(chronic_2000.title, "Chronic 2000: Still Smokin'")
-        self.assertEqual(chronic_2000.release_date, datetime.date(1999, 5, 4))
-        self.assertTrue(chronic_2000.multidisc)
+        self.assertEqual(related_name, "album_artists")
 
     def test_album_title_max_length_is_600(self):
         max_length = self.the_chronic._meta.get_field("title").max_length
 
         self.assertEqual(max_length, 600)
 
-    def test_artists_related_name_is_album_artists(self):
-        related_name = self.the_chronic._meta.get_field("artists")._related_name
+    def test_album_type_max_length_is_10(self):
+        max_length = self.the_chronic._meta.get_field("album_type").max_length
 
-        self.assertEqual(related_name, "album_artists")
+        self.assertEqual(max_length, 10)
+
+    def test_album_type_has_three_choices(self):
+        types = [("album", "album"), ("multidisc", "multidisc"), ("single", "single")]
+        type_choices = self.the_chronic._meta.get_field("album_type").choices
+
+        self.assertEqual(types, type_choices)
 
     def test_str_method_returns_album_title(self):
         self.assertEqual(str(self.the_chronic), "The Chronic")
@@ -127,10 +113,22 @@ class AlbumModelTestCase(TestCase):
             self.the_chronic.get_url(), f"/api/v1/albums/{self.the_chronic.id}"
         )
 
+    def test_get_artists_url_method_returns_album_artists_api_url(self):
+        self.assertEqual(
+            self.the_chronic.get_artists_url(),
+            f"/api/v1/albums/{self.the_chronic.id}/artists",
+        )
+
     def test_get_songs_url_method_returns_album_songs_api_url(self):
         self.assertEqual(
             self.the_chronic.get_songs_url(),
             f"/api/v1/albums/{self.the_chronic.id}/songs",
+        )
+
+    def test_get_discs_url_method_returns_album_discs_api_url(self):
+        self.assertEqual(
+            self.the_chronic.get_discs_url(),
+            f"/api/v1/albums/{self.the_chronic.id}/discs",
         )
 
     def test_duplicate_album_creation_unsuccessful(self):
@@ -138,6 +136,7 @@ class AlbumModelTestCase(TestCase):
             models.Album.objects.create(
                 title="The Chronic",
                 release_date=datetime.date(1992, 12, 15),
+                album_type="multidisc",
             )
 
     def test_duplicate_album_creation_case_insensitive_unsuccessful(self):
@@ -145,15 +144,6 @@ class AlbumModelTestCase(TestCase):
             models.Album.objects.create(
                 title="the chronic",
                 release_date=datetime.date(1992, 12, 15),
-            )
-
-    def test_multidisc_single_creation_unsuccessful(self):
-        with self.assertRaises(IntegrityError):
-            models.Album.objects.create(
-                title="Deep Cover",
-                release_date=datetime.date(1992, 4, 9),
-                single=True,
-                multidisc=True,
             )
 
     def test_albums_ordered_by_artist_name_then_release_date(self):

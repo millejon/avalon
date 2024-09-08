@@ -42,24 +42,32 @@ class Artist(models.Model):
 
 
 class Album(models.Model):
-    title = models.CharField(max_length=600)
+    ALBUM_TYPES = {"album": "album", "multidisc": "multidisc", "single": "single"}
     artists = models.ManyToManyField(
         Artist, through="AlbumArtist", related_name="album_artists"
     )
+    title = models.CharField(max_length=600)
     release_date = models.DateField()
-    single = models.BooleanField(default=False, blank=True)
-    multidisc = models.BooleanField(default=False, blank=True)
+    album_type = models.CharField(max_length=10, choices=ALBUM_TYPES, default="album")
 
     def __str__(self):
         return self.title
 
     def get_url(self) -> str:
-        """Return the URL of the album API resource."""
+        """Return URL of album API resource."""
         return reverse("api-1.0:retrieve_album", args=[str(self.id)])
 
+    def get_artists_url(self) -> str:
+        """Return URL of album's artists API resource."""
+        return reverse("api-1.0:retrieve_album_artists", args=[str(self.id)])
+
     def get_songs_url(self) -> str:
-        """Return the URL of the album's songs API resource."""
+        """Return URL of album's songs API resource."""
         return reverse("api-1.0:retrieve_album_songs", args=[str(self.id)])
+
+    def get_discs_url(self) -> str:
+        """Return URL of album's discs API resource."""
+        return reverse("api-1.0:retrieve_album_discs", args=[str(self.id)])
 
     class Meta:
         ordering = ["artists__name", "release_date"]
@@ -68,10 +76,6 @@ class Album(models.Model):
                 models.functions.Lower("title"),
                 "release_date",
                 name="duplicate_album",
-            ),
-            models.CheckConstraint(
-                condition=~(models.Q(single=True) & models.Q(multidisc=True)),
-                name="singles_can_not_be_multidisc",
             ),
         ]
 
