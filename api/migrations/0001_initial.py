@@ -15,148 +15,315 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Album',
+            name="Album",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=600)),
-                ('release_date', models.DateField()),
-                ('album_type', models.CharField(choices=[('album', 'album'), ('multidisc', 'multidisc'), ('single', 'single')], default='album', max_length=10)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=600)),
+                ("release_date", models.DateField()),
+                (
+                    "album_type",
+                    models.CharField(
+                        choices=[
+                            ("album", "album"),
+                            ("multidisc", "multidisc"),
+                            ("single", "single"),
+                        ],
+                        default="album",
+                        max_length=10,
+                    ),
+                ),
             ],
             options={
-                'ordering': ['artists__name', 'release_date'],
+                "ordering": ["artists__name", "release_date"],
             },
         ),
         migrations.CreateModel(
-            name='Artist',
+            name="Artist",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100, unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100, unique=True)),
             ],
             options={
-                'ordering': ['name'],
-                'constraints': [models.UniqueConstraint(django.db.models.functions.text.Lower('name'), name='duplicate_artist_case_insensitive_match')],
+                "ordering": ["name"],
+                "constraints": [
+                    models.UniqueConstraint(
+                        django.db.models.functions.text.Lower("name"),
+                        name="duplicate_artist_case_insensitive_match",
+                    )
+                ],
             },
         ),
         migrations.CreateModel(
-            name='AlbumArtist',
+            name="AlbumArtist",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('album', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.album')),
-                ('artist', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.artist')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "album",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="api.album"
+                    ),
+                ),
+                (
+                    "artist",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="api.artist"
+                    ),
+                ),
             ],
             options={
-                'ordering': ['id'],
+                "ordering": ["id"],
             },
         ),
         migrations.AddField(
-            model_name='album',
-            name='artists',
-            field=models.ManyToManyField(related_name='album_artists', through='api.AlbumArtist', to='api.artist'),
+            model_name="album",
+            name="artists",
+            field=models.ManyToManyField(
+                related_name="album_artists", through="api.AlbumArtist", to="api.artist"
+            ),
         ),
         migrations.CreateModel(
-            name='Disc',
+            name="Disc",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('number', models.PositiveSmallIntegerField(validators=[django.core.validators.MinValueValidator(1)])),
-                ('title', models.CharField(max_length=100)),
-                ('album', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.album')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "number",
+                    models.PositiveSmallIntegerField(
+                        validators=[django.core.validators.MinValueValidator(1)]
+                    ),
+                ),
+                ("title", models.CharField(max_length=100)),
+                (
+                    "album",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="api.album"
+                    ),
+                ),
             ],
             options={
-                'ordering': ['number'],
+                "ordering": ["number"],
             },
         ),
         migrations.CreateModel(
-            name='Song',
+            name="Song",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=600)),
-                ('disc', models.PositiveSmallIntegerField(blank=True, default=1)),
-                ('track_number', models.PositiveSmallIntegerField(validators=[django.core.validators.MinValueValidator(1)])),
-                ('length', models.PositiveSmallIntegerField()),
-                ('path', models.CharField(max_length=1000, unique=True)),
-                ('play_count', models.PositiveIntegerField(default=0)),
-                ('album', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.album')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=600)),
+                ("disc", models.PositiveSmallIntegerField(blank=True, default=1)),
+                (
+                    "track_number",
+                    models.PositiveSmallIntegerField(
+                        validators=[django.core.validators.MinValueValidator(1)]
+                    ),
+                ),
+                ("length", models.PositiveSmallIntegerField()),
+                ("path", models.CharField(max_length=1000, unique=True)),
+                ("play_count", models.PositiveIntegerField(default=0)),
+                (
+                    "album",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="api.album"
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-play_count', '-album__release_date', 'disc', 'track_number'],
+                "ordering": [
+                    "-play_count",
+                    "-album__release_date",
+                    "disc",
+                    "track_number",
+                ],
             },
         ),
         migrations.CreateModel(
-            name='SongArtist',
+            name="SongArtist",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('group', models.BooleanField(blank=True, default=False)),
-                ('artist', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.artist')),
-                ('song', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.song')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("group", models.BooleanField(blank=True, default=False)),
+                (
+                    "artist",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="api.artist"
+                    ),
+                ),
+                (
+                    "song",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="api.song"
+                    ),
+                ),
             ],
             options={
-                'ordering': ['id'],
+                "ordering": ["id"],
             },
         ),
         migrations.AddField(
-            model_name='song',
-            name='artists',
-            field=models.ManyToManyField(related_name='song_artists', through='api.SongArtist', to='api.artist'),
+            model_name="song",
+            name="artists",
+            field=models.ManyToManyField(
+                related_name="song_artists", through="api.SongArtist", to="api.artist"
+            ),
         ),
         migrations.CreateModel(
-            name='SongProducer',
+            name="SongProducer",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('role', models.CharField(max_length=100)),
-                ('producer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.artist')),
-                ('song', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.song')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("role", models.CharField(max_length=100)),
+                (
+                    "producer",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="api.artist"
+                    ),
+                ),
+                (
+                    "song",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="api.song"
+                    ),
+                ),
             ],
             options={
-                'ordering': ['id'],
+                "ordering": ["id"],
             },
         ),
         migrations.AddField(
-            model_name='song',
-            name='producers',
-            field=models.ManyToManyField(related_name='song_producers', through='api.SongProducer', to='api.artist'),
+            model_name="song",
+            name="producers",
+            field=models.ManyToManyField(
+                related_name="song_producers",
+                through="api.SongProducer",
+                to="api.artist",
+            ),
         ),
         migrations.AddConstraint(
-            model_name='albumartist',
-            constraint=models.UniqueConstraint(fields=('album', 'artist'), name='duplicate_album_artist'),
+            model_name="albumartist",
+            constraint=models.UniqueConstraint(
+                fields=("album", "artist"), name="duplicate_album_artist"
+            ),
         ),
         migrations.AddConstraint(
-            model_name='album',
-            constraint=models.UniqueConstraint(django.db.models.functions.text.Lower('title'), models.F('release_date'), name='duplicate_album'),
+            model_name="album",
+            constraint=models.UniqueConstraint(
+                django.db.models.functions.text.Lower("title"),
+                models.F("release_date"),
+                name="duplicate_album",
+            ),
         ),
         migrations.AddConstraint(
-            model_name='disc',
-            constraint=models.UniqueConstraint(fields=('album', 'number'), name='duplicate_disc_number'),
+            model_name="disc",
+            constraint=models.UniqueConstraint(
+                fields=("album", "number"), name="duplicate_disc_number"
+            ),
         ),
         migrations.AddConstraint(
-            model_name='disc',
-            constraint=models.UniqueConstraint(models.F('album'), django.db.models.functions.text.Lower('title'), name='duplicate_disc_title'),
+            model_name="disc",
+            constraint=models.UniqueConstraint(
+                models.F("album"),
+                django.db.models.functions.text.Lower("title"),
+                name="duplicate_disc_title",
+            ),
         ),
         migrations.AddConstraint(
-            model_name='disc',
-            constraint=models.CheckConstraint(condition=models.Q(('number__gte', 1)), name='disc_number_must_be_greater_than_0'),
+            model_name="disc",
+            constraint=models.CheckConstraint(
+                condition=models.Q(("number__gte", 1)),
+                name="disc_number_must_be_greater_than_0",
+            ),
         ),
         migrations.AddConstraint(
-            model_name='songartist',
-            constraint=models.UniqueConstraint(fields=('song', 'artist'), name='duplicate_song_artist'),
+            model_name="songartist",
+            constraint=models.UniqueConstraint(
+                fields=("song", "artist"), name="duplicate_song_artist"
+            ),
         ),
         migrations.AddConstraint(
-            model_name='songproducer',
-            constraint=models.UniqueConstraint(fields=('song', 'producer'), name='duplicate_producer'),
+            model_name="songproducer",
+            constraint=models.UniqueConstraint(
+                fields=("song", "producer"), name="duplicate_producer"
+            ),
         ),
         migrations.AddConstraint(
-            model_name='song',
-            constraint=models.UniqueConstraint(fields=('album', 'track_number'), name='duplicate_track_number'),
+            model_name="song",
+            constraint=models.UniqueConstraint(
+                fields=("album", "track_number"), name="duplicate_track_number"
+            ),
         ),
         migrations.AddConstraint(
-            model_name='song',
-            constraint=models.UniqueConstraint(django.db.models.functions.text.Lower('path'), name='duplicate_song_case_insensitive_match'),
+            model_name="song",
+            constraint=models.UniqueConstraint(
+                django.db.models.functions.text.Lower("path"),
+                name="duplicate_song_case_insensitive_match",
+            ),
         ),
         migrations.AddConstraint(
-            model_name='song',
-            constraint=models.CheckConstraint(condition=models.Q(('disc__gte', 1), ('disc__isnull', True), _connector='OR'), name='disc_number_must_be_greater_than_0_or_null'),
+            model_name="song",
+            constraint=models.CheckConstraint(
+                condition=models.Q(
+                    ("disc__gte", 1), ("disc__isnull", True), _connector="OR"
+                ),
+                name="disc_number_must_be_greater_than_0_or_null",
+            ),
         ),
         migrations.AddConstraint(
-            model_name='song',
-            constraint=models.CheckConstraint(condition=models.Q(('track_number__gte', 1)), name='track_number_must_be_greater_than_0'),
+            model_name="song",
+            constraint=models.CheckConstraint(
+                condition=models.Q(("track_number__gte", 1)),
+                name="track_number_must_be_greater_than_0",
+            ),
         ),
     ]
