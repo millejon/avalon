@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 
 
 class Artist(models.Model):
@@ -7,6 +8,10 @@ class Artist(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_url(self) -> str:
+        """Return artist API resource URL."""
+        return reverse("api:retrieve_artist", args=[str(self.id)])
 
     class Meta:
         ordering = ["name"]
