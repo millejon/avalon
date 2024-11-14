@@ -36,9 +36,6 @@ jobs:
       run: |
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         flake8 . --count --max-complexity=10 --max-line-length=127 --statistics
-    - name: Run migrations
-      run: |
-        python manage.py migrate
     - name: Create .env file
       run: |
         touch .env
@@ -48,6 +45,9 @@ jobs:
         echo DATABASE_PASSWORD="postgres" >> .env
         echo DATABASE_HOST="postgres" >> .env
         echo DATABASE_PORT="5432" >> .env
+    - name: Run migrations
+      run: |
+        python manage.py migrate
     - name: Run tests
       run: |
         python manage.py test
