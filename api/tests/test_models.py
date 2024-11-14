@@ -39,8 +39,11 @@ class ArtistModelTestCase(TestCase):
 
         self.assertTrue(blank)
 
-    def test_str_method_returns_artist_name(self):
+    def test_artist_str_method_returns_artist_name(self):
         self.assertEqual(str(self.tupac), "2Pac")
+
+    def test_artist_get_url_method_returns_artist_api_resource_url(self):
+        self.assertEqual(self.tupac.get_url(), f"/api/artists/{self.tupac.id}")
 
     def test_duplicate_artist_creation_unsuccessful(self):
         with self.assertRaises(IntegrityError):
