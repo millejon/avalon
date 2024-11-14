@@ -3,4 +3,4 @@ from django.urls import path
 
 from api.api import api
 
-urlpatterns = [path("admin/", admin.site.urls), path("api/v1/", api.urls)]
+urlpatterns = [path("admin/", admin.site.urls), path("api/", api.urls)]
