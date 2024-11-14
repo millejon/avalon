@@ -11,14 +11,11 @@ jobs:
 
     services:
       postgres:
-        restart: always
-        image: postgres:latest
+        image: postgres:17.0
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
-        environment:
-          - POSTGRES_HOST_AUTH_METHOD=trust
+          POSTGRES_DB: avalon
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
@@ -43,7 +40,7 @@ jobs:
       run: |
         touch .env
         echo SECRET_KEY="secret_key_not_used_in_production" > .env
-        echo DATABASE_NAME="postgres" >> .env
+        echo DATABASE_NAME="avalon" >> .env
         echo DATABASE_USER="postgres" >> .env
         echo DATABASE_PASSWORD="postgres" >> .env
         echo DATABASE_HOST="postgres" >> .env
