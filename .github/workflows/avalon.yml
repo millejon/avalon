@@ -11,18 +11,14 @@ jobs:
 
     services:
       postgres:
-        image: postgres:16.1
+        image: postgres:17.0
         env:
-          POSTGRES_USER: ${{ secrets.DATABASE_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
           POSTGRES_DB: postgres
         ports:
           - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
 
     steps:
@@ -43,11 +39,12 @@ jobs:
     - name: Create .env file
       run: |
         touch .env
-        echo SECRET_KEY="${{ secrets.SECRET_KEY }}" > .env
+        echo DEBUG=True > .env
+        echo SECRET_KEY="secret_key_not_used_in_production" >> .env
         echo DATABASE_NAME="postgres" >> .env
-        echo DATABASE_USER="${{ secrets.DATABASE_USER }}" >> .env
-        echo DATABASE_PASSWORD="${{ secrets.DATABASE_PASSWORD }}" >> .env
-        echo DATABASE_HOST="${{ secrets.DATABASE_HOST }}" >> .env
+        echo DATABASE_USER="postgres" >> .env
+        echo DATABASE_PASSWORD="postgres" >> .env
+        echo DATABASE_HOST="localhost" >> .env
         echo DATABASE_PORT="5432" >> .env
     - name: Run migrations
       run: |
