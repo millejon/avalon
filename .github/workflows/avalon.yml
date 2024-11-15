@@ -11,14 +11,18 @@ jobs:
 
     services:
       postgres:
-        image: postgres:latest
+        image: postgres:16.1
         env:
-          POSTGRES_USER: github
-          POSTGRES_PASSWORD: password
+          POSTGRES_USER: ${{ secrets.DATABASE_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
           POSTGRES_DB: postgres
         ports:
           - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
 
     steps:
@@ -40,11 +44,11 @@ jobs:
       run: |
         touch .env
         echo SECRET_KEY="${{ secrets.SECRET_KEY }}" > .env
-        echo DATABASE_NAME="postgres" >> .env
-        echo DATABASE_USER="github" >> .env
-        echo DATABASE_PASSWORD="password" >> .env
-        echo DATABASE_HOST="postgres" >> .env
-        echo DATABASE_PORT="5432" >> .env
+        echo DB_NAME="postgres" >> .env
+        echo DB_USER="${{ secrets.DATABASE_USER }}" >> .env
+        echo DB_PASSWORD="${{ secrets.DATABASE_PASSWORD }}" >> .env
+        echo DB_HOST="${{ secrets.DATABASE_HOST }}" >> .env
+        echo DB_PORT="5432" >> .env
     - name: Run migrations
       run: |
         python manage.py migrate
