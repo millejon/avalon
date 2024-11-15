@@ -11,11 +11,11 @@ jobs:
 
     services:
       postgres:
-        image: postgres:17.0
+        image: postgres:latest
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: avalon
+          POSTGRES_USER: github
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: postgres
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
@@ -39,10 +39,10 @@ jobs:
     - name: Create .env file
       run: |
         touch .env
-        echo SECRET_KEY="secret_key_not_used_in_production" > .env
-        echo DATABASE_NAME="avalon" >> .env
-        echo DATABASE_USER="postgres" >> .env
-        echo DATABASE_PASSWORD="postgres" >> .env
+        echo SECRET_KEY="${{ secrets.SECRET_KEY }}" > .env
+        echo DATABASE_NAME="postgres" >> .env
+        echo DATABASE_USER="github" >> .env
+        echo DATABASE_PASSWORD="password" >> .env
         echo DATABASE_HOST="postgres" >> .env
         echo DATABASE_PORT="5432" >> .env
     - name: Run migrations
