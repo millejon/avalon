@@ -38,7 +38,7 @@ class Album(models.Model):
         return self.title
 
     class Meta:
-        ordering = ["artists__name", "release_date"]
+        ordering = ["release_date"]
         constraints = [
             models.UniqueConstraint(
                 models.functions.Lower("title"),
