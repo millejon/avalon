@@ -171,3 +171,51 @@ class AlbumModelTestCase(TestCase):
         albums = [str(album) for album in models.Album.objects.all()]
 
         self.assertEqual(albums, ["Dogg Food", "All Eyez On Me", "Necessary Roughness"])
+
+
+class AlbumArtistModelTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.kurupt = models.Artist.objects.create(
+            name="Kurupt", hometown="Los Angeles, CA"
+        )
+        cls.dogg_food = models.Album.objects.create(
+            title="Dogg Food",
+            release_date=datetime.date(1995, 10, 31),
+            label="Death Row Records",
+            album_type="album",
+        )
+        cls.album_artist_link = models.AlbumArtist.objects.create(
+            album=cls.dogg_food, artist=cls.kurupt
+        )
+
+    def test_album_artist_creation_successful(self):
+        self.assertEqual(self.album_artist_link.album.title, "Dogg Food")
+        self.assertEqual(self.album_artist_link.artist.name, "Kurupt")
+
+    def test_album_artist_str_method_returns_artist_name_album_title(self):
+        self.assertEqual(str(self.album_artist_link), "Kurupt - Dogg Food")
+
+    def test_duplicate_album_artist_creation_unsuccessful(self):
+        with self.assertRaises(IntegrityError):
+            models.AlbumArtist.objects.create(album=self.dogg_food, artist=self.kurupt)
+
+    def test_album_artists_ordered_by_album_artist_id(self):
+        tha_dogg_pound = models.Artist.objects.create(
+            name="Tha Dogg Pound", hometown="Los Angeles, CA"
+        )
+        daz_dillinger = models.Artist.objects.create(
+            name="Daz Dillinger", hometown="Long Beach, CA"
+        )
+        models.AlbumArtist.objects.create(album=self.dogg_food, artist=tha_dogg_pound)
+        models.AlbumArtist.objects.create(album=self.dogg_food, artist=daz_dillinger)
+        album_artists = [str(artist) for artist in models.AlbumArtist.objects.all()]
+
+        self.assertEqual(
+            album_artists,
+            [
+                "Kurupt - Dogg Food",
+                "Tha Dogg Pound - Dogg Food",
+                "Daz Dillinger - Dogg Food",
+            ],
+        )
