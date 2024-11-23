@@ -47,6 +47,18 @@ class AlbumIn(Schema):
     album_type: str = "album"
 
 
+class AlbumOutBasic(Schema):
+    id: int
+    title: str
+    artists: list[ArtistOutBasic]
+    release_date: date
+    url: str
+
+    @staticmethod
+    def resolve_url(obj, context):
+        return context["request"].build_absolute_uri(obj.get_url())
+
+
 class AlbumOut(Schema):
     id: int
     title: str
