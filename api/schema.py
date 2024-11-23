@@ -4,6 +4,10 @@ from typing import TypedDict
 from ninja import Schema
 
 
+class Error(Schema):
+    error: str
+
+
 class Preview(TypedDict):
     count: int
     url: str
