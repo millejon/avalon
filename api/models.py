@@ -37,6 +37,10 @@ class Album(models.Model):
     def __str__(self):
         return self.title
 
+    def get_url(self) -> str:
+        """Return album API resource URL."""
+        return reverse("api:retrieve_album", args=[str(self.id)])
+
     class Meta:
         ordering = ["release_date"]
         constraints = [
