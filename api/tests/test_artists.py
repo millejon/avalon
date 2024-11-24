@@ -26,6 +26,16 @@ class CreateArtistTestCase(TestCase):
 
         self.assertEqual(response["name"], "The Notorious B.I.G.")
         self.assertEqual(response["hometown"], "New York, NY")
+        self.assertEqual(response["albums"]["count"], 0)
+        self.assertTrue(
+            response["albums"]["url"].endswith(f"/api/artists/{response["id"]}/albums")
+        )
+        self.assertEqual(response["singles"]["count"], 0)
+        self.assertTrue(
+            response["singles"]["url"].endswith(
+                f"/api/artists/{response["id"]}/singles"
+            )
+        )
         self.assertTrue(response["url"].endswith(f"/api/artists/{response["id"]}"))
 
     def test_create_valid_artist_without_optional_fields_status_code(self):
