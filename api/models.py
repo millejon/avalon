@@ -13,6 +13,14 @@ class Artist(models.Model):
         """Return artist API resource URL."""
         return reverse("api:retrieve_artist", args=[str(self.id)])
 
+    def get_albums_url(self) -> str:
+        """Return artist's albums API resource URL."""
+        return reverse("api:retrieve_artist_albums", args=[str(self.id)])
+
+    def get_singles_url(self) -> str:
+        """Return artist's singles API resource URL."""
+        return reverse("api:retrieve_artist_singles", args=[str(self.id)])
+
     class Meta:
         ordering = ["name"]
         constraints = [
