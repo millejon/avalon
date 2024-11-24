@@ -32,11 +32,27 @@ class ArtistOut(Schema):
     id: int
     name: str
     hometown: str | None
+    albums: Preview
+    singles: Preview
     url: str
 
     @staticmethod
     def resolve_hometown(obj):
         return obj.hometown if obj.hometown else None
+
+    @staticmethod
+    def resolve_albums(obj, context):
+        return {
+            "count": obj.album_artists.exclude(album_type="single").count(),
+            "url": context["request"].build_absolute_uri(obj.get_albums_url()),
+        }
+
+    @staticmethod
+    def resolve_singles(obj, context):
+        return {
+            "count": obj.album_artists.filter(album_type="single").count(),
+            "url": context["request"].build_absolute_uri(obj.get_singles_url()),
+        }
 
     @staticmethod
     def resolve_url(obj, context):
