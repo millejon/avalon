@@ -87,12 +87,14 @@ class CreateArtistTestCase(TestCase):
             content_type="application/json",
         )
 
-        with self.assertRaises(IntegrityError):
-            self.client.post(
-                reverse("api:create_artist"),
-                {"name": "lil kim"},
-                content_type="application/json",
-            )
+        response = self.client.post(
+            reverse("api:create_artist"),
+            {"name": "lil kim"},
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["error"], "Artist already exists in database.")
 
     def test_create_artist_with_missing_required_fields(self):
         response = self.client.post(
