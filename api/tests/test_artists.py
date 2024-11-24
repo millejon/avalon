@@ -1,5 +1,4 @@
 from django.test import TestCase, Client
-from django.db import IntegrityError
 from django.urls import reverse
 
 
