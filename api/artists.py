@@ -23,3 +23,13 @@ def create_artist(request, data: schema.ArtistIn):
 @router.get("{int:id}")
 def retrieve_artist(request, id: int):
     pass
+
+
+@router.get("{int:id}/albums")
+def retrieve_artist_albums(request, id: int):
+    pass
+
+
+@router.get("{int:id}/singles")
+def retrieve_artist_singles(request, id: int):
+    pass
