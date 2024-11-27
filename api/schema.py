@@ -86,19 +86,19 @@ class AlbumOut(Schema):
     release_date: date
     label: str | None
     album_type: str
-    tracklist: Preview
+    # tracklist: Preview
     url: str
 
     @staticmethod
     def resolve_label(obj):
         return obj.label if obj.label else None
 
-    @staticmethod
-    def resolve_tracklist(obj, context):
-        return {
-            "count": obj.song_set.count(),
-            "url": context["request"].build_absolute_uri(obj.get_songs_url()),
-        }
+    # @staticmethod
+    # def resolve_tracklist(obj, context):
+    #     return {
+    #         "count": obj.song_set.count(),
+    #         "url": context["request"].build_absolute_uri(obj.get_songs_url()),
+    #     }
 
     @staticmethod
     def resolve_url(obj, context):
