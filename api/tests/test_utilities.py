@@ -1,6 +1,64 @@
 from django.test import TestCase
 
-from api import utilities as util
+from api import models, utilities as util
+
+
+class GetArtistsTestCase(TestCase):
+    def test_get_artist_if_artist_in_database(self):
+        mannie_fresh = models.Artist.objects.create(
+            name="Mannie Fresh", hometown="New Orleans, LA"
+        )
+        album_artists = [{"name": "Mannie Fresh", "hometown": "New Orleans, LA"}]
+        artists = util.get_artists(album_artists)
+
+        self.assertEqual(artists, [mannie_fresh])
+
+    def test_get_artist_if_artist_in_database_with_extraneous_whitespace(self):
+        mannie_fresh = models.Artist.objects.create(
+            name="Mannie Fresh", hometown="New Orleans, LA"
+        )
+        album_artists = [
+            {"name": " Mannie  Fresh   ", "hometown": "   New    Orleans,  LA  "}
+        ]
+        artists = util.get_artists(album_artists)
+
+        self.assertEqual(artists, [mannie_fresh])
+
+    def test_create_artist_if_artist_not_in_database(self):
+        album_artists = [{"name": "Birdman", "hometown": "New Orleans, LA"}]
+        artists = util.get_artists(album_artists)
+        birdman = models.Artist.objects.get(pk=artists[0].id)
+
+        self.assertEqual(birdman.name, "Birdman")
+        self.assertEqual(birdman.hometown, "New Orleans, LA")
+
+    def test_create_artist_if_artist_not_in_database_with_extraneous_whitespace(self):
+        album_artists = [{"name": "  Birdman ", "hometown": " New   Orleans,    LA  "}]
+        artists = util.get_artists(album_artists)
+        birdman = models.Artist.objects.get(pk=artists[0].id)
+
+        self.assertEqual(birdman.name, "Birdman")
+        self.assertEqual(birdman.hometown, "New Orleans, LA")
+
+    def test_update_artist_if_hometown_is_submitted(self):
+        big_tymers = models.Artist.objects.create(name="Big Tymers")
+        album_artists = [{"name": "Big Tymers", "hometown": "New Orleans, LA"}]
+        artists = util.get_artists(album_artists)
+        big_tymers = models.Artist.objects.get(pk=big_tymers.id)
+
+        self.assertEqual(artists, [big_tymers])
+        self.assertEqual(big_tymers.hometown, "New Orleans, LA")
+
+    def test_do_not_update_artist_if_hometown_is_not_submitted(self):
+        big_tymers = models.Artist.objects.create(
+            name="Big Tymers", hometown="New Orleans, LA"
+        )
+        album_artists = [{"name": "Big Tymers", "hometown": ""}]
+        artists = util.get_artists(album_artists)
+        big_tymers = models.Artist.objects.get(pk=big_tymers.id)
+
+        self.assertEqual(artists, [big_tymers])
+        self.assertEqual(big_tymers.hometown, "New Orleans, LA")
 
 
 class StripWhitespaceTestCase(TestCase):

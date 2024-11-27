@@ -1,5 +1,4 @@
 from django.test import TestCase, Client
-from django.db import IntegrityError
 from django.urls import reverse
 
 
@@ -26,6 +25,16 @@ class CreateArtistTestCase(TestCase):
 
         self.assertEqual(response["name"], "The Notorious B.I.G.")
         self.assertEqual(response["hometown"], "New York, NY")
+        self.assertEqual(response["albums"]["count"], 0)
+        self.assertTrue(
+            response["albums"]["url"].endswith(f"/api/artists/{response["id"]}/albums")
+        )
+        self.assertEqual(response["singles"]["count"], 0)
+        self.assertTrue(
+            response["singles"]["url"].endswith(
+                f"/api/artists/{response["id"]}/singles"
+            )
+        )
         self.assertTrue(response["url"].endswith(f"/api/artists/{response["id"]}"))
 
     def test_create_valid_artist_without_optional_fields_status_code(self):
@@ -77,12 +86,14 @@ class CreateArtistTestCase(TestCase):
             content_type="application/json",
         )
 
-        with self.assertRaises(IntegrityError):
-            self.client.post(
-                reverse("api:create_artist"),
-                {"name": "lil kim"},
-                content_type="application/json",
-            )
+        response = self.client.post(
+            reverse("api:create_artist"),
+            {"name": "lil kim"},
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["error"], "Artist already exists in database.")
 
     def test_create_artist_with_missing_required_fields(self):
         response = self.client.post(
