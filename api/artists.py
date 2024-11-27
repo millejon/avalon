@@ -1,8 +1,7 @@
 from django.db import IntegrityError
 from ninja import Router
 
-from api import models
-from api import schema, utilities as util
+from api import models, schema, utilities as util
 
 router = Router()
 
