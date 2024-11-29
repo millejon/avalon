@@ -91,7 +91,7 @@ class AlbumModelTestCase(TestCase):
         self.assertEqual(doggystyle.label, "")
         self.assertEqual(doggystyle.album_type, "album")
 
-    def test_album_creation_album_type_album_by_default(self):
+    def test_album_creation_album_type_is_album_by_default(self):
         the_chronic = models.Album.objects.create(
             title="The Chronic", release_date=datetime.date(1992, 12, 15)
         )
