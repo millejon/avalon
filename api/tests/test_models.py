@@ -150,6 +150,11 @@ class AlbumModelTestCase(TestCase):
     def test_album_str_method_returns_album_title(self):
         self.assertEqual(str(self.all_eyez_on_me), "All Eyez On Me")
 
+    def test_album_get_url_method_returns_album_api_resource_url(self):
+        self.assertEqual(
+            self.all_eyez_on_me.get_url(), f"/api/albums/{self.all_eyez_on_me.id}"
+        )
+
     def test_duplicate_album_creation_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.Album.objects.create(
