@@ -144,10 +144,9 @@ class SongArtist(models.Model):
 class SongProducer(models.Model):
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
     producer = models.ForeignKey(Artist, on_delete=models.CASCADE)
-    role = models.CharField(max_length=100)
 
     def __str__(self):
-        return f"{self.producer.name} - {self.song.title} [{self.role}]"
+        return f"{self.producer.name} - {self.song.title}"
 
     class Meta:
         ordering = ["id"]
