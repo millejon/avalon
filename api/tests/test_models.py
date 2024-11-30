@@ -208,16 +208,16 @@ class AlbumArtistModelTestCase(TestCase):
             label="Death Row Records",
             album_type="album",
         )
-        cls.album_artist_link = models.AlbumArtist.objects.create(
+        cls.album_artist = models.AlbumArtist.objects.create(
             album=cls.dogg_food, artist=cls.kurupt
         )
 
     def test_album_artist_creation_successful(self):
-        self.assertEqual(self.album_artist_link.album.title, "Dogg Food")
-        self.assertEqual(self.album_artist_link.artist.name, "Kurupt")
+        self.assertEqual(self.album_artist.album.title, "Dogg Food")
+        self.assertEqual(self.album_artist.artist.name, "Kurupt")
 
     def test_album_artist_str_method_returns_artist_name_album_title(self):
-        self.assertEqual(str(self.album_artist_link), "Kurupt - Dogg Food")
+        self.assertEqual(str(self.album_artist), "Kurupt - Dogg Food")
 
     def test_duplicate_album_artist_creation_unsuccessful(self):
         with self.assertRaises(IntegrityError):
@@ -233,15 +233,13 @@ class AlbumArtistModelTestCase(TestCase):
         models.AlbumArtist.objects.create(album=self.dogg_food, artist=tha_dogg_pound)
         models.AlbumArtist.objects.create(album=self.dogg_food, artist=daz_dillinger)
         album_artists = [str(artist) for artist in models.AlbumArtist.objects.all()]
+        expected_album_artist_order = [
+            "Kurupt - Dogg Food",
+            "Tha Dogg Pound - Dogg Food",
+            "Daz Dillinger - Dogg Food",
+        ]
 
-        self.assertEqual(
-            album_artists,
-            [
-                "Kurupt - Dogg Food",
-                "Tha Dogg Pound - Dogg Food",
-                "Daz Dillinger - Dogg Food",
-            ],
-        )
+        self.assertEqual(album_artists, expected_album_artist_order)
 
 
 class SongModelTestCase(TestCase):
