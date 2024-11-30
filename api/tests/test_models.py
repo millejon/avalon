@@ -219,3 +219,200 @@ class AlbumArtistModelTestCase(TestCase):
                 "Daz Dillinger - Dogg Food",
             ],
         )
+
+
+class SongModelTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.above_the_rim = models.Album.objects.create(
+            title="Above The Rim Soundtrack",
+            release_date=datetime.date(1994, 3, 22),
+            label="Death Row Records",
+            album_type="album",
+        )
+        cls.gang_related = models.Album.objects.create(
+            title="Gang Related Soundtrack",
+            release_date=datetime.date(1997, 10, 7),
+            label="Death Row Records",
+            album_type="multidisc",
+        )
+        cls.regulate = models.Song.objects.create(
+            title="Regulate",
+            album=cls.above_the_rim,
+            disc=1,
+            track_number=7,
+            length=251,
+            path="/various-artists/above-the-rim-soundtrack/07_regulate.flac",
+            play_count=5,
+        )
+
+    def test_song_creation_successful(self):
+        self.assertEqual(self.regulate.title, "Regulate")
+        self.assertEqual(self.regulate.album.title, "Above The Rim Soundtrack")
+        self.assertEqual(self.regulate.disc, 1)
+        self.assertEqual(self.regulate.track_number, 7)
+        self.assertEqual(self.regulate.length, 251)
+        self.assertEqual(
+            self.regulate.path,
+            "/various-artists/above-the-rim-soundtrack/07_regulate.flac",
+        )
+        self.assertEqual(self.regulate.play_count, 5)
+
+    def test_song_creation_disc_is_1_by_default(self):
+        way_too_major = models.Song.objects.create(
+            title="Way Too Major",
+            album=self.gang_related,
+            track_number=1,
+            length=327,
+            path="/various-artists/gang-related-soundtrack/disc-1/01_way_too_major.flac",
+            play_count=2,
+        )
+
+        self.assertEqual(way_too_major.title, "Way Too Major")
+        self.assertEqual(way_too_major.disc, 1)
+
+    def test_song_creation_play_count_is_0_by_default(self):
+        big_pimpin = models.Song.objects.create(
+            title="Big Pimpin'",
+            album=self.above_the_rim,
+            track_number=4,
+            length=238,
+            path="/various-artists/above-the-rim-soundtrack/04_big_pimpin.flac",
+        )
+
+        self.assertEqual(big_pimpin.title, "Big Pimpin'")
+        self.assertEqual(big_pimpin.play_count, 0)
+
+    def test_song_title_max_length_is_600(self):
+        max_length = self.regulate._meta.get_field("title").max_length
+
+        self.assertEqual(max_length, 600)
+
+    def test_song_artists_related_name_is_song_artists(self):
+        related_name = self.regulate._meta.get_field("artists")._related_name
+
+        self.assertEqual(related_name, "song_artists")
+
+    def test_song_producers_related_name_is_song_producers(self):
+        related_name = self.regulate._meta.get_field("producers")._related_name
+
+        self.assertEqual(related_name, "song_producers")
+
+    def test_song_path_max_length_is_1000(self):
+        max_length = self.regulate._meta.get_field("path").max_length
+
+        self.assertEqual(max_length, 1000)
+
+    def test_song_path_unique_constraint_is_true(self):
+        unique_constraint = self.regulate._meta.get_field("path").unique
+
+        self.assertTrue(unique_constraint)
+
+    def test_song_str_method_returns_track_number_song_title_album_title(self):
+        self.assertEqual(str(self.regulate), "7. Regulate [Above The Rim Soundtrack]")
+
+    def test_duplicate_song_creation_unsuccessful(self):
+        with self.assertRaises(IntegrityError):
+            models.Song.objects.create(
+                title="Regulate",
+                album=self.above_the_rim,
+                track_number=7,
+                length=251,
+                path="/various-artists/above-the-rim-soundtrack/07_regulate.flac",
+                play_count=10,
+            )
+
+    def test_duplicate_song_creation_case_insensitive_unsuccessful(self):
+        with self.assertRaises(IntegrityError):
+            models.Song.objects.create(
+                title="Regulate",
+                album=self.above_the_rim,
+                track_number=7,
+                length=251,
+                path="/Various-Artists/Above-The-Rim-Soundtrack/07_Regulate.flac",
+                play_count=10,
+            )
+
+    def test_song_creation_duplicate_track_number_unsuccessful(self):
+        with self.assertRaises(IntegrityError):
+            models.Song.objects.create(
+                title="Pour Out A Little Liquor",
+                album=self.above_the_rim,
+                track_number=7,
+                length=210,
+                path="/various-artists/above-the-rim-soundtrack/07_pour_out_a_little_liquor.flac",
+            )
+
+    def test_song_creation_invalid_disc_number_unsuccessful(self):
+        with self.assertRaises(IntegrityError):
+            models.Song.objects.create(
+                title="Get Yo Bang on",
+                album=self.gang_related,
+                disc=0,
+                track_number=4,
+                length=187,
+                path="/various-artists/gang-related-soundtrack/disc-1/04_get_yo_bang_on.flac",
+            )
+
+    def test_song_creation_invalid_track_number_unsuccessful(self):
+        with self.assertRaises(IntegrityError):
+            models.Song.objects.create(
+                title="Pain",
+                album=self.above_the_rim,
+                track_number=0,
+                length=274,
+                path="/various-artists/above-the-rim-soundtrack/00_pain.flac",
+            )
+
+    def test_songs_ordered_by_play_count_release_date_disc_number_track_number(self):
+        models.Song.objects.create(
+            title="Afro Puffs",
+            album=self.above_the_rim,
+            track_number=10,
+            length=290,
+            path="/various-artists/above-the-rim-soundtrack/10_afro_puffs.flac",
+        )
+        models.Song.objects.create(
+            title="Loc'd Out Hood",
+            album=self.gang_related,
+            disc=2,
+            track_number=2,
+            length=271,
+            path="/various-artists/gang-related-soundtrack/disc-2/02_locd_out_hood.flac",
+        )
+        models.Song.objects.create(
+            title="These Days",
+            album=self.gang_related,
+            disc=1,
+            track_number=5,
+            length=299,
+            path="/various-artists/gang-related-soundtrack/disc-1/05_these_days.flac",
+        )
+        models.Song.objects.create(
+            title="Staring Through My Rearview",
+            album=self.gang_related,
+            disc=1,
+            track_number=8,
+            length=312,
+            path="/various-artists/gang-related-soundtrack/disc-1/08_staring_through_my_rearview.flac",
+        )
+        models.Song.objects.create(
+            title="Made Niggaz",
+            album=self.gang_related,
+            disc=2,
+            track_number=1,
+            length=302,
+            path="/various-artists/gang-related-soundtrack/disc-2/01_made_niggaz.flac",
+            play_count=6,
+        )
+        songs = [str(song) for song in models.Song.objects.all()]
+        expected_song_order = [
+            "1. Made Niggaz [Gang Related Soundtrack]",
+            "7. Regulate [Above The Rim Soundtrack]",
+            "5. These Days [Gang Related Soundtrack]",
+            "8. Staring Through My Rearview [Gang Related Soundtrack]",
+            "2. Loc'd Out Hood [Gang Related Soundtrack]",
+            "10. Afro Puffs [Above The Rim Soundtrack]",
+        ]
+
+        self.assertEqual(songs, expected_song_order)
