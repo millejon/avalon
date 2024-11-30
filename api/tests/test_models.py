@@ -513,65 +513,48 @@ class SongArtistModelTestCase(TestCase):
 class SongProducerModelTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.dr_dre = models.Artist.objects.create(name="Dr. Dre")
-        cls.sam_sneed = models.Artist.objects.create(name="Sam Sneed")
-        cls.murder_was_the_case = models.Album.objects.create(
-            title="Murder Was The Case Soundtrack",
-            release_date=datetime.date(1994, 10, 18),
+        cls.demetrius_shipp = models.Artist.objects.create(name="Demetrius Shipp")
+        cls.reggie_moore = models.Artist.objects.create(name="Reggie Moore")
+        cls.the_don_killuminati = models.Album.objects.create(
+            title="The Don Killuminati: The 7 Day Theory",
+            release_date=datetime.date(1996, 11, 5),
             label="Death Row Records",
             album_type="album",
         )
-        cls.natural_born_killaz = models.Song.objects.create(
-            title="Natural Born Killaz",
-            album=cls.murder_was_the_case,
-            track_number=2,
-            length=291,
-            path="/various-artists/murder-was-the-case-soundtrack/02_natural_born_killaz.flac",
+        cls.toss_it_up = models.Song.objects.create(
+            title="Toss It Up",
+            album=cls.the_don_killuminati,
+            track_number=3,
+            length=306,
+            path="/2pac/the-don-killuminati-the-7-day-theory/03_toss_it_up.flac",
         )
         cls.song_producer = models.SongProducer.objects.create(
-            song=cls.natural_born_killaz,
-            producer=cls.sam_sneed,
-            role="Co-Producer",
+            song=cls.toss_it_up, producer=cls.reggie_moore
         )
 
     def test_song_producer_creation_successful(self):
-        self.assertEqual(self.song_producer.song.title, "Natural Born Killaz")
-        self.assertEqual(self.song_producer.producer.name, "Sam Sneed")
-        self.assertEqual(self.song_producer.role, "Co-Producer")
+        self.assertEqual(self.song_producer.song.title, "Toss It Up")
+        self.assertEqual(self.song_producer.producer.name, "Reggie Moore")
 
-    def test_song_producer_role_max_length_is_100(self):
-        max_length = self.song_producer._meta.get_field("role").max_length
-
-        self.assertEqual(max_length, 100)
-
-    def test_song_producer_str_method_returns_producer_name_song_title_producer_role(
-        self,
-    ):
-        self.assertEqual(
-            str(self.song_producer),
-            "Sam Sneed - Natural Born Killaz [Co-Producer]",
-        )
+    def test_song_producer_str_method_returns_producer_name_song_title(self):
+        self.assertEqual(str(self.song_producer), "Reggie Moore - Toss It Up")
 
     def test_duplicate_song_producer_creation_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.SongProducer.objects.create(
-                song=self.natural_born_killaz,
-                producer=self.sam_sneed,
-                role="Producer",
+                song=self.toss_it_up, producer=self.reggie_moore
             )
 
-    def test_song_producers_ordered_by_id(self):
+    def test_song_producers_ordered_by_song_producer_id(self):
         models.SongProducer.objects.create(
-            song=self.natural_born_killaz,
-            producer=self.dr_dre,
-            role="Producer",
+            song=self.toss_it_up, producer=self.demetrius_shipp
         )
         song_producers = [
             str(producer) for producer in models.SongProducer.objects.all()
         ]
         expected_song_producer_order = [
-            "Sam Sneed - Natural Born Killaz [Co-Producer]",
-            "Dr. Dre - Natural Born Killaz [Producer]",
+            "Reggie Moore - Toss It Up",
+            "Demetrius Shipp - Toss It Up",
         ]
 
         self.assertEqual(song_producers, expected_song_producer_order)
