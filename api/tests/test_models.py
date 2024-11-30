@@ -493,7 +493,7 @@ class SongArtistModelTestCase(TestCase):
                 song=self.respect, artist=self.kurupt, group=False
             )
 
-    def test_song_artists_ordered_by_id(self):
+    def test_song_artists_ordered_by_song_artist_id(self):
         models.SongArtist.objects.create(song=self.respect, artist=self.tha_dogg_pound)
         models.SongArtist.objects.create(
             song=self.respect, artist=self.daz_dillinger, group=True
