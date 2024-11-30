@@ -332,6 +332,9 @@ class SongModelTestCase(TestCase):
     def test_song_str_method_returns_track_number_song_title_album_title(self):
         self.assertEqual(str(self.regulate), "7. Regulate [Above The Rim Soundtrack]")
 
+    def test_song_get_url_method_returns_song_api_resource_url(self):
+        self.assertEqual(self.regulate.get_url(), f"/api/songs/{self.regulate.id}")
+
     def test_duplicate_song_creation_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.Song.objects.create(
