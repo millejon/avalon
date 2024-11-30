@@ -508,3 +508,70 @@ class SongArtistModelTestCase(TestCase):
         ]
 
         self.assertEqual(song_artists, expected_song_artist_order)
+
+
+class SongProducerModelTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.dr_dre = models.Artist.objects.create(name="Dr. Dre")
+        cls.sam_sneed = models.Artist.objects.create(name="Sam Sneed")
+        cls.murder_was_the_case = models.Album.objects.create(
+            title="Murder Was The Case Soundtrack",
+            release_date=datetime.date(1994, 10, 18),
+            label="Death Row Records",
+            album_type="album",
+        )
+        cls.natural_born_killaz = models.Song.objects.create(
+            title="Natural Born Killaz",
+            album=cls.murder_was_the_case,
+            track_number=2,
+            length=291,
+            path="/various-artists/murder-was-the-case-soundtrack/02_natural_born_killaz.flac",
+        )
+        cls.song_producer = models.SongProducer.objects.create(
+            song=cls.natural_born_killaz,
+            producer=cls.sam_sneed,
+            role="Co-Producer",
+        )
+
+    def test_song_producer_creation_successful(self):
+        self.assertEqual(self.song_producer.song.title, "Natural Born Killaz")
+        self.assertEqual(self.song_producer.producer.name, "Sam Sneed")
+        self.assertEqual(self.song_producer.role, "Co-Producer")
+
+    def test_song_producer_role_max_length_is_100(self):
+        max_length = self.song_producer._meta.get_field("role").max_length
+
+        self.assertEqual(max_length, 100)
+
+    def test_song_producer_str_method_returns_producer_name_song_title_producer_role(
+        self,
+    ):
+        self.assertEqual(
+            str(self.song_producer),
+            "Sam Sneed - Natural Born Killaz [Co-Producer]",
+        )
+
+    def test_duplicate_song_producer_creation_unsuccessful(self):
+        with self.assertRaises(IntegrityError):
+            models.SongProducer.objects.create(
+                song=self.natural_born_killaz,
+                producer=self.sam_sneed,
+                role="Producer",
+            )
+
+    def test_song_producers_ordered_by_id(self):
+        models.SongProducer.objects.create(
+            song=self.natural_born_killaz,
+            producer=self.dr_dre,
+            role="Producer",
+        )
+        song_producers = [
+            str(producer) for producer in models.SongProducer.objects.all()
+        ]
+        expected_song_producer_order = [
+            "Sam Sneed - Natural Born Killaz [Co-Producer]",
+            "Dr. Dre - Natural Born Killaz [Producer]",
+        ]
+
+        self.assertEqual(song_producers, expected_song_producer_order)
