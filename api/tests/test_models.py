@@ -52,6 +52,13 @@ class ArtistModelTestCase(TestCase):
             self.tupac.get_albums_url(), f"/api/artists/{self.tupac.id}/albums"
         )
 
+    def test_artist_get_singles_url_method_returns_artist_singles_api_resource_url(
+        self,
+    ):
+        self.assertEqual(
+            self.tupac.get_singles_url(), f"/api/artists/{self.tupac.id}/singles"
+        )
+
     def test_duplicate_artist_creation_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.Artist.objects.create(name="2Pac")
