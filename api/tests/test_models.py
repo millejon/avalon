@@ -439,3 +439,72 @@ class SongModelTestCase(TestCase):
         ]
 
         self.assertEqual(songs, expected_song_order)
+
+
+class SongArtistModelTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.tha_dogg_pound = models.Artist.objects.create(name="Tha Dogg Pound")
+        cls.kurupt = models.Artist.objects.create(name="Kurupt")
+        cls.daz_dillinger = models.Artist.objects.create(name="Daz Dillinger")
+        cls.prince_ital_joe = models.Artist.objects.create(name="Prince Ital Joe")
+        cls.dogg_food = models.Album.objects.create(
+            title="Dogg Food",
+            release_date=datetime.date(1995, 10, 31),
+            label="Death Row Records",
+            album_type="album",
+        )
+        cls.respect = models.Song.objects.create(
+            title="Respect",
+            album=cls.dogg_food,
+            track_number=3,
+            length=354,
+            path="/tha-dogg-pound/dogg-food/03_respect.flac",
+        )
+        cls.song_artist = models.SongArtist.objects.create(
+            song=cls.respect, artist=cls.kurupt, group=True
+        )
+
+    def test_song_artist_creation_successful(self):
+        self.assertEqual(self.song_artist.song.title, "Respect")
+        self.assertEqual(self.song_artist.artist.name, "Kurupt")
+        self.assertTrue(self.song_artist.group)
+
+    def test_song_artist_creation_group_is_false_by_default(self):
+        song_feature = models.SongArtist.objects.create(
+            song=self.respect, artist=self.tha_dogg_pound
+        )
+
+        self.assertEqual(song_feature.song.title, "Respect")
+        self.assertEqual(song_feature.artist.name, "Tha Dogg Pound")
+        self.assertFalse(song_feature.group)
+
+    def test_song_artist_group_can_be_blank(self):
+        blank = self.song_artist._meta.get_field("group").blank
+
+        self.assertTrue(blank)
+
+    def test_song_artist_str_method_returns_artist_name_song_title(self):
+        self.assertEqual(str(self.song_artist), "Kurupt - Respect")
+
+    def test_duplicate_song_artist_creation_unsuccessful(self):
+        with self.assertRaises(IntegrityError):
+            models.SongArtist.objects.create(
+                song=self.respect, artist=self.kurupt, group=False
+            )
+
+    def test_song_artists_ordered_by_id(self):
+        models.SongArtist.objects.create(song=self.respect, artist=self.tha_dogg_pound)
+        models.SongArtist.objects.create(
+            song=self.respect, artist=self.daz_dillinger, group=True
+        )
+        models.SongArtist.objects.create(song=self.respect, artist=self.prince_ital_joe)
+        song_artists = [str(artist) for artist in models.SongArtist.objects.all()]
+        expected_song_artist_order = [
+            "Kurupt - Respect",
+            "Tha Dogg Pound - Respect",
+            "Daz Dillinger - Respect",
+            "Prince Ital Joe - Respect",
+        ]
+
+        self.assertEqual(song_artists, expected_song_artist_order)
