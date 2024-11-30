@@ -103,6 +103,10 @@ class Song(models.Model):
     def __str__(self):
         return f"{self.track_number}. {self.title} [{self.album.title}]"
 
+    def get_url(self) -> str:
+        """Return song API resource URL."""
+        return reverse("api:retrieve_song", args=[str(self.id)])
+
     class Meta:
         ordering = ["-play_count", "-album__release_date", "disc", "track_number"]
         constraints = [
