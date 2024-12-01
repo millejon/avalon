@@ -10,8 +10,8 @@ router = Router()
 def create_artist(request, data: schema.ArtistIn):
     """To create an artist, include the following fields in the request
     body:
-    - **name** (*string*): The name of the artist or group (e.g.,
-    "Jay-Z") ***required***
+    - **name** (*string*): The name of the artist or group (e.g., "The
+    Notorious B.I.G.") ***required***
     - **hometown** (*string*): The city the artist is most associated
     with (e.g., "New York, NY") ***optional***
     """
