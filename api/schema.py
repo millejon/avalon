@@ -108,8 +108,8 @@ class AlbumOut(Schema):
 class SongIn(Schema):
     title: str
     artists: list[ArtistIn]
-    group_members: list[ArtistIn]
-    producers: list[ArtistIn]
+    group_members: list[ArtistIn] = []
+    producers: list[ArtistIn] = []
     album: int
     disc: int = 1
     track_number: int
@@ -121,8 +121,8 @@ class SongOut(Schema):
     id: int
     title: str
     artists: list[ArtistOutBasic]
-    group_members: list[ArtistOutBasic]
-    producers: list[ArtistOutBasic]
+    group_members: list[ArtistOutBasic] | None
+    producers: list[ArtistOutBasic] | None
     album: AlbumOutBasic
     disc: int
     track_number: int
@@ -138,8 +138,15 @@ class SongOut(Schema):
 
     @staticmethod
     def resolve_group_members(obj):
-        affiliations = obj.songartist_set.filter(group=True)
-        return [affiliation.artist for affiliation in affiliations]
+        if obj.songartist_set.filter(group=True):
+            affiliations = obj.songartist_set.filter(group=True)
+            return [affiliation.artist for affiliation in affiliations]
+        else:
+            return None
+
+    @staticmethod
+    def resolve_producers(obj):
+        return obj.producers if obj.producers.all() else None
 
     @staticmethod
     def resolve_url(obj, context):
