@@ -137,8 +137,8 @@ class SongOut(Schema):
 
     @staticmethod
     def resolve_group_members(obj):
-        if obj.songartist_set.filter(group=True):
-            affiliations = obj.songartist_set.filter(group=True)
+        affiliations = obj.songartist_set.filter(group=True)
+        if affiliations:
             return [affiliation.artist for affiliation in affiliations]
         else:
             return None
