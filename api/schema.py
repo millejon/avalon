@@ -103,3 +103,44 @@ class AlbumOut(Schema):
     @staticmethod
     def resolve_url(obj, context):
         return context["request"].build_absolute_uri(obj.get_url())
+
+
+class SongIn(Schema):
+    title: str
+    artists: list[ArtistIn]
+    group_members: list[ArtistIn]
+    producers: list[ArtistIn]
+    album: int
+    disc: int = 1
+    track_number: int
+    length: int
+    path: str
+
+
+class SongOut(Schema):
+    id: int
+    title: str
+    artists: list[ArtistOutBasic]
+    group_members: list[ArtistOutBasic]
+    producers: list[ArtistOutBasic]
+    album: AlbumOutBasic
+    disc: int
+    track_number: int
+    length: int
+    path: str
+    play_count: int
+    url: str
+
+    @staticmethod
+    def resolve_artists(obj):
+        features = obj.songartist_set.filter(group=False)
+        return [feature.artist for feature in features]
+
+    @staticmethod
+    def resolve_group_members(obj):
+        affiliations = obj.songartist_set.filter(group=True)
+        return [affiliation.artist for affiliation in affiliations]
+
+    @staticmethod
+    def resolve_url(obj, context):
+        return context["request"].build_absolute_uri(obj.get_url())
