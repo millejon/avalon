@@ -110,7 +110,6 @@ class SongIn(Schema):
     artists: list[ArtistIn]
     group_members: list[ArtistIn] = []
     producers: list[ArtistIn] = []
-    album: int
     disc: int = 1
     track_number: int
     length: int
