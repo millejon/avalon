@@ -63,7 +63,8 @@ def strip_whitespace(data: dict[Any, Any]) -> dict[Any, Any]:
     for key, value in data.items():
         if isinstance(value, list):
             for nested_data in value:
-                strip_whitespace(nested_data)
+                if isinstance(nested_data, dict):
+                    strip_whitespace(nested_data)
         elif isinstance(value, str):
             value = value.strip()
             while "  " in value:  # Remove extraneous whitespace between words.
