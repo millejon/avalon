@@ -120,7 +120,10 @@ class AlbumOut(Schema):
 
     @staticmethod
     def resolve_length(obj):
-        return obj.song_set.aggregate(Sum("length"))["length__sum"]
+        if obj.song_set.all():
+            return obj.song_set.aggregate(Sum("length"))["length__sum"]
+        else:
+            return 0
 
     @staticmethod
     def resolve_url(obj, context):
