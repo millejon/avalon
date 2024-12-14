@@ -111,11 +111,11 @@ class Song(models.Model):
         ordering = ["-play_count", "-album__release_date", "disc", "track_number"]
         constraints = [
             models.UniqueConstraint(
-                fields=["album", "disc", "track_number"], name="duplicate_track_number"
-            ),
-            models.UniqueConstraint(
                 models.functions.Lower("path"),
                 name="duplicate_song_case_insensitive_match",
+            ),
+            models.UniqueConstraint(
+                fields=["album", "disc", "track_number"], name="duplicate_track_number"
             ),
             models.CheckConstraint(
                 condition=models.Q(disc__gte=1),
