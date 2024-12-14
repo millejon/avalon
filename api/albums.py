@@ -29,16 +29,20 @@ def create_album(request, data: schema.AlbumIn):
     """
     album_data = util.strip_whitespace(data.dict())
     artist_data = album_data.pop("artists")
+
     try:
         album = models.Album.objects.create(**album_data)
+
     except IntegrityError as error:
         error = str(error.__cause__)
         if "unique constraint" in error:
-            return 400, {"error": "Album already exists in database."}
+            return 409, {"error": "Album already exists in database."}
         else:
             return 400, {"error": error}
+
     else:
         album.artists.set(util.get_artists(artist_data))
+
         return 201, album
 
 
