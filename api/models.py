@@ -22,6 +22,14 @@ class Artist(models.Model):
         """Return artist's singles API resource URL."""
         return reverse("api:retrieve_artist_singles", args=[str(self.id)])
 
+    def get_songs_url(self) -> str:
+        """Return artist's songs API resource URL."""
+        return reverse("api:retrieve_artist_songs", args=[str(self.id)])
+
+    def get_songs_produced_url(self) -> str:
+        """Return artist's production credits API resource URL."""
+        return reverse("api:retrieve_artist_songs_produced", args=[str(self.id)])
+
     class Meta:
         ordering = ["name"]
         constraints = [
