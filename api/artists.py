@@ -1,12 +1,13 @@
 from django.db import IntegrityError
 from ninja import Router
+from ninja.responses import codes_4xx
 
 from api import models, schema, utilities as util
 
 router = Router()
 
 
-@router.post("", response={201: schema.ArtistOut, 400: schema.Error})
+@router.post("", response={201: schema.ArtistOut, codes_4xx: schema.Error})
 def create_artist(request, data: schema.ArtistIn):
     """To create an artist, include the following fields in the request
     body:
@@ -16,14 +17,17 @@ def create_artist(request, data: schema.ArtistIn):
     with (e.g., "New York, NY") ***optional***
     """
     artist_data = util.strip_whitespace(data.dict())
+
     try:
         artist = models.Artist.objects.create(**artist_data)
+
     except IntegrityError as error:
         error = str(error.__cause__)
         if "unique constraint" in error:
-            return 400, {"error": "Artist already exists in database."}
+            return 409, {"error": "Artist already exists in database."}
         else:
             return 400, {"error": error}
+
     else:
         return 201, artist
 
