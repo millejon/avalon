@@ -39,6 +39,8 @@ class ArtistOut(Schema):
     hometown: str | None
     albums: Preview
     singles: Preview
+    songs: Preview
+    songs_produced: Preview
     url: str
 
     @staticmethod
@@ -61,6 +63,20 @@ class ArtistOut(Schema):
         return {
             "count": obj.album_artists.filter(album_type="single").count(),
             "url": context["request"].build_absolute_uri(obj.get_singles_url()),
+        }
+
+    @staticmethod
+    def resolve_songs(obj, context):
+        return {
+            "count": obj.song_artists.count(),
+            "url": context["request"].build_absolute_uri(obj.get_songs_url()),
+        }
+
+    @staticmethod
+    def resolve_songs_produced(obj, context):
+        return {
+            "count": obj.song_producers.count(),
+            "url": context["request"].build_absolute_uri(obj.get_songs_produced_url()),
         }
 
     @staticmethod
