@@ -45,3 +45,13 @@ def retrieve_artist_albums(request, id: int):
 @router.get("{int:id}/singles")
 def retrieve_artist_singles(request, id: int):
     pass
+
+
+@router.get("{int:id}/songs")
+def retrieve_artist_songs(request, id: int):
+    pass
+
+
+@router.get("{int:id}/songs-produced")
+def retrieve_artist_songs_produced(request, id: int):
+    pass
