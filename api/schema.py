@@ -19,9 +19,13 @@ class ArtistIn(Schema):
 
 
 class ArtistOutBasic(Schema):
-    id: int
+    id: str
     name: str
     url: str
+
+    @staticmethod
+    def resolve_id(obj):
+        return str(obj.id)
 
     @staticmethod
     def resolve_url(obj, context):
@@ -29,12 +33,16 @@ class ArtistOutBasic(Schema):
 
 
 class ArtistOut(Schema):
-    id: int
+    id: str
     name: str
     hometown: str | None
     albums: Preview
     singles: Preview
     url: str
+
+    @staticmethod
+    def resolve_id(obj):
+        return str(obj.id)
 
     @staticmethod
     def resolve_hometown(obj):
@@ -68,11 +76,15 @@ class AlbumIn(Schema):
 
 
 class AlbumOutBasic(Schema):
-    id: int
+    id: str
     title: str
     artists: list[ArtistOutBasic]
     release_date: date
     url: str
+
+    @staticmethod
+    def resolve_id(obj):
+        return str(obj.id)
 
     @staticmethod
     def resolve_url(obj, context):
@@ -80,7 +92,7 @@ class AlbumOutBasic(Schema):
 
 
 class AlbumOut(Schema):
-    id: int
+    id: str
     title: str
     artists: list[ArtistOutBasic]
     release_date: date
@@ -88,6 +100,10 @@ class AlbumOut(Schema):
     album_type: str
     # tracklist: Preview
     url: str
+
+    @staticmethod
+    def resolve_id(obj):
+        return str(obj.id)
 
     @staticmethod
     def resolve_label(obj):
@@ -117,7 +133,7 @@ class SongIn(Schema):
 
 
 class SongOut(Schema):
-    id: int
+    id: str
     title: str
     artists: list[ArtistOutBasic]
     group_members: list[ArtistOutBasic] | None
@@ -129,6 +145,10 @@ class SongOut(Schema):
     path: str
     play_count: int
     url: str
+
+    @staticmethod
+    def resolve_id(obj):
+        return str(obj.id)
 
     @staticmethod
     def resolve_artists(obj):
