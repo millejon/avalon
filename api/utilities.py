@@ -29,7 +29,6 @@ def get_artists(artist_data: list[dict[str, str]]) -> list[models.Artist]:
     artists = []
 
     for data in artist_data:
-        data = strip_whitespace(data)
         try:
             artist = models.Artist.objects.get(name__iexact=data["name"])
         except models.Artist.DoesNotExist:
@@ -49,7 +48,9 @@ def strip_whitespace(data: dict[Any, Any]) -> dict[Any, Any]:
     This utility will strip whitespace from the beginning and end of
     all string values in a dictionary. If the string has multiple spaces
     between words, then those will be stripped as well so only one space
-    remains. All non-string fields of the dictionary will be ignored.
+    remains. If a field holds a list of dictionaries, then this utility
+    will call itself recursively on each dictionary in the list. All
+    other non-string fields of the dictionary will be ignored.
 
     Arguments:
         data (dict) -- A dictionary that may contain string values with
@@ -60,7 +61,11 @@ def strip_whitespace(data: dict[Any, Any]) -> dict[Any, Any]:
         removed from its string values.
     """
     for key, value in data.items():
-        if isinstance(value, str):
+        if isinstance(value, list):
+            for nested_data in value:
+                if isinstance(nested_data, dict):
+                    strip_whitespace(nested_data)
+        elif isinstance(value, str):
             value = value.strip()
             while "  " in value:  # Remove extraneous whitespace between words.
                 value = value.replace("  ", " ")
