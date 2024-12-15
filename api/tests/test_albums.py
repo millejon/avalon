@@ -146,7 +146,9 @@ class CreateSongTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.client = Client()
-        cls.come_home_with_me = cls.client.post(
+
+    def setUp(self):
+        self.come_home_with_me = self.client.post(
             reverse("api:create_album"),
             data={
                 "title": "Come Home With Me",
@@ -158,7 +160,6 @@ class CreateSongTestCase(TestCase):
             content_type="application/json",
         ).json()
 
-    def setUp(self):
         self.metadata = {
             "title": "Welcome To New York City",
             "artists": [
