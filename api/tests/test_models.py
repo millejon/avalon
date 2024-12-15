@@ -533,29 +533,30 @@ class SongArtistModelTestCase(TestCase):
 
 
 class SongProducerModelTestCase(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.demetrius_shipp = models.Artist.objects.create(name="Demetrius Shipp")
-        cls.reggie_moore = models.Artist.objects.create(name="Reggie Moore")
-        cls.the_don_killuminati = models.Album.objects.create(
+    def setUp(self):
+        self.demetrius_shipp = models.Artist.objects.create(name="Demetrius Shipp")
+        self.reggie_moore = models.Artist.objects.create(name="Reggie Moore")
+        self.the_don_killuminati = models.Album.objects.create(
             title="The Don Killuminati: The 7 Day Theory",
             release_date=datetime.date(1996, 11, 5),
             label="Death Row Records",
             album_type="album",
         )
-        cls.toss_it_up = models.Song.objects.create(
+        self.toss_it_up = models.Song.objects.create(
             title="Toss It Up",
-            album=cls.the_don_killuminati,
+            album=self.the_don_killuminati,
             track_number=3,
             length=306,
             path="/2pac/the-don-killuminati-the-7-day-theory/03_toss_it_up.flac",
         )
-        cls.song_producer = models.SongProducer.objects.create(
-            song=cls.toss_it_up, producer=cls.reggie_moore
+        self.song_producer = models.SongProducer.objects.create(
+            song=self.toss_it_up, producer=self.reggie_moore
         )
 
-    def test_song_producer_creation_successful(self):
+    def test_song_producer_creation_successful_song(self):
         self.assertEqual(self.song_producer.song.title, "Toss It Up")
+
+    def test_song_producer_creation_successful_producer(self):
         self.assertEqual(self.song_producer.producer.name, "Reggie Moore")
 
     def test_song_producer_str_method_returns_producer_name_song_title(self):
