@@ -10,14 +10,15 @@ class ArtistModelTestCase(TestCase):
     def setUp(self):
         self.tupac = models.Artist.objects.create(name="2Pac", hometown="Oakland, CA")
 
-    def test_artist_creation_successful(self):
+    def test_artist_creation_successful_name(self):
         self.assertEqual(self.tupac.name, "2Pac")
+
+    def test_artist_creation_successful_hometown(self):
         self.assertEqual(self.tupac.hometown, "Oakland, CA")
 
     def test_create_artist_without_hometown(self):
         snoop_dogg = models.Artist.objects.create(name="Snoop Dogg")
 
-        self.assertEqual(snoop_dogg.name, "Snoop Dogg")
         self.assertEqual(snoop_dogg.hometown, "")
 
     def test_artist_name_max_length_is_100(self):
@@ -71,7 +72,7 @@ class ArtistModelTestCase(TestCase):
 
     def test_duplicate_artist_creation_unsuccessful(self):
         with self.assertRaises(IntegrityError):
-            models.Artist.objects.create(name="2Pac")
+            models.Artist.objects.create(name="2Pac", hometown="New York, NY")
 
     def test_duplicate_artist_creation_case_insensitive_unsuccessful(self):
         with self.assertRaises(IntegrityError):
@@ -86,40 +87,42 @@ class ArtistModelTestCase(TestCase):
 
 
 class AlbumModelTestCase(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.all_eyez_on_me = models.Album.objects.create(
+    def setUp(self):
+        self.all_eyez_on_me = models.Album.objects.create(
             title="All Eyez On Me",
             release_date=datetime.date(1996, 2, 13),
             label="Death Row Records",
             album_type="multidisc",
         )
 
-    def test_album_creation_successful(self):
+    def test_album_creation_successful_title(self):
         self.assertEqual(self.all_eyez_on_me.title, "All Eyez On Me")
+
+    def test_album_creation_successful_release_date(self):
         self.assertEqual(self.all_eyez_on_me.release_date, datetime.date(1996, 2, 13))
+
+    def test_album_creation_successful_label(self):
         self.assertEqual(self.all_eyez_on_me.label, "Death Row Records")
+
+    def test_album_creation_successful_album_type(self):
         self.assertEqual(self.all_eyez_on_me.album_type, "multidisc")
 
-    def test_album_creation_without_label_successful(self):
+    def test_create_album_without_label(self):
         doggystyle = models.Album.objects.create(
             title="Doggystyle",
             release_date=datetime.date(1993, 11, 23),
             album_type="album",
         )
 
-        self.assertEqual(doggystyle.title, "Doggystyle")
-        self.assertEqual(doggystyle.release_date, datetime.date(1993, 11, 23))
         self.assertEqual(doggystyle.label, "")
-        self.assertEqual(doggystyle.album_type, "album")
 
-    def test_album_creation_album_type_is_album_by_default(self):
+    def test_create_album_without_album_type(self):
         the_chronic = models.Album.objects.create(
-            title="The Chronic", release_date=datetime.date(1992, 12, 15)
+            title="The Chronic",
+            release_date=datetime.date(1992, 12, 15),
+            label="Death Row Records",
         )
 
-        self.assertEqual(the_chronic.title, "The Chronic")
-        self.assertEqual(the_chronic.release_date, datetime.date(1992, 12, 15))
         self.assertEqual(the_chronic.album_type, "album")
 
     def test_album_title_max_length_is_600(self):
@@ -160,12 +163,12 @@ class AlbumModelTestCase(TestCase):
     def test_album_str_method_returns_album_title(self):
         self.assertEqual(str(self.all_eyez_on_me), "All Eyez On Me")
 
-    def test_album_get_url_method_returns_album_api_resource_url(self):
+    def test_album_get_url_method_returns_album_api_url(self):
         self.assertEqual(
             self.all_eyez_on_me.get_url(), f"/api/albums/{self.all_eyez_on_me.id}"
         )
 
-    def test_album_get_songs_url_method_returns_album_songs_api_resource_url(self):
+    def test_album_get_songs_url_method_returns_album_songs_api_url(self):
         self.assertEqual(
             self.all_eyez_on_me.get_songs_url(),
             f"/api/albums/{self.all_eyez_on_me.id}/songs",
@@ -176,16 +179,13 @@ class AlbumModelTestCase(TestCase):
             models.Album.objects.create(
                 title="All Eyez On Me",
                 release_date=datetime.date(1996, 2, 13),
-                label="Death Row Records",
-                album_type="multidisc",
+                album_type="album",
             )
 
     def test_duplicate_album_creation_case_insensitive_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.Album.objects.create(
-                title="all eyez on me",
-                release_date=datetime.date(1996, 2, 13),
-                album_type="album",
+                title="all eyez on me", release_date=datetime.date(1996, 2, 13)
             )
 
     def test_albums_ordered_by_release_date(self):
