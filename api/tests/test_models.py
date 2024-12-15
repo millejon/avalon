@@ -463,41 +463,42 @@ class SongModelTestCase(TestCase):
 
 
 class SongArtistModelTestCase(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.tha_dogg_pound = models.Artist.objects.create(name="Tha Dogg Pound")
-        cls.kurupt = models.Artist.objects.create(name="Kurupt")
-        cls.daz_dillinger = models.Artist.objects.create(name="Daz Dillinger")
-        cls.prince_ital_joe = models.Artist.objects.create(name="Prince Ital Joe")
-        cls.dogg_food = models.Album.objects.create(
+    def setUp(self):
+        self.tha_dogg_pound = models.Artist.objects.create(name="Tha Dogg Pound")
+        self.kurupt = models.Artist.objects.create(name="Kurupt")
+        self.daz_dillinger = models.Artist.objects.create(name="Daz Dillinger")
+        self.prince_ital_joe = models.Artist.objects.create(name="Prince Ital Joe")
+        self.dogg_food = models.Album.objects.create(
             title="Dogg Food",
             release_date=datetime.date(1995, 10, 31),
             label="Death Row Records",
             album_type="album",
         )
-        cls.respect = models.Song.objects.create(
+        self.respect = models.Song.objects.create(
             title="Respect",
-            album=cls.dogg_food,
+            album=self.dogg_food,
             track_number=3,
             length=354,
             path="/tha-dogg-pound/dogg-food/03_respect.flac",
         )
-        cls.song_artist = models.SongArtist.objects.create(
-            song=cls.respect, artist=cls.kurupt, group=True
+        self.song_artist = models.SongArtist.objects.create(
+            song=self.respect, artist=self.kurupt, group=True
         )
 
-    def test_song_artist_creation_successful(self):
+    def test_song_artist_creation_successful_song(self):
         self.assertEqual(self.song_artist.song.title, "Respect")
+
+    def test_song_artist_creation_successful_artist(self):
         self.assertEqual(self.song_artist.artist.name, "Kurupt")
+
+    def test_song_artist_creation_successful_group(self):
         self.assertTrue(self.song_artist.group)
 
-    def test_song_artist_creation_group_is_false_by_default(self):
+    def test_song_artist_creation_without_group_successful(self):
         song_feature = models.SongArtist.objects.create(
             song=self.respect, artist=self.tha_dogg_pound
         )
 
-        self.assertEqual(song_feature.song.title, "Respect")
-        self.assertEqual(song_feature.artist.name, "Tha Dogg Pound")
         self.assertFalse(song_feature.group)
 
     def test_song_artist_group_can_be_blank(self):
@@ -516,16 +517,16 @@ class SongArtistModelTestCase(TestCase):
 
     def test_song_artists_ordered_by_song_artist_id(self):
         models.SongArtist.objects.create(song=self.respect, artist=self.tha_dogg_pound)
+        models.SongArtist.objects.create(song=self.respect, artist=self.prince_ital_joe)
         models.SongArtist.objects.create(
             song=self.respect, artist=self.daz_dillinger, group=True
         )
-        models.SongArtist.objects.create(song=self.respect, artist=self.prince_ital_joe)
         song_artists = [str(artist) for artist in models.SongArtist.objects.all()]
         expected_song_artist_order = [
             "Kurupt - Respect",
             "Tha Dogg Pound - Respect",
-            "Daz Dillinger - Respect",
             "Prince Ital Joe - Respect",
+            "Daz Dillinger - Respect",
         ]
 
         self.assertEqual(song_artists, expected_song_artist_order)
