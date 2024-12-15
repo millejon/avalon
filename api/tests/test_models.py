@@ -7,15 +7,14 @@ from api import models
 
 
 class ArtistModelTestCase(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.tupac = models.Artist.objects.create(name="2Pac", hometown="Oakland, CA")
+    def setUp(self):
+        self.tupac = models.Artist.objects.create(name="2Pac", hometown="Oakland, CA")
 
     def test_artist_creation_successful(self):
         self.assertEqual(self.tupac.name, "2Pac")
         self.assertEqual(self.tupac.hometown, "Oakland, CA")
 
-    def test_artist_creation_without_hometown_successful(self):
+    def test_create_artist_without_hometown(self):
         snoop_dogg = models.Artist.objects.create(name="Snoop Dogg")
 
         self.assertEqual(snoop_dogg.name, "Snoop Dogg")
@@ -26,7 +25,7 @@ class ArtistModelTestCase(TestCase):
 
         self.assertEqual(max_length, 100)
 
-    def test_artist_name_unique_constraint_is_true(self):
+    def test_artist_name_has_unique_constraint(self):
         unique_constraint = self.tupac._meta.get_field("name").unique
 
         self.assertTrue(unique_constraint)
@@ -44,19 +43,30 @@ class ArtistModelTestCase(TestCase):
     def test_artist_str_method_returns_artist_name(self):
         self.assertEqual(str(self.tupac), "2Pac")
 
-    def test_artist_get_url_method_returns_artist_api_resource_url(self):
+    def test_artist_get_url_method_returns_artist_api_url(self):
         self.assertEqual(self.tupac.get_url(), f"/api/artists/{self.tupac.id}")
 
-    def test_artist_get_albums_url_method_returns_artist_albums_api_resource_url(self):
+    def test_artist_get_albums_url_method_returns_artist_albums_api_url(self):
         self.assertEqual(
             self.tupac.get_albums_url(), f"/api/artists/{self.tupac.id}/albums"
         )
 
-    def test_artist_get_singles_url_method_returns_artist_singles_api_resource_url(
+    def test_artist_get_singles_url_method_returns_artist_singles_api_url(self):
+        self.assertEqual(
+            self.tupac.get_singles_url(), f"/api/artists/{self.tupac.id}/singles"
+        )
+
+    def test_artist_get_songs_url_method_returns_artist_songs_api_url(self):
+        self.assertEqual(
+            self.tupac.get_songs_url(), f"/api/artists/{self.tupac.id}/songs"
+        )
+
+    def test_artist_get_songs_produced_url_method_returns_artist_production_credits_api_url(
         self,
     ):
         self.assertEqual(
-            self.tupac.get_singles_url(), f"/api/artists/{self.tupac.id}/singles"
+            self.tupac.get_songs_produced_url(),
+            f"/api/artists/{self.tupac.id}/songs-produced",
         )
 
     def test_duplicate_artist_creation_unsuccessful(self):
