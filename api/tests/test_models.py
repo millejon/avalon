@@ -207,23 +207,24 @@ class AlbumModelTestCase(TestCase):
 
 
 class AlbumArtistModelTestCase(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.kurupt = models.Artist.objects.create(
+    def setUp(self):
+        self.kurupt = models.Artist.objects.create(
             name="Kurupt", hometown="Los Angeles, CA"
         )
-        cls.dogg_food = models.Album.objects.create(
+        self.dogg_food = models.Album.objects.create(
             title="Dogg Food",
             release_date=datetime.date(1995, 10, 31),
             label="Death Row Records",
             album_type="album",
         )
-        cls.album_artist = models.AlbumArtist.objects.create(
-            album=cls.dogg_food, artist=cls.kurupt
+        self.album_artist = models.AlbumArtist.objects.create(
+            album=self.dogg_food, artist=self.kurupt
         )
 
-    def test_album_artist_creation_successful(self):
+    def test_album_artist_creation_successful_album(self):
         self.assertEqual(self.album_artist.album.title, "Dogg Food")
+
+    def test_album_artist_creation_successful_artist(self):
         self.assertEqual(self.album_artist.artist.name, "Kurupt")
 
     def test_album_artist_str_method_returns_artist_name_album_title(self):
@@ -240,13 +241,13 @@ class AlbumArtistModelTestCase(TestCase):
         daz_dillinger = models.Artist.objects.create(
             name="Daz Dillinger", hometown="Long Beach, CA"
         )
-        models.AlbumArtist.objects.create(album=self.dogg_food, artist=tha_dogg_pound)
         models.AlbumArtist.objects.create(album=self.dogg_food, artist=daz_dillinger)
+        models.AlbumArtist.objects.create(album=self.dogg_food, artist=tha_dogg_pound)
         album_artists = [str(artist) for artist in models.AlbumArtist.objects.all()]
         expected_album_artist_order = [
             "Kurupt - Dogg Food",
-            "Tha Dogg Pound - Dogg Food",
             "Daz Dillinger - Dogg Food",
+            "Tha Dogg Pound - Dogg Food",
         ]
 
         self.assertEqual(album_artists, expected_album_artist_order)
