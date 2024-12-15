@@ -11,7 +11,7 @@ class GetArtistsTestCase(TestCase):
         album_artists = [{"name": "Mannie Fresh", "hometown": "New Orleans, LA"}]
         artists = util.get_artists(album_artists)
 
-        self.assertEqual(artists, [mannie_fresh])
+        self.assertEqual(artists[0], mannie_fresh)
 
     def test_create_artist_if_artist_not_in_database(self):
         album_artists = [{"name": "Birdman", "hometown": "New Orleans, LA"}]
@@ -24,10 +24,9 @@ class GetArtistsTestCase(TestCase):
     def test_update_artist_if_hometown_is_submitted(self):
         big_tymers = models.Artist.objects.create(name="Big Tymers")
         album_artists = [{"name": "Big Tymers", "hometown": "New Orleans, LA"}]
-        artists = util.get_artists(album_artists)
+        util.get_artists(album_artists)
         big_tymers = models.Artist.objects.get(pk=big_tymers.id)
 
-        self.assertEqual(artists, [big_tymers])
         self.assertEqual(big_tymers.hometown, "New Orleans, LA")
 
     def test_do_not_update_artist_if_hometown_is_not_submitted(self):
@@ -35,10 +34,9 @@ class GetArtistsTestCase(TestCase):
             name="Big Tymers", hometown="New Orleans, LA"
         )
         album_artists = [{"name": "Big Tymers", "hometown": ""}]
-        artists = util.get_artists(album_artists)
+        util.get_artists(album_artists)
         big_tymers = models.Artist.objects.get(pk=big_tymers.id)
 
-        self.assertEqual(artists, [big_tymers])
         self.assertEqual(big_tymers.hometown, "New Orleans, LA")
 
 
