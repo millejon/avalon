@@ -16,7 +16,7 @@ class ArtistModelTestCase(TestCase):
     def test_artist_creation_successful_hometown(self):
         self.assertEqual(self.tupac.hometown, "Oakland, CA")
 
-    def test_create_artist_without_hometown(self):
+    def test_artist_creation_without_hometown_successful(self):
         snoop_dogg = models.Artist.objects.create(name="Snoop Dogg")
 
         self.assertEqual(snoop_dogg.hometown, "")
@@ -107,7 +107,7 @@ class AlbumModelTestCase(TestCase):
     def test_album_creation_successful_album_type(self):
         self.assertEqual(self.all_eyez_on_me.album_type, "multidisc")
 
-    def test_create_album_without_label(self):
+    def test_album_creation_without_label_successful(self):
         doggystyle = models.Album.objects.create(
             title="Doggystyle",
             release_date=datetime.date(1993, 11, 23),
@@ -116,7 +116,7 @@ class AlbumModelTestCase(TestCase):
 
         self.assertEqual(doggystyle.label, "")
 
-    def test_create_album_without_album_type(self):
+    def test_album_creation_without_album_type_successful(self):
         the_chronic = models.Album.objects.create(
             title="The Chronic",
             release_date=datetime.date(1992, 12, 15),
@@ -254,23 +254,22 @@ class AlbumArtistModelTestCase(TestCase):
 
 
 class SongModelTestCase(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.above_the_rim = models.Album.objects.create(
+    def setUp(self):
+        self.above_the_rim = models.Album.objects.create(
             title="Above The Rim Soundtrack",
             release_date=datetime.date(1994, 3, 22),
             label="Death Row Records",
             album_type="album",
         )
-        cls.gang_related = models.Album.objects.create(
+        self.gang_related = models.Album.objects.create(
             title="Gang Related Soundtrack",
             release_date=datetime.date(1997, 10, 7),
             label="Death Row Records",
             album_type="multidisc",
         )
-        cls.regulate = models.Song.objects.create(
+        self.regulate = models.Song.objects.create(
             title="Regulate",
-            album=cls.above_the_rim,
+            album=self.above_the_rim,
             disc=1,
             track_number=7,
             length=251,
@@ -278,19 +277,31 @@ class SongModelTestCase(TestCase):
             play_count=5,
         )
 
-    def test_song_creation_successful(self):
+    def test_song_creation_successful_title(self):
         self.assertEqual(self.regulate.title, "Regulate")
+
+    def test_song_creation_successful_album(self):
         self.assertEqual(self.regulate.album.title, "Above The Rim Soundtrack")
+
+    def test_song_creation_successful_disc(self):
         self.assertEqual(self.regulate.disc, 1)
+
+    def test_song_creation_successful_track_number(self):
         self.assertEqual(self.regulate.track_number, 7)
+
+    def test_song_creation_successful_length(self):
         self.assertEqual(self.regulate.length, 251)
+
+    def test_song_creation_successful_path(self):
         self.assertEqual(
             self.regulate.path,
             "/various-artists/above-the-rim-soundtrack/07_regulate.flac",
         )
+
+    def test_song_creation_successful_play_count(self):
         self.assertEqual(self.regulate.play_count, 5)
 
-    def test_song_creation_disc_is_1_by_default(self):
+    def test_song_creation_without_disc_successful(self):
         way_too_major = models.Song.objects.create(
             title="Way Too Major",
             album=self.gang_related,
@@ -300,10 +311,9 @@ class SongModelTestCase(TestCase):
             play_count=2,
         )
 
-        self.assertEqual(way_too_major.title, "Way Too Major")
         self.assertEqual(way_too_major.disc, 1)
 
-    def test_song_creation_play_count_is_0_by_default(self):
+    def test_song_creation_without_play_count_successful(self):
         big_pimpin = models.Song.objects.create(
             title="Big Pimpin'",
             album=self.above_the_rim,
@@ -312,7 +322,6 @@ class SongModelTestCase(TestCase):
             path="/various-artists/above-the-rim-soundtrack/04_big_pimpin.flac",
         )
 
-        self.assertEqual(big_pimpin.title, "Big Pimpin'")
         self.assertEqual(big_pimpin.play_count, 0)
 
     def test_song_title_max_length_is_600(self):
@@ -335,7 +344,7 @@ class SongModelTestCase(TestCase):
 
         self.assertEqual(max_length, 1000)
 
-    def test_song_path_unique_constraint_is_true(self):
+    def test_song_path_has_unique_constraint(self):
         unique_constraint = self.regulate._meta.get_field("path").unique
 
         self.assertTrue(unique_constraint)
@@ -343,16 +352,16 @@ class SongModelTestCase(TestCase):
     def test_song_str_method_returns_track_number_song_title_album_title(self):
         self.assertEqual(str(self.regulate), "7. Regulate [Above The Rim Soundtrack]")
 
-    def test_song_get_url_method_returns_song_api_resource_url(self):
+    def test_song_get_url_method_returns_song_api_url(self):
         self.assertEqual(self.regulate.get_url(), f"/api/songs/{self.regulate.id}")
 
     def test_duplicate_song_creation_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.Song.objects.create(
-                title="Regulate",
+                title="regulate",
                 album=self.above_the_rim,
                 track_number=7,
-                length=251,
+                length=250,
                 path="/various-artists/above-the-rim-soundtrack/07_regulate.flac",
                 play_count=10,
             )
@@ -368,7 +377,7 @@ class SongModelTestCase(TestCase):
                 play_count=10,
             )
 
-    def test_song_creation_duplicate_track_number_unsuccessful(self):
+    def test_song_creation_with_duplicate_track_number_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.Song.objects.create(
                 title="Pour Out A Little Liquor",
@@ -378,7 +387,7 @@ class SongModelTestCase(TestCase):
                 path="/various-artists/above-the-rim-soundtrack/07_pour_out_a_little_liquor.flac",
             )
 
-    def test_song_creation_invalid_disc_number_unsuccessful(self):
+    def test_song_creation_with_invalid_disc_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.Song.objects.create(
                 title="Get Yo Bang on",
@@ -389,7 +398,7 @@ class SongModelTestCase(TestCase):
                 path="/various-artists/gang-related-soundtrack/disc-1/04_get_yo_bang_on.flac",
             )
 
-    def test_song_creation_invalid_track_number_unsuccessful(self):
+    def test_song_creation_with_invalid_track_number_unsuccessful(self):
         with self.assertRaises(IntegrityError):
             models.Song.objects.create(
                 title="Pain",
