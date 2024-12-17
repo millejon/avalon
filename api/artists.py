@@ -32,9 +32,16 @@ def create_artist(request, data: schema.ArtistIn):
         return 201, artist
 
 
-@router.get("{int:id}")
+@router.get("{int:id}", response={200: schema.ArtistOut, codes_4xx: schema.Error})
 def retrieve_artist(request, id: int):
-    pass
+    try:
+        artist = models.Artist.objects.get(pk=id)
+
+    except models.Artist.DoesNotExist:
+        return 404, {"error": f"Artist with id = {id} does not exist."}
+
+    else:
+        return artist
 
 
 @router.get("{int:id}/albums")
